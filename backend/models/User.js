@@ -1,8 +1,7 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs'); // For password hashing
+const bcrypt = require('bcryptjs');
 const { Schema } = mongoose;
 
-// User schema definition
 const userSchema = new Schema(
   {
     name: {
@@ -19,26 +18,27 @@ const userSchema = new Schema(
     phone: {
       type: String,
       unique: true,
+      sparse: true, // Allows multiple null values while ensuring uniqueness when set
     },
     role: {
       type: String,
       enum: ['passenger', 'driver'],
-      default: "passenger",
+      default: 'passenger',
     },
     googleId: {
       type: String,
       unique: true,
+      sparse: true, // Allows multiple null values while ensuring uniqueness when set
     },
     password: {
       type: String,
+      select: false, // Exclude password from queries by default
     },
   },
-  {
-    timestamps: true, // Automatically adds createdAt and updatedAt fields
-  }
+  { timestamps: true }
 );
 
-// Pre-save hook to hash the password before saving if it's provided
+// Hash password before saving if it exists
 userSchema.pre('save', async function (next) {
   if (this.password && this.isModified('password')) {
     this.password = await bcrypt.hash(this.password, 10);
@@ -46,8 +46,9 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-// Method to check if password matches (for login)
+// Compare password method
 userSchema.methods.comparePassword = async function (password) {
+  if (!this.password) return false; // Prevent password comparison for Google users
   return await bcrypt.compare(password, this.password);
 };
 

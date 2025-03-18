@@ -1,53 +1,83 @@
-const User = require("../models/User");
-const generateToken = require("../utils/generateToken");
+const User = require('../models/User');
+const generateToken = require('../utils/generateToken');
 
 // Register User
-const register = async (req, res) => {
-  const { name, email, password, role } = req.body;
-
+const registerUser = async (req, res) => {
   try {
-    const userExists = await User.findOne({ email });
-    if (userExists) return res.status(400).json({ message: "User already exists" });
+    const { name, email, password } = req.body;
 
-    const user = await User.create({ name, email, password, role });
-
-    if (user) {
-      res.status(201).json({
-        _id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        token: generateToken(user.id),
-      });
-    } else {
-      res.status(400).json({ message: "Invalid user data" });
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: 'All fields are required' });
     }
+
+    const userExists = await User.findOne({ email });
+    if (userExists) return res.status(400).json({ message: 'Email already in use' });
+
+    const newUser = await User.create({ name, email, password });
+
+    res.status(201).json({
+      message: 'User registered successfully',
+      user: {
+        id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+      },
+      token: generateToken(newUser._id, newUser.email),
+    });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
 // Login User
-const login = async (req, res) => {
-  const { email, password } = req.body;
-
+const loginUser = async (req, res) => {
   try {
-    const user = await User.findOne({ email });
-    if (!user) return res.status(401).json({ message: "Invalid credentials" });
+    const { email, password } = req.body;
 
-    const isMatch = await user.matchPassword(password);
-    if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
+    if (!email || !password) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    // Explicitly select password field
+    const user = await User.findOne({ email }).select('+password');
+
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    // Check if the user registered with Google (no password set)
+    if (!user.password) {
+      return res.status(401).json({ message: 'Please log in with Google' });
+    }
+
+    // Compare passwords
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
 
     res.json({
-      _id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      token: generateToken(user.id),
+      message: 'Login successful',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+      token: generateToken(user._id, user.email),
     });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
-module.exports = { register, login };
+// Get User Profile (Protected Route)
+const getUserProfile = async (req, res) => {
+  res.json(req.user);
+};
+
+module.exports = {
+  registerUser,
+  loginUser,
+  getUserProfile,
+};

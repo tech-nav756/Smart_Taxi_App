@@ -1,5 +1,8 @@
 const express = require("express");
 const passport = require("passport");
+const authController = require('../controllers/authController');
+const { protect } = require('../middlewares/authMiddleware');
+
 
 const router = express.Router();
 
@@ -21,5 +24,9 @@ router.get(
     });
   }
 );
+
+router.post('/register', authController.registerUser);
+router.post('/login', authController.loginUser);
+router.get('/profile', protect, authController.getUserProfile);
 
 module.exports = router;

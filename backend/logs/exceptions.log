@@ -82,3 +82,15 @@ SyntaxError: Unexpected token '}'
     at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/config/passport.js:3:14)
     at Module._compile (node:internal/modules/cjs/loader:1469:14)
     at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+[2025-03-18T12:55:23.447Z] [31merror[39m: uncaughtException: write after end
+Error: write after end
+    at writeAfterEnd (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_writable.js:264:12)
+    at Writable.write (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_writable.js:300:21)
+    at File.log (/workspaces/Smart_Taxi_App/backend/node_modules/winston/lib/winston/transports/file.js:222:34)
+    at RejectionStream._write (/workspaces/Smart_Taxi_App/backend/node_modules/winston/lib/winston/rejection-stream.js:46:29)
+    at doWrite (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+    at writeOrBuffer (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_writable.js:381:5)
+    at Writable.write (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_writable.js:302:11)
+    at DerivedLogger.ondata (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_readable.js:629:20)
+    at DerivedLogger.emit (node:events:530:35)
+    at addChunk (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_readable.js:279:12)
