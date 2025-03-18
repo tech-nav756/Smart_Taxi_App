@@ -1,0 +1,41 @@
+[2025-03-18T06:57:35.647Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-00.odwdk.mongodb.net
+[2025-03-18T07:54:25.386Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-00.odwdk.mongodb.net
+[2025-03-18T07:58:20.075Z] [31merror[39m: unhandledRejection: Connection.prototype.close() no longer accepts a callback
+MongooseError: Connection.prototype.close() no longer accepts a callback
+    at NativeConnection.close (/workspaces/Smart_Taxi_App/backend/node_modules/mongoose/lib/connection.js:1205:11)
+    at process.<anonymous> (/workspaces/Smart_Taxi_App/backend/middlewares/dbDisconnectMiddleware.js:9:25)
+    at process.emit (node:events:518:28)
+[2025-03-18T07:58:20.085Z] [31merror[39m: unhandledRejection: Connection.prototype.close() no longer accepts a callback
+MongooseError: Connection.prototype.close() no longer accepts a callback
+    at NativeConnection.close (/workspaces/Smart_Taxi_App/backend/node_modules/mongoose/lib/connection.js:1205:11)
+    at process.<anonymous> (/workspaces/Smart_Taxi_App/backend/middlewares/dbDisconnectMiddleware.js:9:25)
+    at process.emit (node:events:518:28)
+[2025-03-18T07:58:20.102Z] [31merror[39m: unhandledRejection: Connection.prototype.close() no longer accepts a callback
+MongooseError: Connection.prototype.close() no longer accepts a callback
+    at NativeConnection.close (/workspaces/Smart_Taxi_App/backend/node_modules/mongoose/lib/connection.js:1205:11)
+    at process.<anonymous> (/workspaces/Smart_Taxi_App/backend/middlewares/dbDisconnectMiddleware.js:9:25)
+    at process.emit (node:events:518:28)
+[2025-03-18T07:58:38.960Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-00.odwdk.mongodb.net
+[2025-03-18T08:03:35.825Z] [31merror[39m: unhandledRejection: Connection.prototype.close() no longer accepts a callback
+MongooseError: Connection.prototype.close() no longer accepts a callback
+    at NativeConnection.close (/workspaces/Smart_Taxi_App/backend/node_modules/mongoose/lib/connection.js:1205:11)
+    at process.<anonymous> (/workspaces/Smart_Taxi_App/backend/middlewares/dbDisconnectMiddleware.js:9:25)
+    at process.emit (node:events:518:28)
+[2025-03-18T08:03:35.836Z] [31merror[39m: unhandledRejection: Connection.prototype.close() no longer accepts a callback
+MongooseError: Connection.prototype.close() no longer accepts a callback
+    at NativeConnection.close (/workspaces/Smart_Taxi_App/backend/node_modules/mongoose/lib/connection.js:1205:11)
+    at process.<anonymous> (/workspaces/Smart_Taxi_App/backend/middlewares/dbDisconnectMiddleware.js:9:25)
+    at process.emit (node:events:518:28)
+[2025-03-18T08:03:35.848Z] [31merror[39m: unhandledRejection: Connection.prototype.close() no longer accepts a callback
+MongooseError: Connection.prototype.close() no longer accepts a callback
+    at NativeConnection.close (/workspaces/Smart_Taxi_App/backend/node_modules/mongoose/lib/connection.js:1205:11)
+    at process.<anonymous> (/workspaces/Smart_Taxi_App/backend/middlewares/dbDisconnectMiddleware.js:9:25)
+    at process.emit (node:events:518:28)
+[2025-03-18T08:04:14.643Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-01.odwdk.mongodb.net
+[2025-03-18T08:05:53.899Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-00.odwdk.mongodb.net
+[2025-03-18T08:06:25.445Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-02.odwdk.mongodb.net
+[2025-03-18T08:06:35.591Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-01.odwdk.mongodb.net
+[2025-03-18T08:20:40.122Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-00.odwdk.mongodb.net
+[2025-03-18T08:20:52.512Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-00.odwdk.mongodb.net
+[2025-03-18T08:20:55.848Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-00.odwdk.mongodb.net
+[2025-03-18T08:21:00.886Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-00.odwdk.mongodb.net

@@ -1,0 +1,84 @@
+[2025-03-18T07:58:20.088Z] [31merror[39m: uncaughtException: write after end
+Error: write after end
+    at writeAfterEnd (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_writable.js:264:12)
+    at Writable.write (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_writable.js:300:21)
+    at File.log (/workspaces/Smart_Taxi_App/backend/node_modules/winston/lib/winston/transports/file.js:222:34)
+    at RejectionStream._write (/workspaces/Smart_Taxi_App/backend/node_modules/winston/lib/winston/rejection-stream.js:46:29)
+    at doWrite (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+    at writeOrBuffer (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_writable.js:381:5)
+    at Writable.write (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_writable.js:302:11)
+    at DerivedLogger.ondata (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_readable.js:629:20)
+    at DerivedLogger.emit (node:events:530:35)
+    at addChunk (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_readable.js:279:12)
+[2025-03-18T08:03:35.838Z] [31merror[39m: uncaughtException: write after end
+Error: write after end
+    at writeAfterEnd (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_writable.js:264:12)
+    at Writable.write (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_writable.js:300:21)
+    at File.log (/workspaces/Smart_Taxi_App/backend/node_modules/winston/lib/winston/transports/file.js:222:34)
+    at RejectionStream._write (/workspaces/Smart_Taxi_App/backend/node_modules/winston/lib/winston/rejection-stream.js:46:29)
+    at doWrite (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+    at writeOrBuffer (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_writable.js:381:5)
+    at Writable.write (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_writable.js:302:11)
+    at DerivedLogger.ondata (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_readable.js:629:20)
+    at DerivedLogger.emit (node:events:530:35)
+    at addChunk (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_readable.js:279:12)
+[2025-03-18T08:05:55.463Z] [31merror[39m: uncaughtException: defaul is not defined
+ReferenceError: defaul is not defined
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/models/User.js:30:7)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/config/passport.js:3:14)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+[2025-03-18T08:05:57.770Z] [31merror[39m: uncaughtException: Unexpected token 'default'
+/workspaces/Smart_Taxi_App/backend/models/User.js:30
+      default
+      ^^^^^^^
+
+SyntaxError: Unexpected token 'default'
+    at wrapSafe (node:internal/modules/cjs/loader:1378:20)
+    at Module._compile (node:internal/modules/cjs/loader:1428:41)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/config/passport.js:3:14)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+[2025-03-18T08:06:00.536Z] [31merror[39m: uncaughtException: Unexpected token '}'
+/workspaces/Smart_Taxi_App/backend/models/User.js:31
+    },
+    ^
+
+SyntaxError: Unexpected token '}'
+    at wrapSafe (node:internal/modules/cjs/loader:1378:20)
+    at Module._compile (node:internal/modules/cjs/loader:1428:41)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/config/passport.js:3:14)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+[2025-03-18T08:06:02.839Z] [31merror[39m: uncaughtException: Unexpected token '}'
+/workspaces/Smart_Taxi_App/backend/models/User.js:31
+    },
+    ^
+
+SyntaxError: Unexpected token '}'
+    at wrapSafe (node:internal/modules/cjs/loader:1378:20)
+    at Module._compile (node:internal/modules/cjs/loader:1428:41)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/config/passport.js:3:14)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)

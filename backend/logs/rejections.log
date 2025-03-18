@@ -1,0 +1,10 @@
+[2025-03-18T07:58:20.075Z] [31merror[39m: unhandledRejection: Connection.prototype.close() no longer accepts a callback
+MongooseError: Connection.prototype.close() no longer accepts a callback
+    at NativeConnection.close (/workspaces/Smart_Taxi_App/backend/node_modules/mongoose/lib/connection.js:1205:11)
+    at process.<anonymous> (/workspaces/Smart_Taxi_App/backend/middlewares/dbDisconnectMiddleware.js:9:25)
+    at process.emit (node:events:518:28)
+[2025-03-18T08:03:35.825Z] [31merror[39m: unhandledRejection: Connection.prototype.close() no longer accepts a callback
+MongooseError: Connection.prototype.close() no longer accepts a callback
+    at NativeConnection.close (/workspaces/Smart_Taxi_App/backend/node_modules/mongoose/lib/connection.js:1205:11)
+    at process.<anonymous> (/workspaces/Smart_Taxi_App/backend/middlewares/dbDisconnectMiddleware.js:9:25)
+    at process.emit (node:events:518:28)
