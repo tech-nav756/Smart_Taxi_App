@@ -1,8 +1,10 @@
 const User = require('../models/User');
+const sendEmail = require('../utils/sendEmail');
 const generateToken = require('../utils/generateToken');
+const crypto = require('crypto');
 
 // Register User
-const registerUser = async (req, res) => {
+exports.registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
@@ -30,7 +32,7 @@ const registerUser = async (req, res) => {
 };
 
 // Login User
-const loginUser = async (req, res) => {
+exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -38,19 +40,16 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
-    // Explicitly select password field
     const user = await User.findOne({ email }).select('+password');
 
     if (!user) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    // Check if the user registered with Google (no password set)
     if (!user.password) {
       return res.status(401).json({ message: 'Please log in with Google' });
     }
 
-    // Compare passwords
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid email or password' });
@@ -71,13 +70,57 @@ const loginUser = async (req, res) => {
   }
 };
 
-// Get User Profile (Protected Route)
-const getUserProfile = async (req, res) => {
-  res.json(req.user);
+// Request password reset
+exports.requestPasswordReset = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: 'Email is required' });
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    // Generate reset token
+    const resetToken = user.generateResetToken();
+    await user.save();
+
+    // Construct reset URL
+    const resetUrl = `${process.env.BASE_URL}/auth/reset-password/${resetToken}`;
+    const message = `You requested a password reset. Click here to reset your password: ${resetUrl}`;
+    
+    await sendEmail(user.email, 'Password Reset', message);
+    res.json({ message: 'Password reset link sent to your email' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
 };
 
-module.exports = {
-  registerUser,
-  loginUser,
-  getUserProfile,
+// Reset password
+exports.resetPassword = async (req, res) => {
+  try {
+    const { newPassword } = req.body;
+    const { token } = req.params; // Get token from URL params
+
+    if (!token || !newPassword) {
+      return res.status(400).json({ message: 'Invalid request' });
+    }
+
+    // Hash the token and check in the database
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!user) return res.status(400).json({ message: 'Invalid or expired token' });
+
+    // Update password and clear reset fields
+    user.password = newPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.json({ message: 'Password reset successful. You can now log in' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
 };

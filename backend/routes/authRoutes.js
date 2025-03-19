@@ -27,6 +27,10 @@ router.get(
 
 router.post('/register', authController.registerUser);
 router.post('/login', authController.loginUser);
-router.get('/profile', protect, authController.getUserProfile);
+
+
+router.post('/forgot-password', authController.requestPasswordReset);
+router.post('/reset-password/:token', authController.resetPassword);
+
 
 module.exports = router;

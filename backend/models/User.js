@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const crypto = require("crypto")
 const { Schema } = mongoose;
 
 const userSchema = new Schema(
@@ -21,9 +22,8 @@ const userSchema = new Schema(
       sparse: true, // Allows multiple null values while ensuring uniqueness when set
     },
     role: {
-      type: String,
-      enum: ['passenger', 'driver'],
-      default: 'passenger',
+      type: [String],
+      default: ['passenger'],
     },
     googleId: {
       type: String,
@@ -34,6 +34,8 @@ const userSchema = new Schema(
       type: String,
       select: false, // Exclude password from queries by default
     },
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
   },
   { timestamps: true }
 );
@@ -50,6 +52,15 @@ userSchema.pre('save', async function (next) {
 userSchema.methods.comparePassword = async function (password) {
   if (!this.password) return false; // Prevent password comparison for Google users
   return await bcrypt.compare(password, this.password);
+};
+
+
+// Generate password reset token
+userSchema.methods.generateResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  this.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+  this.resetPasswordExpires = Date.now() + 3600000; // Token valid for 1 hour
+  return resetToken;
 };
 
 module.exports = mongoose.model('User', userSchema);

@@ -9,10 +9,10 @@ const gracefulShutdown = require('./middlewares/dbDisconnectMiddleware');
 const getClientIP = require('./utils/ipUtils');
 const {connectDB} = require('./config/db');
 const passport = require("./config/passport");
+const userRoutes = require('./routes/userRoutes'); 
 const authRoutes = require("./routes/authRoutes");
 
 const app = express();
-
 
 
 // Middleware setup
@@ -30,6 +30,7 @@ gracefulShutdown();
 
 app.use(passport.initialize());
 app.use("/auth", authRoutes);
+app.use('/dashboard', userRoutes);
 
 // Example route (signup)
 app.post('/signup', validateSignup, validateErrors, (req, res) => {
