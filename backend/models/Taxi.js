@@ -41,7 +41,7 @@ const taxiSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["waiting", "available", "almost full", "full", "on trip", "not available"],
+      enum: ["waiting", "available", "roaming","almost full", "full", "on trip", "not available"],
       default: "not available",
     },
     location: {

@@ -1,4 +1,3 @@
-
 const Taxi = require("../models/Taxi");
 const Route = require("../models/Route");
 
@@ -33,6 +32,7 @@ exports.addTaxi = async (req, res) => {
       driverId: req.user._id,
       capacity,
       location,
+      status: "not available",
     });
 
     res.status(201).json({ message: "Taxi added successfully.", taxi });
@@ -41,61 +41,74 @@ exports.addTaxi = async (req, res) => {
   }
 };
 
-
 // Update taxi status (Only by the driver who owns the taxi)
 exports.updateTaxiStatus = async (req, res) => {
-    try {
-      const { taxiId } = req.params;
-      const { status } = req.body;
-  
-      const taxi = await Taxi.findOne({ _id: taxiId, driverId: req.user._id });
-      if (!taxi) {
-        return res.status(404).json({ message: "Taxi not found or access denied." });
-      }
-  
-      if (!["waiting", "available", "almost full", "full", "on trip", "not available"].includes(status)) {
-        return res.status(400).json({ message: "Invalid status value." });
-      }
-  
-      taxi.status = status;
-      await taxi.save();
-  
-      res.json({ message: "Taxi status updated successfully.", taxi });
-    } catch (error) {
-      res.status(500).json({ message: "Server error.", error: error.message });
+  try {
+    const { taxiId } = req.params;
+    const { status } = req.body;
+
+    const taxi = await Taxi.findOne({ _id: taxiId, driverId: req.user._id });
+    if (!taxi) {
+      return res.status(404).json({ message: "Taxi not found or access denied." });
     }
-  };
-  
-  // Update taxi load (Only by the driver who owns the taxi)
-  exports.updateTaxiLoad = async (req, res) => {
-    try {
-      const { taxiId } = req.params;
-      const { currentLoad } = req.body;
-  
-      const taxi = await Taxi.findOne({ _id: taxiId, driverId: req.user._id });
-      if (!taxi) {
-        return res.status(404).json({ message: "Taxi not found or access denied." });
-      }
-  
-      if (currentLoad < 0 || currentLoad > taxi.capacity) {
-        return res.status(400).json({ message: "Invalid load value." });
-      }
-  
-      taxi.currentLoad = currentLoad;
-      await taxi.save();
-  
-      res.json({ message: "Taxi load updated successfully.", taxi });
-    } catch (error) {
-      res.status(500).json({ message: "Server error.", error: error.message });
+
+    if (!["waiting", "available", "almost full", "full", "on trip", "not available"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status value." });
     }
-  };
-  
-  // Get all taxis owned by a driver
-  exports.getDriverTaxis = async (req, res) => {
-    try {
-      const taxis = await Taxi.find({ driverId: req.user._id });
-      res.json({ taxis });
-    } catch (error) {
-      res.status(500).json({ message: "Server error.", error: error.message });
+
+    taxi.status = status;
+    await taxi.save();
+
+    res.json({ message: "Taxi status updated successfully.", taxi });
+  } catch (error) {
+    res.status(500).json({ message: "Server error.", error: error.message });
+  }
+};
+
+// Update taxi load (Only by the driver who owns the taxi)
+exports.updateTaxiLoad = async (req, res) => {
+  try {
+    const { taxiId } = req.params;
+    const { currentLoad } = req.body;
+
+    const taxi = await Taxi.findOne({ _id: taxiId, driverId: req.user._id });
+    if (!taxi) {
+      return res.status(404).json({ message: "Taxi not found or access denied." });
     }
-  };
+
+    if (typeof currentLoad !== "number" || currentLoad < 0) {
+      return res.status(400).json({ message: "Invalid passenger count." });
+    }
+
+    if (currentLoad > taxi.capacity) {
+      return res.status(400).json({ message: "Load exceeds taxi capacity." });
+    }
+
+    // Update load
+    taxi.currentLoad = currentLoad;
+
+    // Update status based on load
+    if (currentLoad === 0) {
+      taxi.status = "available";
+    } else if (currentLoad < taxi.capacity * 0.8) {
+      taxi.status = "almost full";
+    } else if (currentLoad >= taxi.capacity) {
+      taxi.status = "full";
+    }
+
+    await taxi.save();
+    res.json({ message: "Taxi load updated successfully.", taxi });
+  } catch (error) {
+    res.status(500).json({ message: "Server error.", error: error.message });
+  }
+};
+
+// Get all taxis owned by a driver
+exports.getDriverTaxis = async (req, res) => {
+  try {
+    const taxis = await Taxi.find({ driverId: req.user._id });
+    res.json({ taxis });
+  } catch (error) {
+    res.status(500).json({ message: "Server error.", error: error.message });
+  }
+};

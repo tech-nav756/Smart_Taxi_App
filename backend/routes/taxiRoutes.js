@@ -13,5 +13,5 @@ router.post("/addTaxi", taxiController.addTaxi);
 router.patch("/:taxiId/status", taxiController.updateTaxiStatus);
 router.patch("/:taxiId/load", taxiController.updateTaxiLoad);
 router.get("/my-taxis", taxiController.getDriverTaxis);
-
+router.patch("/:taxiId/load", authorizeRoles(["driver"]), taxiController.updateTaxiLoad);
 module.exports = router;
