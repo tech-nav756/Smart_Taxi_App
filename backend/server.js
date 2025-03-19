@@ -1,4 +1,6 @@
+const http = require('http');
 const express = require('express');
+const { initializeSocket } = require('./socket');
 const dotenv = require('dotenv').config();
 const helmetMiddleware = require('./middlewares/helmetMiddleware');
 const rateLimiterMiddleware = require('./middlewares/rateLimiterMiddleware');
@@ -13,6 +15,7 @@ const userRoutes = require('./routes/userRoutes');
 const authRoutes = require("./routes/authRoutes");
 const taxiRoutes = require("./routes/taxiRoutes");
 const taxirouteRoutes = require("./routes/taxirouteRoutes");
+const rideRequestRoutes = require('./routes/rideRequestRoutes');
 
 
 
@@ -26,7 +29,8 @@ app.use(rateLimiterMiddleware);
 app.use(corsMiddleware);
 app.use(forceHttpsMiddleware);
 
-
+const server = http.createServer(app);
+initializeSocket(server);
 connectDB();
 
 // Graceful shutdown
@@ -37,6 +41,7 @@ app.use("/auth", authRoutes);
 app.use('/dashboard', userRoutes);
 app.use('/taxis', taxiRoutes)
 app.use("/admin/routes", taxirouteRoutes);
+app.use('/ride-requests', rideRequestRoutes);
 
 
 // Example route (signup
@@ -52,3 +57,5 @@ const port = process.env.PORT || 5000;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
+module.exports = server

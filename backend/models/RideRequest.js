@@ -10,14 +10,19 @@ const rideRequestSchema = new Schema(
       ref: 'User',
       required: true,
     },
-    taxiId: {
+    assignedTaxiId: {
       type: Schema.Types.ObjectId,
       ref: 'Taxi',
-      required: true,
+      default: null, // Assigned automatically when available
+    },
+    assignedBy: {
+      type: String,
+      enum: ['system', 'admin'],
+      default: 'system', // Most assignments will be automated
     },
     status: {
       type: String,
-      enum: ['pending', 'accepted', 'completed', 'cancelled'],
+      enum: ['pending', 'assigned', 'accepted', 'completed', 'cancelled'],
       default: 'pending',
     },
     pickupLocation: {
@@ -48,7 +53,8 @@ const rideRequestSchema = new Schema(
   }
 );
 
+// Indexes for geospatial queries
 rideRequestSchema.index({ pickupLocation: '2dsphere' });
 rideRequestSchema.index({ dropoffLocation: '2dsphere' });
 
-module.exports = mongoose.model('PickUp', rideRequestSchema);
+module.exports = mongoose.model('RideRequest', rideRequestSchema);
