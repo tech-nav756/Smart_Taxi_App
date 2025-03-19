@@ -11,6 +11,10 @@ const {connectDB} = require('./config/db');
 const passport = require("./config/passport");
 const userRoutes = require('./routes/userRoutes'); 
 const authRoutes = require("./routes/authRoutes");
+const taxiRoutes = require("./routes/taxiRoutes");
+const taxirouteRoutes = require("./routes/taxirouteRoutes");
+
+
 
 const app = express();
 
@@ -31,8 +35,11 @@ gracefulShutdown();
 app.use(passport.initialize());
 app.use("/auth", authRoutes);
 app.use('/dashboard', userRoutes);
+app.use('/taxis', taxiRoutes)
+app.use("/admin/routes", taxirouteRoutes);
 
-// Example route (signup)
+
+// Example route (signup
 app.post('/signup', validateSignup, validateErrors, (req, res) => {
   const clientIP = getClientIP(req); // Extract client IP securely
   console.log('Client IP:', clientIP); // Logs the securely extracted client IP

@@ -1,23 +1,19 @@
-// models/Route.js
+const mongoose = require("mongoose");
 
-const mongoose = require('mongoose');
-const { Schema } = mongoose;
-
-// Route schema definition
-const routeSchema = new Schema(
+const routeSchema = new mongoose.Schema(
   {
-    name: {
+    routeName: {
       type: String,
       required: true,
-      trim: true,
       unique: true,
+      trim: true,
     },
-    startPoint: {
+    startLocation: {
       type: String,
       required: true,
       trim: true,
     },
-    endPoint: {
+    endLocation: {
       type: String,
       required: true,
       trim: true,
@@ -25,11 +21,11 @@ const routeSchema = new Schema(
     estimatedTime: {
       type: Number, // Time in minutes
       required: true,
+      default: 15, // Default estimate (adjustable)
     },
   },
-  {
-    timestamps: true, // Automatically adds createdAt and updatedAt fields
-  }
+  { timestamps: true }
 );
 
-module.exports = mongoose.model('Route', routeSchema);
+const Route = mongoose.model("Route", routeSchema);
+module.exports = Route;

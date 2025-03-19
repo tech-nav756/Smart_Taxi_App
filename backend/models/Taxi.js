@@ -1,10 +1,6 @@
-// models/Taxi.js
+const mongoose = require("mongoose");
 
-const mongoose = require('mongoose');
-const { Schema } = mongoose;
-
-// Taxi schema definition
-const taxiSchema = new Schema(
+const taxiSchema = new mongoose.Schema(
   {
     taxiId: {
       type: String,
@@ -15,15 +11,16 @@ const taxiSchema = new Schema(
       type: String,
       required: true,
       unique: true,
+      trim: true,
     },
     routeId: {
-      type: Schema.Types.ObjectId,
-      ref: 'Route',
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Route",
       required: true,
     },
     driverId: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
     capacity: {
@@ -35,33 +32,26 @@ const taxiSchema = new Schema(
       type: Number,
       default: 0,
       min: 0,
-      max: function () {
-        return this.capacity;
+      validate: {
+        validator: function (value) {
+          return value <= this.capacity;
+        },
+        message: "Current load cannot exceed capacity.",
       },
     },
     status: {
       type: String,
-      enum: ['waiting', 'available', 'almost full', 'full', 'on-trip'],
-      default: 'available',
+      enum: ["waiting", "available", "almost full", "full", "on trip", "not available"],
+      default: "not available",
     },
     location: {
-      type: {
-        type: String,
-        enum: ['Point'],
-        required: true,
-      },
-      coordinates: {
-        type: [Number], // [longitude, latitude]
-        required: true,
-      },
+      type: String,
+      required: true, // Represents the taxi station
+      trim: true,
     },
   },
-  {
-    timestamps: true, // Automatically adds createdAt and updatedAt fields
-  }
+  { timestamps: true }
 );
 
-// Create index for geospatial queries
-taxiSchema.index({ location: '2dsphere' });
-
-module.exports = mongoose.model('Taxi', taxiSchema);
+const Taxi = mongoose.model("Taxi", taxiSchema);
+module.exports = Taxi;
