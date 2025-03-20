@@ -18,8 +18,6 @@ const taxirouteRoutes = require("./routes/taxirouteRoutes");
 const rideRequestRoutes = require('./routes/rideRequestRoutes');
 const chatRoutes = require('./routes/taxiDriverGroupRoutes');
 
-
-
 const app = express();
 
 
@@ -45,6 +43,9 @@ app.use('/chat', chatRoutes)
 app.use("/admin/routes", taxirouteRoutes);
 app.use('/ride-requests', rideRequestRoutes);
 
+app.get('/test', (req, res) => {
+  res.status(200).json({ message: 'Hello, your API is working!' });
+});
 
 // Example route (signup
 app.post('/signup', validateSignup, validateErrors, (req, res) => {
