@@ -16,6 +16,7 @@ const authRoutes = require("./routes/authRoutes");
 const taxiRoutes = require("./routes/taxiRoutes");
 const taxirouteRoutes = require("./routes/taxirouteRoutes");
 const rideRequestRoutes = require('./routes/rideRequestRoutes');
+const chatRoutes = require('./routes/taxiDriverGroupRoutes');
 
 
 
@@ -40,6 +41,7 @@ app.use(passport.initialize());
 app.use("/auth", authRoutes);
 app.use('/dashboard', userRoutes);
 app.use('/taxis', taxiRoutes)
+app.use('/chat', chatRoutes)
 app.use("/admin/routes", taxirouteRoutes);
 app.use('/ride-requests', rideRequestRoutes);
 
