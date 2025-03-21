@@ -651,3 +651,287 @@ Error: Route.post() requires a callback function but got a [object Undefined]
     at Module.require (node:internal/modules/cjs/loader:1311:19)
     at require (node:internal/modules/helpers:179:18)
     at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:16:20)
+[2025-03-21T15:40:14.106Z] [31merror[39m: uncaughtException: write after end
+Error: write after end
+    at writeAfterEnd (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_writable.js:264:12)
+    at Writable.write (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_writable.js:300:21)
+    at File.log (/workspaces/Smart_Taxi_App/backend/node_modules/winston/lib/winston/transports/file.js:222:34)
+    at RejectionStream._write (/workspaces/Smart_Taxi_App/backend/node_modules/winston/lib/winston/rejection-stream.js:46:29)
+    at doWrite (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+    at writeOrBuffer (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_writable.js:381:5)
+    at Writable.write (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_writable.js:302:11)
+    at DerivedLogger.ondata (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_readable.js:629:20)
+    at DerivedLogger.emit (node:events:530:35)
+    at addChunk (/workspaces/Smart_Taxi_App/backend/node_modules/winston/node_modules/readable-stream/lib/_stream_readable.js:279:12)
+[2025-03-21T18:31:55.616Z] [31merror[39m: uncaughtException: getUserDetails is not defined
+ReferenceError: getUserDetails is not defined
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/userRoutes.js:16:28)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:14:20)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+[2025-03-21T18:31:58.548Z] [31merror[39m: uncaughtException: getUserDetails is not defined
+ReferenceError: getUserDetails is not defined
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/userRoutes.js:16:28)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:14:20)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+[2025-03-21T18:32:02.030Z] [31merror[39m: uncaughtException: usegetUserDetails is not defined
+ReferenceError: usegetUserDetails is not defined
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/userRoutes.js:16:28)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:14:20)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+[2025-03-21T18:32:05.232Z] [31merror[39m: uncaughtException: userControllergetUserDetails is not defined
+ReferenceError: userControllergetUserDetails is not defined
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/userRoutes.js:16:28)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:14:20)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+[2025-03-21T18:32:12.785Z] [31merror[39m: uncaughtException: missing ) after argument list
+/workspaces/Smart_Taxi_App/backend/routes/userRoutes.js:16
+router.get("/me", protect, userController'getUserDetails);
+                           ^^^^^^^^^^^^^^
+
+SyntaxError: missing ) after argument list
+    at wrapSafe (node:internal/modules/cjs/loader:1378:20)
+    at Module._compile (node:internal/modules/cjs/loader:1428:41)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:14:20)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+[2025-03-21T21:01:35.194Z] [31merror[39m: uncaughtException: Unexpected end of input
+/workspaces/Smart_Taxi_App/backend/controllers/userController.js:76
+
+
+
+SyntaxError: Unexpected end of input
+    at wrapSafe (node:internal/modules/cjs/loader:1378:20)
+    at Module._compile (node:internal/modules/cjs/loader:1428:41)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/userRoutes.js:4:24)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+[2025-03-21T21:01:36.349Z] [31merror[39m: uncaughtException: Unexpected end of input
+/workspaces/Smart_Taxi_App/backend/controllers/userController.js:76
+
+
+
+SyntaxError: Unexpected end of input
+    at wrapSafe (node:internal/modules/cjs/loader:1378:20)
+    at Module._compile (node:internal/modules/cjs/loader:1428:41)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/userRoutes.js:4:24)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+[2025-03-21T21:01:40.241Z] [31merror[39m: uncaughtException: Unexpected end of input
+/workspaces/Smart_Taxi_App/backend/controllers/userController.js:75
+
+
+
+SyntaxError: Unexpected end of input
+    at wrapSafe (node:internal/modules/cjs/loader:1378:20)
+    at Module._compile (node:internal/modules/cjs/loader:1428:41)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/userRoutes.js:4:24)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+[2025-03-21T21:01:42.483Z] [31merror[39m: uncaughtException: Unexpected end of input
+/workspaces/Smart_Taxi_App/backend/controllers/userController.js:74
+
+
+
+SyntaxError: Unexpected end of input
+    at wrapSafe (node:internal/modules/cjs/loader:1378:20)
+    at Module._compile (node:internal/modules/cjs/loader:1428:41)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/userRoutes.js:4:24)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+[2025-03-21T21:01:45.510Z] [31merror[39m: uncaughtException: Unexpected end of input
+/workspaces/Smart_Taxi_App/backend/controllers/userController.js:73
+
+
+
+SyntaxError: Unexpected end of input
+    at wrapSafe (node:internal/modules/cjs/loader:1378:20)
+    at Module._compile (node:internal/modules/cjs/loader:1428:41)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/userRoutes.js:4:24)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+[2025-03-21T21:01:48.972Z] [31merror[39m: uncaughtException: Unexpected end of input
+/workspaces/Smart_Taxi_App/backend/controllers/userController.js:72
+
+
+
+SyntaxError: Unexpected end of input
+    at wrapSafe (node:internal/modules/cjs/loader:1378:20)
+    at Module._compile (node:internal/modules/cjs/loader:1428:41)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/userRoutes.js:4:24)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+[2025-03-21T21:01:52.312Z] [31merror[39m: uncaughtException: Unexpected end of input
+/workspaces/Smart_Taxi_App/backend/controllers/userController.js:72
+
+
+
+SyntaxError: Unexpected end of input
+    at wrapSafe (node:internal/modules/cjs/loader:1378:20)
+    at Module._compile (node:internal/modules/cjs/loader:1428:41)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/userRoutes.js:4:24)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+[2025-03-21T21:01:55.130Z] [31merror[39m: uncaughtException: Unexpected end of input
+/workspaces/Smart_Taxi_App/backend/controllers/userController.js:71
+
+
+
+SyntaxError: Unexpected end of input
+    at wrapSafe (node:internal/modules/cjs/loader:1378:20)
+    at Module._compile (node:internal/modules/cjs/loader:1428:41)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/userRoutes.js:4:24)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+[2025-03-21T21:01:57.620Z] [31merror[39m: uncaughtException: Unexpected end of input
+/workspaces/Smart_Taxi_App/backend/controllers/userController.js:70
+
+
+
+SyntaxError: Unexpected end of input
+    at wrapSafe (node:internal/modules/cjs/loader:1378:20)
+    at Module._compile (node:internal/modules/cjs/loader:1428:41)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/userRoutes.js:4:24)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+[2025-03-21T21:02:00.286Z] [31merror[39m: uncaughtException: Unexpected end of input
+/workspaces/Smart_Taxi_App/backend/controllers/userController.js:69
+
+
+
+SyntaxError: Unexpected end of input
+    at wrapSafe (node:internal/modules/cjs/loader:1378:20)
+    at Module._compile (node:internal/modules/cjs/loader:1428:41)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/userRoutes.js:4:24)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+[2025-03-21T21:02:03.262Z] [31merror[39m: uncaughtException: Unexpected end of input
+/workspaces/Smart_Taxi_App/backend/controllers/userController.js:68
+
+
+
+SyntaxError: Unexpected end of input
+    at wrapSafe (node:internal/modules/cjs/loader:1378:20)
+    at Module._compile (node:internal/modules/cjs/loader:1428:41)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/userRoutes.js:4:24)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+[2025-03-21T21:02:04.787Z] [31merror[39m: uncaughtException: Unexpected identifier 'exports'
+/workspaces/Smart_Taxi_App/backend/controllers/userController.js:46
+exports.getUserDetails = async (req, res) => {
+^^^^^^^
+
+SyntaxError: Unexpected identifier 'exports'
+    at wrapSafe (node:internal/modules/cjs/loader:1378:20)
+    at Module._compile (node:internal/modules/cjs/loader:1428:41)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/userRoutes.js:4:24)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+[2025-03-21T21:02:10.749Z] [31merror[39m: uncaughtException: Unexpected end of input
+/workspaces/Smart_Taxi_App/backend/controllers/userController.js:67
+
+
+
+SyntaxError: Unexpected end of input
+    at wrapSafe (node:internal/modules/cjs/loader:1378:20)
+    at Module._compile (node:internal/modules/cjs/loader:1428:41)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/userRoutes.js:4:24)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)

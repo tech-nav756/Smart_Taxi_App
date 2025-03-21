@@ -1,39 +1,134 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Animated } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Animated, Alert } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
+import * as Google from "expo-auth-session/providers/google";
+import { useNavigation } from '@react-navigation/native'; // React Navigation
+import { StackNavigationProp } from '@react-navigation/stack';
+
+import { fetchData, saveToken } from "../api/api"; // Importing functions for fetching and saving token
 
 const AuthScreen = () => {
   const [isSignUp, setIsSignUp] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");  // Only needed for signup
   const translateX = new Animated.Value(0);
+  const navigation = useNavigation<StackNavigationProp<any, 'Auth'>>();
 
   const toggleAuthMode = () => {
     Animated.timing(translateX, {
       toValue: isSignUp ? 0 : -100,
       duration: 500,
-      useNativeDriver: true,
+      useNativeDriver: false,
     }).start();
     setIsSignUp(!isSignUp);
+  };
+
+  // Handle user sign up
+  const handleSignUpSubmit = async () => {
+    const apiUrl = "https://special-space-bassoon-r46xq5xpg7gvh5p44-3000.app.github.dev"; // Backend URL
+    const endpoint = "auth/register";
+    const body = { name, email, password };
+
+    try {
+      const response = await fetchData(apiUrl, endpoint, { method: "POST", body });
+
+      if (response?.token) {
+        await saveToken(response.token); // Save token on successful sign up
+      }
+
+      Alert.alert("Success", `Welcome ${name}!`);
+      navigation.navigate('Home');  // Redirect to Home screen after sign up
+    } catch (error) {
+      Alert.alert("Error", "An error occurred. Please try again.");
+    }
+  };
+
+  // Handle user login
+  const handleLoginSubmit = async () => {
+    const apiUrl = "https://special-space-bassoon-r46xq5xpg7gvh5p44-3000.app.github.dev"; // Backend URL
+    const endpoint = "auth/login";
+    const body = { email, password };
+
+    try {
+      const response = await fetchData(apiUrl, endpoint, { method: "POST", body });
+
+      if (response?.token) {
+        await saveToken(response.token); // Save token on successful login
+      }
+
+      Alert.alert("Success", "Welcome back!");
+      navigation.navigate('Home');  // Redirect to Home screen after login
+    } catch (error) {
+      Alert.alert("Error", "Invalid credentials. Please try again.");
+    }
+  };
+
+  // Handle Google login
+  const handleGoogleLogin = async () => {
+    const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+      clientId: 'YOUR_GOOGLE_CLIENT_ID', // Replace with your actual client ID
+    });
+
+    if (response?.type === 'success') {
+      const { id_token } = response.params;
+
+      const apiUrl = "http://your-backend-url"; // Replace with your backend URL
+      const endpoint = isSignUp ? "auth/google/signup" : "auth/google/login"; 
+
+      try {
+        const response = await fetchData(apiUrl, endpoint, {
+          method: "POST",
+          body: { token: id_token },
+        });
+
+        if (response?.token) {
+          await saveToken(response.token);  // Save token from Google login
+        }
+
+        Alert.alert("Success", `Welcome ${isSignUp ? "new user" : "back!"}`);
+        navigation.navigate('Home');  // Navigate to home after Google login
+      } catch (error) {
+        Alert.alert("Error", "An error occurred during Google sign-in.");
+        console.error(error);
+      }
+    } else {
+      Alert.alert("Error", "Google sign-in failed. Please try again.");
+    }
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.authContainer}>
-        <Animated.View
-          style={[
-            styles.formContainer,
-            { transform: [{ translateX }] },
-          ]}
-        >
+        <Animated.View style={[styles.formContainer, { transform: [{ translateX }] }]}>
+
           {isSignUp ? (
             <View style={styles.formContent}>
               <Text style={styles.title}>Create Account</Text>
-              <TextInput style={styles.input} placeholder="Name" />
-              <TextInput style={styles.input} placeholder="Email" keyboardType="email-address" />
-              <TextInput style={styles.input} placeholder="Password" secureTextEntry />
-              <TouchableOpacity style={styles.button}>
+              <TextInput
+                style={styles.input}
+                placeholder="Name"
+                value={name}
+                onChangeText={setName}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Email"
+                keyboardType="email-address"
+                value={email}
+                onChangeText={setEmail}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                secureTextEntry
+                value={password}
+                onChangeText={setPassword}
+              />
+              <TouchableOpacity style={styles.button} onPress={handleSignUpSubmit}>
                 <Text style={styles.buttonText}>Sign Up</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.googleButton}>
+              <TouchableOpacity style={styles.googleButton} onPress={handleGoogleLogin}>
                 <AntDesign name="google" size={20} color="#fff" />
                 <Text style={styles.googleText}>Sign Up with Google</Text>
               </TouchableOpacity>
@@ -41,12 +136,24 @@ const AuthScreen = () => {
           ) : (
             <View style={styles.formContent}>
               <Text style={styles.title}>Login</Text>
-              <TextInput style={styles.input} placeholder="Email" keyboardType="email-address" />
-              <TextInput style={styles.input} placeholder="Password" secureTextEntry />
-              <TouchableOpacity style={styles.button}>
+              <TextInput
+                style={styles.input}
+                placeholder="Email"
+                keyboardType="email-address"
+                value={email}
+                onChangeText={setEmail}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                secureTextEntry
+                value={password}
+                onChangeText={setPassword}
+              />
+              <TouchableOpacity style={styles.button} onPress={handleLoginSubmit}>
                 <Text style={styles.buttonText}>Login</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.googleButton}>
+              <TouchableOpacity style={styles.googleButton} onPress={handleGoogleLogin}>
                 <AntDesign name="google" size={20} color="#fff" />
                 <Text style={styles.googleText}>Login with Google</Text>
               </TouchableOpacity>
@@ -54,9 +161,13 @@ const AuthScreen = () => {
           )}
         </Animated.View>
         <View style={styles.overlayContainer}>
-          <Text style={styles.overlayTitle}>{isSignUp ? "Welcome Back!" : "Hello, Friend!"}</Text>
+          <Text style={styles.overlayTitle}>
+            {isSignUp ? "Welcome Back!" : "Hello, Friend!"}
+          </Text>
           <Text style={styles.overlayText}>
-            {isSignUp ? "To keep connected, please login with your personal info" : "Enter your personal details and start your journey with us"}
+            {isSignUp
+              ? "To keep connected, please login with your personal info"
+              : "Enter your personal details and start your journey with us"}
           </Text>
           <TouchableOpacity style={styles.ghostButton} onPress={toggleAuthMode}>
             <Text style={styles.ghostButtonText}>{isSignUp ? "Login" : "Sign Up"}</Text>

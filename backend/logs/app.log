@@ -127,3 +127,46 @@ MongooseError: Connection.prototype.close() no longer accepts a callback
 [2025-03-20T20:49:57.270Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-00.odwdk.mongodb.net
 [2025-03-20T20:50:00.239Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-02.odwdk.mongodb.net
 [2025-03-20T20:50:06.249Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-02.odwdk.mongodb.net
+[2025-03-21T05:58:59.593Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-00.odwdk.mongodb.net
+[2025-03-21T08:02:51.349Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-00.odwdk.mongodb.net
+[2025-03-21T08:02:58.132Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-02.odwdk.mongodb.net
+[2025-03-21T08:03:06.643Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-01.odwdk.mongodb.net
+[2025-03-21T13:17:21.918Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-00.odwdk.mongodb.net
+[2025-03-21T15:18:25.482Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-00.odwdk.mongodb.net
+[2025-03-21T15:18:35.835Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-02.odwdk.mongodb.net
+[2025-03-21T15:19:32.343Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-01.odwdk.mongodb.net
+[2025-03-21T15:20:21.235Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-00.odwdk.mongodb.net
+[2025-03-21T15:20:34.160Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-01.odwdk.mongodb.net
+[2025-03-21T15:40:14.097Z] [31merror[39m: unhandledRejection: Connection.prototype.close() no longer accepts a callback
+MongooseError: Connection.prototype.close() no longer accepts a callback
+    at NativeConnection.close (/workspaces/Smart_Taxi_App/backend/node_modules/mongoose/lib/connection.js:1205:11)
+    at process.<anonymous> (/workspaces/Smart_Taxi_App/backend/middlewares/dbDisconnectMiddleware.js:9:25)
+    at process.emit (node:events:518:28)
+[2025-03-21T15:40:14.105Z] [31merror[39m: unhandledRejection: Connection.prototype.close() no longer accepts a callback
+MongooseError: Connection.prototype.close() no longer accepts a callback
+    at NativeConnection.close (/workspaces/Smart_Taxi_App/backend/node_modules/mongoose/lib/connection.js:1205:11)
+    at process.<anonymous> (/workspaces/Smart_Taxi_App/backend/middlewares/dbDisconnectMiddleware.js:9:25)
+    at process.emit (node:events:518:28)
+[2025-03-21T15:40:14.114Z] [31merror[39m: unhandledRejection: Connection.prototype.close() no longer accepts a callback
+MongooseError: Connection.prototype.close() no longer accepts a callback
+    at NativeConnection.close (/workspaces/Smart_Taxi_App/backend/node_modules/mongoose/lib/connection.js:1205:11)
+    at process.<anonymous> (/workspaces/Smart_Taxi_App/backend/middlewares/dbDisconnectMiddleware.js:9:25)
+    at process.emit (node:events:518:28)
+[2025-03-21T15:40:40.939Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-00.odwdk.mongodb.net
+[2025-03-21T16:18:40.123Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-00.odwdk.mongodb.net
+[2025-03-21T18:13:45.979Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-00.odwdk.mongodb.net
+[2025-03-21T18:30:54.794Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-00.odwdk.mongodb.net
+[2025-03-21T18:30:57.697Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-02.odwdk.mongodb.net
+[2025-03-21T18:31:09.386Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-01.odwdk.mongodb.net
+[2025-03-21T18:31:12.909Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-01.odwdk.mongodb.net
+[2025-03-21T18:31:54.771Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-02.odwdk.mongodb.net
+[2025-03-21T18:32:17.936Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-00.odwdk.mongodb.net
+[2025-03-21T18:33:17.396Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-01.odwdk.mongodb.net
+[2025-03-21T18:34:44.156Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-00.odwdk.mongodb.net
+[2025-03-21T18:34:51.231Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-00.odwdk.mongodb.net
+[2025-03-21T18:34:54.319Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-00.odwdk.mongodb.net
+[2025-03-21T18:34:57.879Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-01.odwdk.mongodb.net
+[2025-03-21T18:38:33.801Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-00.odwdk.mongodb.net
+[2025-03-21T21:01:32.376Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-01.odwdk.mongodb.net
+[2025-03-21T21:02:15.779Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-00.odwdk.mongodb.net
+[2025-03-21T21:02:24.129Z] [32minfo[39m: MongoDB Connected: cluster0-shard-00-01.odwdk.mongodb.net

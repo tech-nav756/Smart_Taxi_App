@@ -37,7 +37,7 @@ gracefulShutdown();
 
 app.use(passport.initialize());
 app.use("/auth", authRoutes);
-app.use('/dashboard', userRoutes);
+app.use('/api/users', userRoutes);
 app.use('/taxis', taxiRoutes)
 app.use('/chat', chatRoutes)
 app.use("/admin/routes", taxirouteRoutes);

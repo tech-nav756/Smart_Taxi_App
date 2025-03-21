@@ -6,10 +6,14 @@ const userController = require('../controllers/userController'); // Import entir
 const router = express.Router();
 
 // Apply `protect` to all routes in this router
-router.use(protect);
 
 // Role Upgrade Request
 router.post('/request-driver', userController.requestDriverUpgrade);
+
+router.get('/user', userController.getUsers);
+
+
+router.get("/me", protect, userController.getUserDetails);
 
 
 module.exports = router;
