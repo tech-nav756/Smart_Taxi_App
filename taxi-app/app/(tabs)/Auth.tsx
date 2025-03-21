@@ -1,18 +1,9 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Animated } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
-import axios from "axios";
-import * as Google from "expo-google-auth-session"; // Import Google authentication
 
 const AuthScreen = () => {
   const [isSignUp, setIsSignUp] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    clientId: "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com", // Replace with your Google client ID
-  });
-
   const translateX = new Animated.Value(0);
 
   const toggleAuthMode = () => {
@@ -24,123 +15,51 @@ const AuthScreen = () => {
     setIsSignUp(!isSignUp);
   };
 
-  const handleSignUp = async () => {
-    try {
-      const response = await axios.post("https://your-backend-api.com/signup", {
-        name,
-        email,
-        password,
-      });
-      console.log("Sign up success:", response.data);
-    } catch (error) {
-      console.error("Sign up error:", error);
-    }
-  };
-
-  const handleLogin = async () => {
-    try {
-      const response = await axios.post("https://your-backend-api.com/login", {
-        email,
-        password,
-      });
-      console.log("Login success:", response.data);
-    } catch (error) {
-      console.error("Login error:", error);
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    try {
-      const { id_token } = await promptAsync();
-      if (id_token) {
-        // Check if the user is signing up or logging in
-        const apiRoute = isSignUp ? "/google-signup" : "/google-login"; // Change to appropriate API routes
-        const response = await axios.post(`https://your-backend-api.com${apiRoute}`, {
-          id_token,
-        });
-        console.log("Google authentication success:", response.data);
-      }
-    } catch (error) {
-      console.error("Google login error:", error);
-    }
-  };
-
   return (
     <View style={styles.container}>
       <View style={styles.authContainer}>
         <Animated.View
-          style={[styles.formContainer, { transform: [{ translateX }] }]}
+          style={[
+            styles.formContainer,
+            { transform: [{ translateX }] },
+          ]}
         >
           {isSignUp ? (
             <View style={styles.formContent}>
               <Text style={styles.title}>Create Account</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Name"
-                value={name}
-                onChangeText={setName}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Email"
-                keyboardType="email-address"
-                value={email}
-                onChangeText={setEmail}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Password"
-                secureTextEntry
-                value={password}
-                onChangeText={setPassword}
-              />
-              <TouchableOpacity style={styles.button} onPress={handleSignUp}>
+              <TextInput style={styles.input} placeholder="Name" />
+              <TextInput style={styles.input} placeholder="Email" keyboardType="email-address" />
+              <TextInput style={styles.input} placeholder="Password" secureTextEntry />
+              <TouchableOpacity style={styles.button}>
                 <Text style={styles.buttonText}>Sign Up</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.googleButton}>
+                <AntDesign name="google" size={20} color="#fff" />
+                <Text style={styles.googleText}>Sign Up with Google</Text>
               </TouchableOpacity>
             </View>
           ) : (
             <View style={styles.formContent}>
               <Text style={styles.title}>Login</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Email"
-                keyboardType="email-address"
-                value={email}
-                onChangeText={setEmail}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Password"
-                secureTextEntry
-                value={password}
-                onChangeText={setPassword}
-              />
-              <TouchableOpacity style={styles.button} onPress={handleLogin}>
+              <TextInput style={styles.input} placeholder="Email" keyboardType="email-address" />
+              <TextInput style={styles.input} placeholder="Password" secureTextEntry />
+              <TouchableOpacity style={styles.button}>
                 <Text style={styles.buttonText}>Login</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.googleButton}>
+                <AntDesign name="google" size={20} color="#fff" />
+                <Text style={styles.googleText}>Login with Google</Text>
               </TouchableOpacity>
             </View>
           )}
         </Animated.View>
         <View style={styles.overlayContainer}>
-          <Text style={styles.overlayTitle}>
-            {isSignUp ? "Welcome Back!" : "Hello, Friend!"}
-          </Text>
+          <Text style={styles.overlayTitle}>{isSignUp ? "Welcome Back!" : "Hello, Friend!"}</Text>
           <Text style={styles.overlayText}>
-            {isSignUp
-              ? "To keep connected, please login with your personal info"
-              : "Enter your personal details and start your journey with us"}
+            {isSignUp ? "To keep connected, please login with your personal info" : "Enter your personal details and start your journey with us"}
           </Text>
           <TouchableOpacity style={styles.ghostButton} onPress={toggleAuthMode}>
-            <Text style={styles.ghostButtonText}>
-              {isSignUp ? "Login" : "Sign Up"}
-            </Text>
-          </TouchableOpacity>
-          {/* Google Sign-in Button */}
-          <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSignIn}>
-            <AntDesign name="google" size={20} color="#fff" />
-            <Text style={styles.googleText}>
-              {isSignUp ? "Sign Up with Google" : "Login with Google"}
-            </Text>
+            <Text style={styles.ghostButtonText}>{isSignUp ? "Login" : "Sign Up"}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -150,17 +69,15 @@ const AuthScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    margin: 0,
-    padding: 0,
-    width: "100%",
     flex: 1,
+    backgroundColor: "#f6f5f7",
     justifyContent: "center",
     alignItems: "center",
   },
   authContainer: {
     flexDirection: "row",
     backgroundColor: "#fff",
-    width: "100%",
+    width: "90%",
     height: 500,
     borderRadius: 10,
     overflow: "hidden",
