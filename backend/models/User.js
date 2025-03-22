@@ -32,10 +32,11 @@ const userSchema = new Schema(
     },
     password: {
       type: String,
-      select: false, // Exclude password from queries by default
+      select: false,
     },
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
+    roleUpgradeRequested: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

@@ -6,9 +6,9 @@ const { authorize } = require("passport");
 
 const router = express.Router();
 
-router.use(protect, authorizeRoles("admin"))
+router.use(protect, authorizeRoles(["admin"]))
 // Admin creates new route
-router.post("/createRoute", routeController.createRoute);
+router.post("/create-route", routeController.createRoute);
 
 // Get all routes (For dropdown selection)
 router.get("/viewRoutes", routeController.getRoutes);

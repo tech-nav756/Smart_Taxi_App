@@ -1,12 +1,9 @@
 const mongoose = require("mongoose");
+const Route = require("./Route")
+const User = require("./User")
 
 const taxiSchema = new mongoose.Schema(
   {
-    taxiId: {
-      type: String,
-      required: true,
-      unique: true,
-    },
     numberPlate: {
       type: String,
       required: true,
@@ -15,12 +12,12 @@ const taxiSchema = new mongoose.Schema(
     },
     routeId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Route",
+      ref: Route,
       required: true,
     },
     driverId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: User,
       required: true,
     },
     capacity: {

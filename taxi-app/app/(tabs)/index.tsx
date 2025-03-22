@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, Alert } from 'react-native';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { getToken, fetchData } from '../api/api'; // Import getToken and fetchData
+import { useNavigation } from '@react-navigation/native'; // React Navigation
+import { StackNavigationProp } from '@react-navigation/stack';
 
 const HomeScreen = () => {
   const [userName, setUserName] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const fadeAnim = new Animated.Value(0); // Initial opacity value
+  const navigation = useNavigation<StackNavigationProp<any, 'Auth'>>();
 
   useEffect(() => {
     // Fetch token and user details
@@ -15,7 +18,7 @@ const HomeScreen = () => {
       if (token) {
         try {
           const apiUrl = 'https://special-space-bassoon-r46xq5xpg7gvh5p44-3000.app.github.dev'; // Replace with your backend URL
-          const endpoint = 'api/users/me'; // Endpoint to get user info
+          const endpoint = 'api/users/get-user'; // Endpoint to get user info
           
           const response = await fetchData(apiUrl, endpoint, {
             method: 'GET',
@@ -87,7 +90,7 @@ const HomeScreen = () => {
         <TouchableOpacity style={styles.navButton}>
           <FontAwesome name="map" size={24} color="#fff" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Profile')}>
           <FontAwesome name="user" size={24} color="#fff" />
         </TouchableOpacity>
       </View>

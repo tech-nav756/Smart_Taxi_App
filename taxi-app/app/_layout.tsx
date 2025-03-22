@@ -4,10 +4,9 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import TabLayout from './(tabs)/_layout';
+import { AuthProvider } from './context/authContext'; // Import AuthProvider
 
-import TabLayout from './(tabs)/_layout'; // Import TabLayout to handle the auth status
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -20,19 +19,20 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (loaded) {
-      SplashScreen.hideAsync();
-      setIsReady(true);
+      SplashScreen.hideAsync().then(() => setIsReady(true));
     }
   }, [loaded]);
 
   if (!isReady) {
-    return null; // Wait until everything is ready before rendering
+    return null;
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <TabLayout /> {/* Use TabLayout to handle authentication state */}
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <TabLayout />
+        <StatusBar style="auto" />
+      </ThemeProvider>
+    </AuthProvider>
   );
 }

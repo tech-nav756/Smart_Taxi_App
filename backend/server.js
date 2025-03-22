@@ -20,7 +20,6 @@ const chatRoutes = require('./routes/taxiDriverGroupRoutes');
 
 const app = express();
 
-
 // Middleware setup
 app.use(express.json());
 app.use(helmetMiddleware());
@@ -38,22 +37,11 @@ gracefulShutdown();
 app.use(passport.initialize());
 app.use("/auth", authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/taxis', taxiRoutes)
-app.use('/chat', chatRoutes)
-app.use("/admin/routes", taxirouteRoutes);
-app.use('/ride-requests', rideRequestRoutes);
+app.use('/api/taxis', taxiRoutes)
+app.use('/api/chat', chatRoutes)
+app.use("/api/api/admin/routes", taxirouteRoutes);
+app.use('/api/ride-requests', rideRequestRoutes);
 
-app.get('/test', (req, res) => {
-  res.status(200).json({ message: 'Hello, your API is working!' });
-});
-
-// Example route (signup
-app.post('/signup', validateSignup, validateErrors, (req, res) => {
-  const clientIP = getClientIP(req); // Extract client IP securely
-  console.log('Client IP:', clientIP); // Logs the securely extracted client IP
-  
-  res.status(201).send('User signed up successfully');
-});
 
 // Start the server
 const port = process.env.PORT || 5000;
