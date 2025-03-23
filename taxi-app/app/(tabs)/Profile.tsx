@@ -20,7 +20,7 @@ const ProfileScreen = () => {
   const [isTaxiFormVisible, setIsTaxiFormVisible] = useState(false); // State to toggle taxi form visibility
   const [numberPlate, setNumberPlate] = useState('');
   const [capacity, setCapacity] = useState('');
-  const [location, setLocation] = useState('');
+  const [currentStop, setcurrentStop] = useState('');
   const [routeName, setRouteName] = useState('');
 
 
@@ -117,7 +117,7 @@ const ProfileScreen = () => {
             numberPlate,
             routeName, // Send routeName here
             capacity: parseInt(capacity, 10),
-            location,
+            currentStop,
           },
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -218,9 +218,9 @@ const ProfileScreen = () => {
       />
       <TextInput
         style={styles.input}
-        placeholder="Location"
-        value={location}
-        onChangeText={setLocation}
+        placeholder="currentStop"
+        value={currentStop}
+        onChangeText={setcurrentStop}
       />
       <TextInput
         style={styles.input}

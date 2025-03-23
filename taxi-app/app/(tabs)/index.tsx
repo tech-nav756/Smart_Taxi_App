@@ -76,7 +76,7 @@ const HomeScreen = () => {
           <Text style={styles.buttonText}>Request Ride</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity style={styles.actionButton} onPress={()=> navigation.navigate("ViewTaxi")}>
           <MaterialIcons name="speed" size={24} color="white" />
           <Text style={styles.buttonText}>View Taxis</Text>
         </TouchableOpacity>

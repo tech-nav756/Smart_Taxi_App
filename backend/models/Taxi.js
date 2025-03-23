@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-const Route = require("./Route")
-const User = require("./User")
+const Route = require("./Route");
+const User = require("./User");
 
 const taxiSchema = new mongoose.Schema(
   {
@@ -12,12 +12,12 @@ const taxiSchema = new mongoose.Schema(
     },
     routeId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: Route,
+      ref: "Route",
       required: true,
     },
     driverId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: User,
+      ref: "User",
       required: true,
     },
     capacity: {
@@ -38,12 +38,12 @@ const taxiSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["waiting", "available", "roaming","almost full", "full", "on trip", "not available"],
+      enum: ["waiting", "available", "roaming", "almost full", "full", "on trip", "not available"],
       default: "not available",
     },
-    location: {
-      type: String,
-      required: true, // Represents the taxi station
+    currentStop: {
+      type: String, // Stores current stop
+      required: true,
       trim: true,
     },
   },

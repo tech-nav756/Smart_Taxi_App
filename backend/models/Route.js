@@ -12,12 +12,20 @@ const routeSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      index: true, // Optimized search
     },
     endLocation: {
       type: String,
       required: true,
       trim: true,
+      index: true, // Optimized search
     },
+    stops: [
+      {
+        name: { type: String, required: true, trim: true },
+        order: { type: Number, required: true }, // Order in the route
+      },
+    ],
     estimatedTime: {
       type: Number, // Time in minutes
       required: true,

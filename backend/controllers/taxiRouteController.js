@@ -3,10 +3,10 @@ const Route = require("../models/Route");
 // Create a new route
 exports.createRoute = async (req, res) => {
   try {
-    const { routeName, startLocation, endLocation, estimatedTime } = req.body;
+    const { routeName, startLocation, endLocation, estimatedTime, stops } = req.body;
 
-    if (!routeName || !startLocation || !endLocation || !estimatedTime) {
-      return res.status(400).json({ message: "All fields are required" });
+    if (!routeName || !startLocation || !endLocation || !Array.isArray(stops) || stops.length === 0 || !estimatedTime) {
+      return res.status(400).json({ message: "All fields (including stops) are required" });
     }
 
     const existingRoute = await Route.findOne({ routeName });
@@ -19,6 +19,7 @@ exports.createRoute = async (req, res) => {
       startLocation,
       endLocation,
       estimatedTime,
+      stops,
     });
 
     res.status(201).json({
@@ -29,28 +30,3 @@ exports.createRoute = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-
-// Get all routes
-exports.getRoutes = async (req, res) => {
-  try {
-    const routes = await Route.find();
-    res.json(routes);
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-};
-
-// Get a single route by ID
-exports.getRouteById = async (req, res) => {
-  try {
-    const route = await Route.findById(req.params.id);
-    if (!route) {
-      return res.status(404).json({ message: "Route not found" });
-    }
-    res.json(route);
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-};
-
-module.exports = exports;

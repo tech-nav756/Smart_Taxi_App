@@ -6,6 +6,7 @@ const helmetMiddleware = require('./middlewares/helmetMiddleware');
 const rateLimiterMiddleware = require('./middlewares/rateLimiterMiddleware');
 const corsMiddleware = require('./middlewares/corsMiddleware');
 const forceHttpsMiddleware = require('./middlewares/forceHttpsMiddleware');
+const errorHandler = require("./middlewares/errorHandlerMiddleware");
 const { validateSignup, validateErrors } = require('./middlewares/validateInputMiddleware');
 const gracefulShutdown = require('./middlewares/dbDisconnectMiddleware');
 const getClientIP = require('./utils/ipUtils');
@@ -19,6 +20,15 @@ const rideRequestRoutes = require('./routes/rideRequestRoutes');
 const chatRoutes = require('./routes/taxiDriverGroupRoutes');
 
 const app = express();
+
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught Exception:", err);
+  process.exit(1); // Exit to avoid undefined behavior
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection at:", promise, "reason:", reason);
+});
 
 // Middleware setup
 app.use(express.json());
@@ -39,14 +49,17 @@ app.use("/auth", authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/taxis', taxiRoutes)
 app.use('/api/chat', chatRoutes)
-app.use("/api/api/admin/routes", taxirouteRoutes);
+app.use("/api/admin/routes", taxirouteRoutes);
 app.use('/api/ride-requests', rideRequestRoutes);
 
+app.use(errorHandler);
 
 // Start the server
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
+
 
 module.exports = server

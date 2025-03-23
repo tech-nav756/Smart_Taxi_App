@@ -5,6 +5,7 @@ import Home from './index';
 import ProfileScreen from './Profile';
 import { View, Text } from 'react-native';
 import { useAuth } from '../context/authContext';
+import ViewTaxi from './ViewTaxi';
 
 const Stack = createStackNavigator();
 
@@ -33,6 +34,11 @@ export default function TabLayout() {
             component={ProfileScreen}
             options={{ headerShown: false }}
           />
+          <Stack.Screen
+          name="ViewTaxi"
+          component={ViewTaxi}
+          options={{headerShown: false}}
+          />  
         </>
       ) : (
         <Stack.Screen
