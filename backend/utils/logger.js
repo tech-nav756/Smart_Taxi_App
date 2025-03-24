@@ -1,40 +1,48 @@
-const winston = require('winston');
+const winston = require("winston");
+const path = require("path");
 
-// Configure the logger
+// Determine log level based on environment
+const logLevel = process.env.NODE_ENV === "production" ? "warn" : "debug";
+
+// Define custom log format
+const logFormat = winston.format.combine(
+  winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+  winston.format.printf(({ timestamp, level, message }) => `[${timestamp}] ${level.toUpperCase()}: ${message}`)
+);
+
+// Logger instance
 const logger = winston.createLogger({
-  level: 'info', // Default log level
-  format: winston.format.combine(
-    winston.format.colorize(), // Colorize the output for readability
-    winston.format.timestamp(), // Add timestamp to logs
-    winston.format.printf(({ timestamp, level, message }) => {
-      return `[${timestamp}] ${level}: ${message}`;
-    })
-  ),
+  level: logLevel, // Log level changes based on environment
+  format: logFormat,
   transports: [
-    // Console transport for logging to the console
+    // Console logs for development
     new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.simple() // Simple format for console logs
-      ),
+      format: winston.format.combine(winston.format.colorize(), logFormat),
     }),
-    // File transport for logging to a file
+    
+    // General log file
     new winston.transports.File({
-      filename: 'logs/app.log',
-      level: 'info', // Log all levels starting from 'info' to 'error'
+      filename: path.join(__dirname, "logs", "app.log"),
+      level: "info",
+      format: winston.format.json(), // Structured JSON logs for better analysis
+    }),
+
+    // Error log file
+    new winston.transports.File({
+      filename: path.join(__dirname, "logs", "error.log"),
+      level: "error",
+      format: winston.format.json(),
     }),
   ],
 });
 
-// Optionally, you can log uncaught exceptions and unhandled rejections
+// Handle uncaught exceptions & rejections
 logger.exceptions.handle(
-  new winston.transports.Console({ format: winston.format.simple() }),
-  new winston.transports.File({ filename: 'logs/exceptions.log' })
+  new winston.transports.File({ filename: path.join(__dirname, "logs", "exceptions.log") })
 );
 
 logger.rejections.handle(
-  new winston.transports.Console({ format: winston.format.simple() }),
-  new winston.transports.File({ filename: 'logs/rejections.log' })
+  new winston.transports.File({ filename: path.join(__dirname, "logs", "rejections.log") })
 );
 
 module.exports = logger;

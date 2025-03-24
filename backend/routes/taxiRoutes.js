@@ -10,8 +10,11 @@ router.use(protect);
 
 // Driver Taxi Management
 router.post("/addTaxi", taxiController.addTaxi);
-router.patch("/:taxiId/status", taxiController.updateTaxiStatus);
-router.patch("/:taxiId/load", taxiController.updateTaxiLoad);
-router.get("/my-taxis", taxiController.getDriverTaxis);
-router.patch("/:taxiId/load", authorizeRoles(["driver"]), taxiController.updateTaxiLoad);
+
+// Search for taxis by start & end location
+router.get("/search", taxiController.searchTaxis);
+
+router.put("/update-status", taxiController.updateTaxiStatus);
+router.put("/update-current-stop", taxiController.updateCurrentStop);
+
 module.exports = router;

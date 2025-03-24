@@ -8,8 +8,9 @@ const router = express.Router();
 // Apply `protect` to all routes in this router
 router.use(protect);
 
-// Role Upgrade Request
-router.post('/request-driver', userController.requestDriverUpgrade);
+router.get("/get-user", userController.getUserDetails);
 
+router.put('/update-details', userController.updateUserDetails);
 
+router.put('/upgrade-role', userController.upgradeToDriver);
 module.exports = router;

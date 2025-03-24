@@ -1,19 +1,33 @@
 const Taxi = require("../models/Taxi");
 const Route = require("../models/Route");
+const User = require("../models/User");
+const { initializeSocket } = require("../socket"); // Import Socket.IO instance
+
 
 // Add a new taxi (Only for drivers)
 exports.addTaxi = async (req, res) => {
   try {
-    if (!req.user.roles.includes("driver")) {
-      return res.status(403).json({ message: "Access denied. Drivers only." });
+    const userId = req.user.id;
+
+    // Check if user is a driver
+    const user = await User.findById(userId);
+    if (!user || !user.role.includes('driver')) {
+      return res.status(403).json({ message: 'Only drivers can add a taxi.' });
     }
 
-    const { numberPlate, routeName, capacity, location } = req.body;
+    const { numberPlate, routeName, capacity, currentStop } = req.body;
 
-    if (!numberPlate || !routeName || !capacity || !location) {
+    // Validate the input fields
+    if (!numberPlate || !routeName || !capacity || !currentStop) {
       return res.status(400).json({ message: "All fields are required." });
     }
 
+    // Validate capacity as a number
+    if (isNaN(capacity) || capacity <= 0) {
+      return res.status(400).json({ message: "Capacity must be a positive number." });
+    }
+
+    // Ensure numberPlate is unique
     const existingTaxi = await Taxi.findOne({ numberPlate });
     if (existingTaxi) {
       return res.status(400).json({ message: "Taxi with this number plate already exists." });
@@ -25,90 +39,108 @@ exports.addTaxi = async (req, res) => {
       return res.status(404).json({ message: "Route not found. Please enter a valid route name." });
     }
 
-    const taxi = await Taxi.create({
-      taxiId: `TX-${Date.now()}`,
+    // Create a new taxi document
+    const newTaxi = new Taxi({
       numberPlate,
-      routeId: route._id, // Link routeId automatically
-      driverId: req.user._id,
+      routeId: route._id, // Use the routeId from the found route
+      driverId: userId, // Associate the taxi with the current driver
       capacity,
-      location,
-      status: "not available",
+      currentStop,
+      status: 'available', // Default status is available
     });
 
-    res.status(201).json({ message: "Taxi added successfully.", taxi });
+    // Save the taxi to the database
+    await newTaxi.save();
+    res.status(201).json({ message: "Taxi added successfully.", taxi: newTaxi });
+
   } catch (error) {
-    res.status(500).json({ message: "Server error.", error: error.message });
+    console.error('Error saving taxi:', error); // Log error for debugging
+    res.status(500).json({ message: "Error saving taxi to database", error: error.message });
+  }
+};
+ 
+ 
+exports.searchTaxis = async (req, res, next) => {
+  try {
+    const { startLocation, endLocation } = req.query;
+    if (!startLocation || !endLocation) {
+      return res.status(400).json({ message: "Start and end locations are required." });
+    }
+
+    const routes = await Route.find({ "stops.name": { $all: [startLocation, endLocation] } });
+    if (routes.length === 0) {
+      return res.status(404).json({ message: "No routes found for the given locations." });
+    }
+
+    const routeIds = routes.map((route) => route._id);
+    const taxis = await Taxi.find({ routeId: { $in: routeIds }, status: { $in: ["waiting", "available", "roaming"] } })
+      .populate("routeId driverId", "routeName stops name");
+
+    if (taxis.length === 0) {
+      return res.status(404).json({ message: "No available taxis for the selected route." });
+    }
+
+    res.status(200).json({ taxis });
+
+    // Emit taxi availability updates in real-time
+    initializeSocket.emit("taxiUpdate", taxis);
+  } catch (error) {
+    next(error)
   }
 };
 
-// Update taxi status (Only by the driver who owns the taxi)
+
 exports.updateTaxiStatus = async (req, res) => {
   try {
-    const { taxiId } = req.params;
     const { status } = req.body;
+    const driverId = req.user.id; // Get driverId from authenticated user
 
-    const taxi = await Taxi.findOne({ _id: taxiId, driverId: req.user._id });
-    if (!taxi) {
-      return res.status(404).json({ message: "Taxi not found or access denied." });
+    if (!status) {
+      return res.status(400).json({ message: "Status is required." });
     }
 
-    if (!["waiting", "available", "almost full", "full", "on trip", "not available"].includes(status)) {
-      return res.status(400).json({ message: "Invalid status value." });
+    const taxi = await Taxi.findOne({ driverId });
+    if (!taxi) {
+      return res.status(404).json({ message: "No taxi assigned to this driver." });
     }
 
     taxi.status = status;
     await taxi.save();
 
-    res.json({ message: "Taxi status updated successfully.", taxi });
+    res.status(200).json({ message: "Taxi status updated.", taxi });
+
+    // Emit update to all passengers
+    initializeSocket.emit("taxiUpdate", taxi);
   } catch (error) {
-    res.status(500).json({ message: "Server error.", error: error.message });
+    console.error("Error updating taxi status:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
-// Update taxi load (Only by the driver who owns the taxi)
-exports.updateTaxiLoad = async (req, res) => {
-  try {
-    const { taxiId } = req.params;
-    const { currentLoad } = req.body;
 
-    const taxi = await Taxi.findOne({ _id: taxiId, driverId: req.user._id });
+exports.updateCurrentStop = async (req, res) => {
+  try {
+    const { currentStop } = req.body;
+    const driverId = req.user.id; // Get driverId from authenticated user
+
+    if (!currentStop) {
+      return res.status(400).json({ message: "Current stop is required." });
+    }
+
+    const taxi = await Taxi.findOne({ driverId });
     if (!taxi) {
-      return res.status(404).json({ message: "Taxi not found or access denied." });
+      return res.status(404).json({ message: "No taxi assigned to this driver." });
     }
 
-    if (typeof currentLoad !== "number" || currentLoad < 0) {
-      return res.status(400).json({ message: "Invalid passenger count." });
-    }
-
-    if (currentLoad > taxi.capacity) {
-      return res.status(400).json({ message: "Load exceeds taxi capacity." });
-    }
-
-    // Update load
-    taxi.currentLoad = currentLoad;
-
-    // Update status based on load
-    if (currentLoad === 0) {
-      taxi.status = "available";
-    } else if (currentLoad < taxi.capacity * 0.8) {
-      taxi.status = "almost full";
-    } else if (currentLoad >= taxi.capacity) {
-      taxi.status = "full";
-    }
-
+    taxi.currentStop = currentStop;
     await taxi.save();
-    res.json({ message: "Taxi load updated successfully.", taxi });
-  } catch (error) {
-    res.status(500).json({ message: "Server error.", error: error.message });
-  }
-};
 
-// Get all taxis owned by a driver
-exports.getDriverTaxis = async (req, res) => {
-  try {
-    const taxis = await Taxi.find({ driverId: req.user._id });
-    res.json({ taxis });
+    res.status(200).json({ message: "Current stop updated.", taxi });
+
+    // Emit real-time update
+    io.emit("currentStopUpdate", taxi);
   } catch (error) {
-    res.status(500).json({ message: "Server error.", error: error.message });
+    console.error("Error updating current stop:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };

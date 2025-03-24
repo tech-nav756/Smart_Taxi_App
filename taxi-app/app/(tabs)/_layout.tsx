@@ -1,24 +1,52 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router'; // For navigation
-import AuthScreen from './Auth'; // Import AuthScreen
+import { createStackNavigator } from '@react-navigation/stack';
+import AuthScreen from './Auth';
+import Home from './index';
+import ProfileScreen from './Profile';
+import { View, Text } from 'react-native';
+import { useAuth } from '../context/authContext';
+import ViewTaxi from './ViewTaxi';
+
+const Stack = createStackNavigator();
 
 export default function TabLayout() {
-  const router = useRouter();
+  const { isAuthenticated } = useAuth();
+
+  if (isAuthenticated === null) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
-    <View style={styles.container}>
-      <AuthScreen /> {/* Include AuthScreen as part of your layout */}
-    </View>
+    <Stack.Navigator>
+      {isAuthenticated ? (
+        <>
+          <Stack.Screen
+            name="Home"
+            component={Home}
+            options={{ headerShown: false, gestureEnabled: false }}
+          />
+          <Stack.Screen
+            name="Profile"
+            component={ProfileScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+          name="ViewTaxi"
+          component={ViewTaxi}
+          options={{headerShown: false}}
+          />  
+        </>
+      ) : (
+        <Stack.Screen
+          name="Auth"
+          component={AuthScreen}
+          options={{ headerShown: false }}
+        />
+      )}
+    </Stack.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#fff',
-  },
-});
