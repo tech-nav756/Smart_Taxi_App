@@ -50,7 +50,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/taxis', taxiRoutes)
 app.use('/api/chat', chatRoutes)
 app.use("/api/admin/routes", taxirouteRoutes);
-app.use('/api/ride-requests', rideRequestRoutes);
+app.use('/api/rideRequest', rideRequestRoutes);
 
 app.use(errorHandler);
 
@@ -59,7 +59,6 @@ const port = process.env.PORT || 5000;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+ 
 
-
-
-module.exports = server
+module.exports = server 

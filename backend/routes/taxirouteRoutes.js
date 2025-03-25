@@ -2,7 +2,6 @@ const express = require("express");
 const { protect } = require("../middlewares/authMiddleware");
 const { authorizeRoles } = require("../middlewares/roleMiddleware");
 const routeController = require("../controllers/taxiRouteController");
-const { authorize } = require("passport");
 
 const router = express.Router();
 

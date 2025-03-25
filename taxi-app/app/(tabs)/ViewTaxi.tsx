@@ -19,6 +19,7 @@ interface Taxi {
 
 // Main Component
 const ViewTaxi: React.FC = () => {
+  const apiUrl = "https://miniature-space-disco-g479vv79659pfw5jq-3000.app.github.dev"
   const [startLocation, setStartLocation] = useState<string>("");
   const [endLocation, setEndLocation] = useState<string>("");
   const [taxis, setTaxis] = useState<Taxi[]>([]);
@@ -41,7 +42,6 @@ const ViewTaxi: React.FC = () => {
         return;
       }
 
-      const apiUrl = "https://special-space-bassoon-r46xq5xpg7gvh5p44-3000.app.github.dev";
       const endpoint = `api/taxis/search?startLocation=${startLocation}&endLocation=${endLocation}`;
       
       const response = await fetchData(apiUrl, endpoint, {

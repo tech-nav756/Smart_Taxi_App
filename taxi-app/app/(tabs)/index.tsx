@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native'; // React Navigation
 import { StackNavigationProp } from '@react-navigation/stack';
 
 const HomeScreen = () => {
+  const apiUrl = "https://miniature-space-disco-g479vv79659pfw5jq-3000.app.github.dev"
   const [userName, setUserName] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const fadeAnim = new Animated.Value(0); // Initial opacity value
@@ -17,7 +18,6 @@ const HomeScreen = () => {
       const token = await getToken();
       if (token) {
         try {
-          const apiUrl = 'https://special-space-bassoon-r46xq5xpg7gvh5p44-3000.app.github.dev'; // Replace with your backend URL
           const endpoint = 'api/users/get-user'; // Endpoint to get user info
           
           const response = await fetchData(apiUrl, endpoint, {
@@ -71,7 +71,7 @@ const HomeScreen = () => {
 
       {/* Action Buttons */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity style={styles.actionButton} onPress={()=> navigation.navigate("requestRide")}>
           <FontAwesome name="car" size={24} color="white" />
           <Text style={styles.buttonText}>Request Ride</Text>
         </TouchableOpacity>
@@ -87,7 +87,7 @@ const HomeScreen = () => {
         <TouchableOpacity style={styles.navButton}>
           <FontAwesome name="home" size={24} color="#fff" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
+        <TouchableOpacity style={styles.navButton} onPress={()=> navigation.navigate('TaxiManagement')}>
           <FontAwesome name="map" size={24} color="#fff" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Profile')}>

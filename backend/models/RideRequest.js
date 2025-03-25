@@ -1,60 +1,54 @@
-// models/RideRequest.js
+const mongoose = require("mongoose");
 
-const mongoose = require('mongoose');
-const { Schema } = mongoose;
-
-const rideRequestSchema = new Schema(
+const rideRequestSchema = new mongoose.Schema(
   {
     passengerId: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
-    assignedTaxiId: {
-      type: Schema.Types.ObjectId,
-      ref: 'Taxi',
-      default: null, // Assigned automatically when available
+    taxiId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Taxi",
+      required: false, // Assigned when a taxi accepts the request
     },
-    assignedBy: {
+    type: {
       type: String,
-      enum: ['system', 'admin'],
-      default: 'system', // Most assignments will be automated
+      enum: ["requestRide", "pickUp"],
+      required: true,
+    },
+    startStop: {
+      type: String,
+      required: true,
+    },
+    startOrder: {
+      type: Number,
+      required: true,
+    },
+    destinationStop: {
+      type: String,
+      required: function () {
+        return this.type === "requestRide";
+      },
+    },
+    destinationOrder: {
+      type: Number,
+      required: function () {
+        return this.type === "requestRide";
+      },
     },
     status: {
       type: String,
-      enum: ['pending', 'assigned', 'accepted', 'completed', 'cancelled'],
-      default: 'pending',
+      enum: ["pending", "accepted", "completed", "canceled"],
+      default: "pending",
     },
-    pickupLocation: {
-      type: {
-        type: String,
-        enum: ['Point'],
-        required: true,
-      },
-      coordinates: {
-        type: [Number], // [longitude, latitude]
-        required: true,
-      },
-    },
-    dropoffLocation: {
-      type: {
-        type: String,
-        enum: ['Point'],
-        required: true,
-      },
-      coordinates: {
-        type: [Number], // [longitude, latitude]
-        required: true,
-      },
+    requestedAt: {
+      type: Date,
+      default: Date.now,
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-// Indexes for geospatial queries
-rideRequestSchema.index({ pickupLocation: '2dsphere' });
-rideRequestSchema.index({ dropoffLocation: '2dsphere' });
-
-module.exports = mongoose.model('RideRequest', rideRequestSchema);
+const RideRequest = mongoose.model("RideRequest", rideRequestSchema);
+module.exports = RideRequest;

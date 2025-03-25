@@ -14,3 +14,4 @@ router.put('/update-details', userController.updateUserDetails);
 
 router.put('/upgrade-role', userController.upgradeToDriver);
 module.exports = router;
+ 

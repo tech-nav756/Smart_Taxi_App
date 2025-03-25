@@ -1,181 +1,145 @@
-const RideRequest = require('../models/RideRequest');
-const Taxi = require('../models/Taxi');
-const { getConnectedDrivers } = require('../socket'); // Import getConnectedDrivers
+const RideRequest = require("../models/RideRequest");
+const Taxi = require("../models/Taxi");
+const { getIo, getConnectedDrivers } = require("../socket"); // Import getIo and getConnectedDrivers
+const io = getIo(); // Initialize io
 
+// Request a ride
 exports.requestRide = async (req, res) => {
   try {
-    const { pickupLocation, dropoffLocation } = req.body;
+    const { startStop, destinationStop } = req.body;
     const passengerId = req.user.id;
 
-    const nearestTaxi = await Taxi.findOne({ status: 'roaming' }).sort({ updatedAt: 1 });
+    // Find taxis that are on trip and have a stop at startStop before destinationStop
+    const availableTaxis = await Taxi.find({
+      status: "on trip",
+      "route.stops.name": startStop,
+    });
 
-    if (!nearestTaxi) {
-      return res.status(400).json({ message: 'No available roaming taxis' });
+    if (availableTaxis.length === 0) {
+      return res.status(400).json({ message: "No available taxis for your request." });
     }
 
     const rideRequest = new RideRequest({
       passengerId,
-      assignedTaxiId: nearestTaxi._id,
-      assignedBy: 'system',
-      status: 'assigned',
-      pickupLocation,
-      dropoffLocation,
+      type: "requestRide",
+      startStop,
+      destinationStop,
+      status: "pending",
     });
-
     await rideRequest.save();
 
-    nearestTaxi.status = 'en route';
-    await nearestTaxi.save();
+    // Notify available taxis via Socket.io
+    availableTaxis.forEach((taxi) => {
+      const driverSocketId = getConnectedDrivers().get(taxi.driverId.toString());
+      if (driverSocketId) {
+        io.to(driverSocketId).emit("newRideRequest", {
+          message: `New ride request at ${startStop}`,
+          rideRequest,
+        });
+      }
+    });
 
-    // Notify the assigned driver in real-time
-    const connectedDrivers = getConnectedDrivers();  // Get the current list of connected drivers
-    const driverSocketId = connectedDrivers.get(nearestTaxi.driverId);
-    
-    if (driverSocketId) {
-      io.to(driverSocketId).emit('rideRequest', {
-        rideRequestId: rideRequest._id,
-        pickupLocation,
-        dropoffLocation,
-      });
-    }
-
-    res.status(201).json({ message: 'Ride request created', rideRequest });
+    res.status(201).json({ message: "Ride request sent successfully." });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
+    console.error(error);
+    res.status(500).json({ message: "Internal server error." });
   }
 };
 
+// Request a pickup
+exports.requestPickup = async (req, res) => {
+  try {
+    const { startStop } = req.body;
+    const passengerId = req.user.id;
 
-exports.acceptRide = async (req, res) => {
-    try {
-      const { rideRequestId } = req.body;
-      const driverId = req.user.id;
-  
-      const rideRequest = await RideRequest.findById(rideRequestId);
-      if (!rideRequest || rideRequest.status !== 'assigned') {
-        return res.status(400).json({ message: 'Invalid ride request' });
-      }
-  
-      rideRequest.status = 'accepted';
-      await rideRequest.save();
-  
-      // Notify the passenger that the driver accepted the ride
-      io.emit(`rideAccepted-${rideRequest.passengerId}`, {
-        message: 'Your ride request has been accepted!',
-        driverId,
-        rideRequestId,
-      });
-  
-      res.status(200).json({ message: 'Ride accepted', rideRequest });
-    } catch (error) {
-      res.status(500).json({ message: 'Server error', error });
-    }
-  };
+    // Find roaming taxis at the passenger's location
+    const availableTaxis = await Taxi.find({ status: "roaming", currentStop: startStop });
 
-  exports.completeRide = async (req, res) => {
-    try {
-      const { rideRequestId } = req.body;
-      const driverId = req.user.id;
-  
-      const rideRequest = await RideRequest.findById(rideRequestId);
-      if (!rideRequest || rideRequest.status !== 'accepted') {
-        return res.status(400).json({ message: 'Invalid or already completed ride' });
+    if (availableTaxis.length === 0) {
+      return res.status(400).json({ message: "No roaming taxis available." });
+    }
+
+    const rideRequest = new RideRequest({
+      passengerId,
+      type: "pickUp",
+      startStop,
+      status: "pending",
+    });
+    await rideRequest.save();
+
+    // Notify roaming taxis via Socket.io
+    availableTaxis.forEach((taxi) => {
+      const driverSocketId = getConnectedDrivers().get(taxi.driverId.toString());
+      if (driverSocketId) {
+        io.to(driverSocketId).emit("newPickupRequest", {
+          message: `New pickup request at ${startStop}`,
+          rideRequest,
+        });
       }
-  
-      // Verify that the driver completing the ride is the one assigned
-      const taxi = await Taxi.findOne({ _id: rideRequest.taxiId, driverId });
-      if (!taxi) {
-        return res.status(403).json({ message: 'Unauthorized: You are not assigned to this ride' });
-      }
-  
-      rideRequest.status = 'completed';
-      await rideRequest.save();
-  
-      // Mark taxi as available again
-      taxi.status = 'available';
-      await taxi.save();
-  
-      // Notify the passenger in real-time
-      io.emit(`rideCompleted-${rideRequest.passengerId}`, {
-        message: 'Your ride has been completed!',
-        rideRequestId,
+    });
+
+    res.status(201).json({ message: "Pickup request sent successfully." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+// Accept ride request
+exports.acceptRideRequest = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const driverId = req.user.id;
+
+    // Find the ride request
+    const rideRequest = await RideRequest.findById(requestId);
+    if (!rideRequest) {
+      return res.status(404).json({ message: "Ride request not found." });
+    }
+
+    // Update ride request status
+    rideRequest.status = "accepted";
+    rideRequest.driverId = driverId;
+    await rideRequest.save();
+
+    // Notify the passenger that their ride request was accepted
+    const passengerSocketId = getConnectedDrivers().get(rideRequest.passengerId.toString());
+    if (passengerSocketId) {
+      io.to(passengerSocketId).emit("rideRequestAccepted", {
+        message: "A driver has accepted your ride request.",
+        rideRequest,
       });
-  
-      res.status(200).json({ message: 'Ride completed successfully', rideRequest });
-    } catch (error) {
-      res.status(500).json({ message: 'Server error', error });
     }
-  };
-  
-  exports.getRideHistory = async (req, res) => {
-    try {
-      const passengerId = req.user.id;
-  
-      const rides = await RideRequest.find({ passengerId })
-        .populate('taxiId', 'numberPlate routeName')
-        .sort({ createdAt: -1 });
-  
-      res.status(200).json({ rides });
-    } catch (error) {
-      res.status(500).json({ message: 'Server error', error });
+
+    res.json({ message: "Ride request accepted successfully.", rideRequest });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+// Cancel ride request
+exports.cancelRideRequest = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const rideRequest = await RideRequest.findById(requestId);
+
+    if (!rideRequest) {
+      return res.status(404).json({ message: "Ride request not found." });
     }
-  };
-  
-  exports.cancelRide = async (req, res) => {
-    try {
-      const { rideRequestId } = req.body;
-      const userId = req.user.id;
-      const userRole = req.user.role; // Assuming role is included in authentication middleware
-  
-      const rideRequest = await RideRequest.findById(rideRequestId);
-      if (!rideRequest || rideRequest.status !== 'pending') {
-        return res.status(400).json({ message: 'Invalid or already processed ride request' });
-      }
-  
-      if (userRole === 'passenger' && rideRequest.passengerId.toString() !== userId) {
-        return res.status(403).json({ message: 'Unauthorized: This is not your ride request' });
-      }
-  
-      if (userRole === 'driver') {
-        const taxi = await Taxi.findById(rideRequest.taxiId);
-        if (!taxi || taxi.driverId.toString() !== userId) {
-          return res.status(403).json({ message: 'Unauthorized: You are not assigned to this ride' });
-        }
-      }
-  
-      // Mark ride as cancelled
-      rideRequest.status = 'cancelled';
-      await rideRequest.save();
-  
-      // Notify the other party in real-time
-      if (userRole === 'passenger') {
-        io.emit(`rideCancelled-${rideRequest.taxiId}`, {
-          message: 'The passenger has cancelled the ride.',
-          rideRequestId,
-        });
-      } else {
-        io.emit(`rideCancelled-${rideRequest.passengerId}`, {
-          message: 'The driver has cancelled the ride.',
-          rideRequestId,
-        });
-  
-        // Auto-assign a new taxi to the passenger if a driver cancels
-        const availableTaxi = await Taxi.findOne({ status: 'available' });
-        if (availableTaxi) {
-          rideRequest.taxiId = availableTaxi._id;
-          rideRequest.status = 'pending';
-          await rideRequest.save();
-  
-          io.emit(`rideReassigned-${rideRequest.passengerId}`, {
-            message: 'Your ride has been reassigned to a new taxi.',
-            rideRequestId,
-          });
-        }
-      }
-  
-      res.status(200).json({ message: 'Ride cancelled successfully', rideRequest });
-    } catch (error) {
-      res.status(500).json({ message: 'Server error', error });
-    }
-  };
-  
+
+    rideRequest.status = "canceled";
+    await rideRequest.save();
+
+    // Notify the passenger and drivers about cancellation via Socket.io
+    io.to(rideRequest.passengerId.toString()).emit("rideRequestCanceled", {
+      message: "Your ride request has been canceled.",
+      requestId,
+    });
+
+    res.json({ message: "Ride request canceled." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};

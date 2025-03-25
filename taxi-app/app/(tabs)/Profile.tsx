@@ -22,6 +22,7 @@ const ProfileScreen = () => {
   const [capacity, setCapacity] = useState('');
   const [currentStop, setcurrentStop] = useState('');
   const [routeName, setRouteName] = useState('');
+ const apiUrl = 'https://miniature-space-disco-g479vv79659pfw5jq-3000.app.github.dev'; // Replace with your backend URL
 
 
   useEffect(() => {
@@ -29,7 +30,6 @@ const ProfileScreen = () => {
       const token = await AsyncStorage.getItem('authToken');
       if (token) {
         try {
-          const apiUrl = 'https://special-space-bassoon-r46xq5xpg7gvh5p44-3000.app.github.dev'; // Replace with your backend URL
           const endpoint = 'api/users/get-user'; // Endpoint to get user info
 
           const response = await fetchData(apiUrl, endpoint, {
@@ -60,7 +60,7 @@ const ProfileScreen = () => {
     const token = await AsyncStorage.getItem('authToken');
     if (token) {
       try {
-        const response = await fetchData('https://special-space-bassoon-r46xq5xpg7gvh5p44-3000.app.github.dev', 'api/users/update-details', {
+        const response = await fetchData(apiUrl, 'api/users/update-details', {
           method: 'PUT',
           body: { name, phone },
           headers: { Authorization: `Bearer ${token}` },
@@ -85,7 +85,7 @@ const ProfileScreen = () => {
     const token = await AsyncStorage.getItem('authToken');
     if (token) {
       try {
-        const response = await fetchData('https://special-space-bassoon-r46xq5xpg7gvh5p44-3000.app.github.dev', 'api/users/upgrade-role', {
+        const response = await fetchData(apiUrl, 'api/users/upgrade-role', {
           method: 'PUT',
           headers: {
             Authorization: `Bearer ${token}`,
@@ -111,7 +111,7 @@ const ProfileScreen = () => {
     const token = await AsyncStorage.getItem('authToken');
     if (token) {
       try {
-        const response = await fetchData('https://special-space-bassoon-r46xq5xpg7gvh5p44-3000.app.github.dev', 'api/taxis/addTaxi', {
+        const response = await fetchData(apiUrl, 'api/taxis/addTaxi', {
           method: 'POST',
           body: {
             numberPlate,

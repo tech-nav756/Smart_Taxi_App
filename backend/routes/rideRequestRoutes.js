@@ -1,12 +1,23 @@
-const express = require('express');
-const router = express.Router();
-const rideRequestController = require('../controllers/rideRequestController');
+const express = require("express");
+const rideRequestController = require("../controllers/rideRequestController");
 const { protect } = require("../middlewares/authMiddleware");
+const { authorizeRoles } = require("../middlewares/roleMiddleware");
 
-router.post('/request', protect, rideRequestController.requestRide);
-router.patch('/accept', protect, rideRequestController.acceptRide);
-router.patch('/complete', protect, rideRequestController.completeRide);
-router.get('/history', protect, rideRequestController.getRideHistory);
-router.patch('/cancel', protect, rideRequestController.cancelRide);
+
+const router = express.Router();
+
+router.use(protect)
+
+// Passenger requests a ride
+router.post("/request", rideRequestController.requestRide);
+
+// Passenger requests a pickup
+router.post("/pickup", rideRequestController.requestPickup);
+
+// Driver accepts a ride request
+router.put("/accept/:requestId", authorizeRoles(["driver"]), rideRequestController.acceptRideRequest);
+
+// Passenger cancels a ride request
+router.put("/cancel/:requestId", rideRequestController.cancelRideRequest);
 
 module.exports = router;

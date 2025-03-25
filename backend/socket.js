@@ -1,13 +1,12 @@
-// socketManager.js
 const socketIo = require('socket.io');
+let io; // This will hold the initialized io instance
 
-let io;  // io will be initialized in the init function
 const connectedDrivers = new Map(); // Store connected drivers
 
 // Initialize socket.io with a server
 function initializeSocket(server) {
   if (io) return io; // Avoid initializing more than once
-
+  
   io = socketIo(server, {
     cors: {
       origin: '*', // Adjust this for security
@@ -34,9 +33,14 @@ function initializeSocket(server) {
   return io;
 }
 
+// Function to get the io instance
+function getIo() {
+  return io;
+}
+
 // Get the connected drivers map
 function getConnectedDrivers() {
   return connectedDrivers;
 }
 
-module.exports = { initializeSocket, getConnectedDrivers };
+module.exports = { initializeSocket, getIo, getConnectedDrivers };

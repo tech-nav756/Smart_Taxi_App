@@ -9,6 +9,7 @@ import { fetchData } from "../api/api"; // Importing fetch function
 import { useAuth } from '../context/authContext'; // Importing auth context
 
 const AuthScreen = () => {
+  const apiUrl = "https://miniature-space-disco-g479vv79659pfw5jq-3000.app.github.dev"
   const { login } = useAuth(); // Using auth context
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
@@ -27,7 +28,6 @@ const AuthScreen = () => {
   };
 
   const handleSignUpSubmit = async () => {
-    const apiUrl = "https://special-space-bassoon-r46xq5xpg7gvh5p44-3000.app.github.dev";
     const endpoint = "auth/register";
     const body = { name, email, password };
 
@@ -44,7 +44,6 @@ const AuthScreen = () => {
   };
 
   const handleLoginSubmit = async () => {
-    const apiUrl = "https://special-space-bassoon-r46xq5xpg7gvh5p44-3000.app.github.dev";
     const endpoint = "auth/login";
     const body = { email, password };
 
@@ -70,7 +69,6 @@ const AuthScreen = () => {
     if (response?.type === 'success') {
       const { id_token } = response.params;
 
-      const apiUrl = "http://your-backend-url";
       const endpoint = isSignUp ? "auth/google/signup" : "auth/google/login";
 
       try {
