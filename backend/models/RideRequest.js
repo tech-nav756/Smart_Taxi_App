@@ -2,50 +2,48 @@ const mongoose = require("mongoose");
 
 const rideRequestSchema = new mongoose.Schema(
   {
-    passengerId: {
+    // The user who is making the request.
+    passenger: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    taxiId: {
+    // Reference to the route, which holds the stops (with orders) and route details.
+    route: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Taxi",
-      required: false, // Assigned when a taxi accepts the request
+      ref: "Route",
+      required: true,
     },
-    type: {
+    // Type of request: "ride" for a stop-order based ride request, or "pickup" for on-demand pickup.
+    requestType: {
       type: String,
-      enum: ["requestRide", "pickUp"],
+      enum: ["ride", "pickup"],
       required: true,
     },
-    startStop: {
+    // The name of the stop where the passenger is waiting.
+    // You can use this value to look up the stop order in the referenced route.
+    startingStop: {
       type: String,
       required: true,
+      trim: true,
     },
-    startOrder: {
-      type: Number,
-      required: true,
-    },
+    // The destination stop name (optional based on your app's flow).
     destinationStop: {
       type: String,
-      required: function () {
-        return this.type === "requestRide";
-      },
+      trim: true,
     },
-    destinationOrder: {
-      type: Number,
-      required: function () {
-        return this.type === "requestRide";
-      },
-    },
+    // Current status of the request.
     status: {
       type: String,
-      enum: ["pending", "accepted", "completed", "canceled"],
+      enum: ["pending", "accepted", "cancelled", "completed"],
       default: "pending",
     },
-    requestedAt: {
-      type: Date,
-      default: Date.now,
+    // The taxi assigned to this request (if any).
+    taxi: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Taxi",
     },
+    // Timestamps such as createdAt and updatedAt will be added automatically.
   },
   { timestamps: true }
 );
