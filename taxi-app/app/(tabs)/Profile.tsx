@@ -1,60 +1,58 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator } from 'react-native';
-import { View, Text, TouchableOpacity, StyleSheet, Image, TextInput, Alert, FlatList } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
-import { fetchData } from '../api/api'; // Your custom fetchData function
+import { ActivityIndicator, View, Text, TouchableOpacity, StyleSheet, Image, TextInput, Alert, FlatList } from 'react-native';
+import { AntDesign, FontAwesome } from '@expo/vector-icons';
+import { fetchData } from '../api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native'; // React Navigation
+import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { useAuth } from '../context/authContext'; // Importing auth context
+import { LinearGradient } from 'expo-linear-gradient';
+import { useAuth } from '../context/authContext';
 
-const ProfileScreen = () => {
+const apiUrl = 'https://miniature-space-disco-g479vv79659pfw5jq-3000.app.github.dev';
+
+const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<StackNavigationProp<any, 'Home'>>();
-  const { logout } = useAuth(); // Using auth context
+  const { logout } = useAuth();
   const [user, setUser] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [roles, setRoles] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true); // Loading state for data fetching
-  const [isTaxiFormVisible, setIsTaxiFormVisible] = useState(false); // State to toggle taxi form visibility
+  const [isLoading, setIsLoading] = useState(true);
+  const [isTaxiFormVisible, setIsTaxiFormVisible] = useState(false);
   const [numberPlate, setNumberPlate] = useState('');
   const [capacity, setCapacity] = useState('');
-  const [currentStop, setcurrentStop] = useState('');
+  const [currentStop, setCurrentStop] = useState('');
   const [routeName, setRouteName] = useState('');
- const apiUrl = 'https://miniature-space-disco-g479vv79659pfw5jq-3000.app.github.dev'; // Replace with your backend URL
-
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       const token = await AsyncStorage.getItem('authToken');
       if (token) {
         try {
-          const endpoint = 'api/users/get-user'; // Endpoint to get user info
-
+          const endpoint = 'api/users/get-user';
           const response = await fetchData(apiUrl, endpoint, {
             method: 'GET',
             headers: {
               Authorization: `Bearer ${token}`,
             },
           });
-
           if (response?.user) {
-            setUser(response.user); // Set the user data
+            setUser(response.user);
             setName(response.user.name);
             setPhone(response.user.phone);
-            setRoles(response.user.role); // Set roles from response
+            setRoles(response.user.role);
           }
         } catch (error) {
           console.error('Error fetching user profile:', error);
           Alert.alert('Error', 'Failed to fetch user data.');
         }
       }
-      setIsLoading(false); // Set loading to false once the data is fetched
+      setIsLoading(false);
     };
 
     fetchUserProfile();
-  }, []); // Empty dependency array to fetch data only once when the component mounts
+  }, []);
 
   const handleSave = async () => {
     const token = await AsyncStorage.getItem('authToken');
@@ -81,7 +79,6 @@ const ProfileScreen = () => {
       Alert.alert("You are already a driver.");
       return;
     }
-
     const token = await AsyncStorage.getItem('authToken');
     if (token) {
       try {
@@ -91,9 +88,8 @@ const ProfileScreen = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-
         if (response?.user) {
-          setRoles(response.user.roles); // Update roles
+          setRoles(response.user.roles);
           Alert.alert("Success", "You are now a driver.");
         }
       } catch (error) {
@@ -115,16 +111,15 @@ const ProfileScreen = () => {
           method: 'POST',
           body: {
             numberPlate,
-            routeName, // Send routeName here
+            routeName,
             capacity: parseInt(capacity, 10),
             currentStop,
           },
           headers: { Authorization: `Bearer ${token}` },
         });
-
         if (response?.taxi) {
           Alert.alert('Success', 'Taxi added successfully!');
-            navigation.goBack(); 
+          navigation.goBack();
           setIsTaxiFormVisible(false);
         } else {
           Alert.alert('Error', 'Failed to add taxi.');
@@ -137,124 +132,152 @@ const ProfileScreen = () => {
 
   if (isLoading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#ff4b2b" />
-      </View>
+      <LinearGradient colors={['#0F2027', '#203A43', '#2C5364']} style={styles.gradient}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#ff4b2b" />
+        </View>
+      </LinearGradient>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Image source={{ uri: user?.profilePic }} style={styles.profilePic} />
-        <TouchableOpacity style={styles.editButton} onPress={() => setIsEditing(!isEditing)}>
-          <AntDesign name="edit" size={20} color="#fff" />
-        </TouchableOpacity>
-      </View>
+    <LinearGradient colors={['#0F2027', '#203A43', '#2C5364']} style={styles.gradient}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Image source={{ uri: user?.profilePic }} style={styles.profilePic} />
+          <TouchableOpacity style={styles.editButton} onPress={() => setIsEditing(!isEditing)}>
+            <AntDesign name="edit" size={20} color="#fff" />
+          </TouchableOpacity>
+        </View>
 
-      <View style={styles.detailsContainer}>
-        <Text style={styles.title}>Profile Details</Text>
+        <View style={styles.detailsContainer}>
+          <Text style={styles.sectionTitle}>Profile Details</Text>
+          {isEditing ? (
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.input}
+                placeholder="Name"
+                placeholderTextColor="#aaa"
+                value={name}
+                onChangeText={setName}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Phone"
+                placeholderTextColor="#aaa"
+                value={phone}
+                onChangeText={setPhone}
+                keyboardType="phone-pad"
+              />
+              <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+                <Text style={styles.saveButtonText}>Save Changes</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.infoContainer}>
+              <Text style={styles.infoText}>Name: {user?.name}</Text>
+              <Text style={styles.infoText}>Email: {user?.email}</Text>
+              <Text style={styles.infoText}>Phone: {user?.phone}</Text>
+              <Text style={styles.infoText}>Roles: {roles.join(', ')}</Text>
+            </View>
+          )}
+        </View>
 
-        {isEditing ? (
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Name"
-              value={name}
-              onChangeText={setName}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Phone"
-              value={phone}
-              onChangeText={setPhone}
-              keyboardType="phone-pad"
-            />
-            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-              <Text style={styles.saveText}>Save Changes</Text>
+        <View style={styles.buttonContainer}>
+          {/* Only show Upgrade button if the user is not already a driver */}
+          {!roles.includes('driver') && (
+            <TouchableOpacity style={styles.upgradeButton} onPress={handleUpgradeRole}>
+              <Text style={styles.upgradeButtonText}>Upgrade to Driver</Text>
             </TouchableOpacity>
-          </View>
-        ) : (
-          <View style={styles.infoContainer}>
-            <Text style={styles.infoText}>Name: {user?.name}</Text>
-            <Text style={styles.infoText}>Email: {user?.email}</Text>
-            <Text style={styles.infoText}>Phone: {user?.phone}</Text>
-            <Text style={styles.infoText}>Roles: {roles.join(', ')}</Text>
+          )}
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Text style={styles.logoutButtonText}>Logout</Text>
+          </TouchableOpacity>
+        </View>
+
+        {roles.includes('driver') && (
+          <View style={styles.taxiSection}>
+            <TouchableOpacity style={styles.addTaxiButton} onPress={() => setIsTaxiFormVisible(!isTaxiFormVisible)}>
+              <Text style={styles.addTaxiButtonText}>{isTaxiFormVisible ? 'Cancel' : 'Add Taxi'}</Text>
+            </TouchableOpacity>
+            {isTaxiFormVisible && (
+              <View style={styles.taxiForm}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Number Plate"
+                  placeholderTextColor="#aaa"
+                  value={numberPlate}
+                  onChangeText={setNumberPlate}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Capacity"
+                  placeholderTextColor="#aaa"
+                  value={capacity}
+                  keyboardType="numeric"
+                  onChangeText={setCapacity}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Current Stop"
+                  placeholderTextColor="#aaa"
+                  value={currentStop}
+                  onChangeText={setCurrentStop}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Route Name"
+                  placeholderTextColor="#aaa"
+                  value={routeName}
+                  onChangeText={setRouteName}
+                />
+                <TouchableOpacity style={styles.saveButton} onPress={handleAddTaxi}>
+                  <Text style={styles.saveButtonText}>Save Taxi</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
         )}
       </View>
 
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.upgradeButton} onPress={handleUpgradeRole}>
-          <Text style={styles.upgradeText}>Upgrade to Driver</Text>
+      {/* Bottom Navigation Bar */}
+      <View style={styles.navBar}>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("Home")}>
+          <FontAwesome name="home" size={24} color="#fff" />
         </TouchableOpacity>
-
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutText}>Logout</Text>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("LiveChat")}>
+          <FontAwesome name="comment" size={24} color="#fff" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("TaxiManagement")}>
+          <FontAwesome name="map" size={24} color="#fff" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("Profile")}>
+          <FontAwesome name="user" size={24} color="#fff" />
         </TouchableOpacity>
       </View>
-
-      {roles.includes('driver') && (
-        <View style={styles.taxiSection}>
-          <TouchableOpacity style={styles.addTaxiButton} onPress={() => setIsTaxiFormVisible(!isTaxiFormVisible)}>
-            <Text style={styles.addTaxiText}>{isTaxiFormVisible ? 'Cancel' : 'Add Taxi'}</Text>
-          </TouchableOpacity>
-
-          {isTaxiFormVisible && (
-            <View style={styles.taxiForm}>
-
-       <TextInput
-        style={styles.input}
-        placeholder="Number Plate"
-        value={numberPlate}
-        onChangeText={setNumberPlate}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Capacity"
-        value={capacity}
-        keyboardType="numeric"
-        onChangeText={setCapacity}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="currentStop"
-        value={currentStop}
-        onChangeText={setcurrentStop}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Route Name"
-        value={routeName}
-        onChangeText={setRouteName}
-      />
-
-              <TouchableOpacity style={styles.saveButton} onPress={handleAddTaxi}>
-                <Text style={styles.saveText}>Save Taxi</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
-      )}
-    </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
+  gradient: {
+    flex: 1,
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },  
+  },
   container: {
     flex: 1,
-    backgroundColor: '#f6f6f6',
     paddingHorizontal: 20,
     paddingTop: 40,
+    marginBottom: 100, // space for nav bar
   },
   header: {
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
   },
   profilePic: {
     width: 120,
@@ -274,7 +297,7 @@ const styles = StyleSheet.create({
   },
   detailsContainer: {
     marginTop: 20,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255,255,255,0.95)',
     padding: 20,
     borderRadius: 10,
     shadowColor: '#000',
@@ -282,10 +305,11 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 5 },
   },
-  title: {
+  sectionTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: '700',
     marginBottom: 20,
+    color: '#333',
   },
   infoContainer: {
     marginBottom: 20,
@@ -293,6 +317,7 @@ const styles = StyleSheet.create({
   infoText: {
     fontSize: 16,
     marginBottom: 10,
+    color: '#333',
   },
   inputContainer: {
     marginBottom: 20,
@@ -303,6 +328,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     borderRadius: 8,
     fontSize: 16,
+    color: '#333',
   },
   saveButton: {
     backgroundColor: '#ff4b2b',
@@ -310,7 +336,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
   },
-  saveText: {
+  saveButtonText: {
     color: '#fff',
     fontWeight: 'bold',
   },
@@ -324,7 +350,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     alignItems: 'center',
   },
-  upgradeText: {
+  upgradeButtonText: {
     color: '#fff',
     fontWeight: 'bold',
   },
@@ -334,13 +360,13 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
   },
-  logoutText: {
+  logoutButtonText: {
     color: '#fff',
     fontWeight: 'bold',
   },
   taxiSection: {
     marginTop: 30,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255,255,255,0.95)',
     padding: 20,
     borderRadius: 10,
     shadowColor: '#000',
@@ -354,12 +380,32 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
   },
-  addTaxiText: {
+  addTaxiButtonText: {
     color: '#fff',
     fontWeight: 'bold',
   },
   taxiForm: {
     marginTop: 20,
+  },
+  navBar: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    right: 20,
+    backgroundColor: 'rgba(233, 69, 96, 0.9)',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 15,
+    borderRadius: 40,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 5,
+    elevation: 10,
+  },
+  navButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

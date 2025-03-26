@@ -12,7 +12,11 @@ import {
   Platform,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { fetchData, getToken } from '../api/api'; // Import your API helpers
+import { fetchData, getToken } from '../api/api';
+import { LinearGradient } from 'expo-linear-gradient';
+import { FontAwesome } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 const apiUrl = 'https://miniature-space-disco-g479vv79659pfw5jq-3000.app.github.dev/api';
 
@@ -52,7 +56,9 @@ const TaxiManagement: React.FC = () => {
   const [newLoad, setNewLoad] = useState<string>('0');
   const [stopOptions, setStopOptions] = useState<string[]>([]);
 
-  // Fetch taxi data from the API
+  const navigation = useNavigation<StackNavigationProp<any, 'TaxiManagement'>>();
+
+  // Fetch taxi data
   const loadTaxis = async () => {
     setLoading(true);
     try {
@@ -80,12 +86,11 @@ const TaxiManagement: React.FC = () => {
     loadTaxis();
   }, []);
 
-  // Function to fetch stops for a taxi using the new backend endpoint
+  // Fetch stops for a taxi
   const fetchStopsForTaxi = async (taxiId: string) => {
     try {
       const data = await fetchData(apiUrl, `taxis/${taxiId}/stops`);
       if (data && data.stops) {
-        // Map stops to their names
         const names = data.stops.map((stop: Stop) => stop.name);
         setStopOptions(names);
         setNewStop(names[0] || '');
@@ -100,26 +105,25 @@ const TaxiManagement: React.FC = () => {
     }
   };
 
-  // Open modal for a selected taxi
+  // Open modal for selected taxi
   const handleActionPress = (taxi: Taxi) => {
     setSelectedTaxi(taxi);
     setUpdateType(null);
     setNewStatus(statusOptions[0]);
     setNewLoad(taxi.currentLoad.toString());
-    // Reset stops until fetched
     setStopOptions([]);
     setNewStop('');
     setModalVisible(true);
   };
 
-  // When user selects "stop" update, fetch the stops list for the taxi.
+  // Fetch stops when updating stop
   useEffect(() => {
     if (updateType === 'stop' && selectedTaxi) {
       fetchStopsForTaxi(selectedTaxi._id);
     }
   }, [updateType, selectedTaxi]);
 
-  // Handle update submission based on the selected update type
+  // Handle update submission
   const handleUpdate = async () => {
     if (!selectedTaxi || !updateType) {
       Alert.alert('Error', 'Please select an update option.');
@@ -133,7 +137,6 @@ const TaxiManagement: React.FC = () => {
       endpoint = `taxis/${selectedTaxi._id}/status`;
       body = { status: newStatus };
     } else if (updateType === 'stop') {
-      // Call the new endpoint to update current stop manually
       endpoint = `taxis/${selectedTaxi._id}/currentStopManual`;
       body = { currentStop: newStop };
     } else if (updateType === 'load') {
@@ -147,7 +150,6 @@ const TaxiManagement: React.FC = () => {
     }
 
     try {
-      // Use PUT method for updates
       const response = await fetchData(apiUrl, endpoint, {
         method: 'PUT',
         body,
@@ -161,7 +163,6 @@ const TaxiManagement: React.FC = () => {
     }
   };
 
-  // Render each taxi row
   const renderTaxi = ({ item }: { item: Taxi }) => (
     <View style={styles.row}>
       <Text style={styles.cell}>{item.numberPlate}</Text>
@@ -175,134 +176,166 @@ const TaxiManagement: React.FC = () => {
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Taxi Management</Text>
-      {loading ? (
-        <Text>Loading taxis...</Text>
-      ) : (
-        <FlatList
-          data={taxis}
-          keyExtractor={(item) => item._id}
-          renderItem={renderTaxi}
-          ListHeaderComponent={
-            <View style={styles.headerRow}>
-              <Text style={styles.headerCell}>Number Plate</Text>
-              <Text style={styles.headerCell}>Status</Text>
-              <Text style={styles.headerCell}>Current Stop</Text>
-              <Text style={styles.headerCell}>Load</Text>
-              <Text style={styles.headerCell}>Action</Text>
-            </View>
-          }
-        />
-      )}
+    <LinearGradient colors={['#0F2027', '#203A43', '#2C5364']} style={styles.gradient}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Taxi Management</Text>
+        {loading ? (
+          <Text style={styles.loadingText}>Loading taxis...</Text>
+        ) : (
+          <FlatList
+            data={taxis}
+            keyExtractor={(item) => item._id}
+            renderItem={renderTaxi}
+            ListHeaderComponent={
+              <View style={styles.headerRow}>
+                <Text style={styles.headerCell}>Number Plate</Text>
+                <Text style={styles.headerCell}>Status</Text>
+                <Text style={styles.headerCell}>Current Stop</Text>
+                <Text style={styles.headerCell}>Load</Text>
+                <Text style={styles.headerCell}>Action</Text>
+              </View>
+            }
+          />
+        )}
 
-      {/* Modal for updating taxi details */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            {selectedTaxi && (
-              <>
-                <Text style={styles.modalTitle}>Update Taxi: {selectedTaxi.numberPlate}</Text>
-                {/* Option selection */}
-                {!updateType && (
-                  <View style={styles.optionContainer}>
-                    <Text style={styles.optionTitle}>Select update type:</Text>
-                    <View style={styles.optionButtons}>
-                      <Button title="Status" onPress={() => setUpdateType('status')} />
-                      <Button title="Stop" onPress={() => setUpdateType('stop')} />
-                      <Button title="Load" onPress={() => setUpdateType('load')} />
+        {/* Modal for updating taxi details */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              {selectedTaxi && (
+                <>
+                  <Text style={styles.modalTitle}>Update Taxi: {selectedTaxi.numberPlate}</Text>
+                  {/* Option selection */}
+                  {!updateType && (
+                    <View style={styles.optionContainer}>
+                      <Text style={styles.optionTitle}>Select update type:</Text>
+                      <View style={styles.optionButtons}>
+                        <Button title="Status" onPress={() => setUpdateType('status')} />
+                        <Button title="Stop" onPress={() => setUpdateType('stop')} />
+                        <Button title="Load" onPress={() => setUpdateType('load')} />
+                      </View>
                     </View>
-                  </View>
-                )}
-                {/* Update form based on selected option */}
-                {updateType === 'status' && (
-                  <View style={styles.formGroup}>
-                    <Text style={styles.label}>Select new status:</Text>
-                    <Picker
-                      selectedValue={newStatus}
-                      onValueChange={(itemValue) => setNewStatus(itemValue)}>
-                      {statusOptions.map((status) => (
-                        <Picker.Item key={status} label={status} value={status} />
-                      ))}
-                    </Picker>
-                  </View>
-                )}
-                {updateType === 'stop' && (
-                  <View style={styles.formGroup}>
-                    <Text style={styles.label}>Select new stop:</Text>
-                    {stopOptions.length ? (
-                      <Picker selectedValue={newStop} onValueChange={(itemValue) => setNewStop(itemValue)}>
-                        {stopOptions.map((stop) => (
-                          <Picker.Item key={stop} label={stop} value={stop} />
+                  )}
+                  {/* Update form based on selected option */}
+                  {updateType === 'status' && (
+                    <View style={styles.formGroup}>
+                      <Text style={styles.label}>Select new status:</Text>
+                      <Picker selectedValue={newStatus} onValueChange={(itemValue) => setNewStatus(itemValue)}>
+                        {statusOptions.map((status) => (
+                          <Picker.Item key={status} label={status} value={status} />
                         ))}
                       </Picker>
-                    ) : (
-                      <Text>Loading stops...</Text>
-                    )}
+                    </View>
+                  )}
+                  {updateType === 'stop' && (
+                    <View style={styles.formGroup}>
+                      <Text style={styles.label}>Select new stop:</Text>
+                      {stopOptions.length ? (
+                        <Picker selectedValue={newStop} onValueChange={(itemValue) => setNewStop(itemValue)}>
+                          {stopOptions.map((stop) => (
+                            <Picker.Item key={stop} label={stop} value={stop} />
+                          ))}
+                        </Picker>
+                      ) : (
+                        <Text style={styles.loadingText}>Loading stops...</Text>
+                      )}
+                    </View>
+                  )}
+                  {updateType === 'load' && (
+                    <View style={styles.formGroup}>
+                      <Text style={styles.label}>Enter new load:</Text>
+                      <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={newLoad}
+                        onChangeText={setNewLoad}
+                      />
+                    </View>
+                  )}
+                  <View style={styles.modalButtons}>
+                    <Button title="Cancel" onPress={() => setModalVisible(false)} />
+                    {updateType && <Button title="Submit" onPress={handleUpdate} />}
                   </View>
-                )}
-                {updateType === 'load' && (
-                  <View style={styles.formGroup}>
-                    <Text style={styles.label}>Enter new load:</Text>
-                    <TextInput
-                      style={styles.input}
-                      keyboardType="numeric"
-                      value={newLoad}
-                      onChangeText={setNewLoad}
-                    />
-                  </View>
-                )}
-                <View style={styles.modalButtons}>
-                  <Button title="Cancel" onPress={() => setModalVisible(false)} />
-                  {updateType && <Button title="Submit" onPress={handleUpdate} />}
-                </View>
-              </>
-            )}
+                </>
+              )}
+            </View>
           </View>
-        </View>
-      </Modal>
-    </View>
+        </Modal>
+      </View>
+
+      {/* Bottom Navigation Bar */}
+      <View style={styles.navBar}>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("Home")}>
+          <FontAwesome name="home" size={24} color="#fff" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("LiveChat")}>
+          <FontAwesome name="comment" size={24} color="#fff" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("TaxiManagement")}>
+          <FontAwesome name="map" size={24} color="#fff" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("Profile")}>
+          <FontAwesome name="user" size={24} color="#fff" />
+        </TouchableOpacity>
+      </View>
+    </LinearGradient>
   );
 };
 
 export default TaxiManagement;
 
 const styles = StyleSheet.create({
+  gradient: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#fff',
+    paddingTop: 40,
+    marginBottom: 100, // space for nav bar
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
+    fontSize: 26,
+    fontWeight: '700',
+    color: '#fff',
     textAlign: 'center',
+    marginBottom: 16,
+  },
+  loadingText: {
+    color: '#fff',
+    textAlign: 'center',
+    marginVertical: 20,
+    fontSize: 18,
   },
   headerRow: {
     flexDirection: 'row',
-    paddingVertical: 8,
-    backgroundColor: '#eee',
+    paddingVertical: 10,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
   },
   headerCell: {
     flex: 1,
     fontWeight: 'bold',
     textAlign: 'center',
+    color: '#333',
   },
   row: {
     flexDirection: 'row',
-    paddingVertical: 8,
+    paddingVertical: 10,
+    backgroundColor: 'rgba(255,255,255,0.9)',
     borderBottomWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#ddd',
     alignItems: 'center',
   },
   cell: {
     flex: 1,
     textAlign: 'center',
+    color: '#333',
   },
   actionButton: {
     backgroundColor: '#007BFF',
@@ -321,16 +354,17 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: '90%',
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255,255,255,0.95)',
     padding: 20,
     borderRadius: 8,
     elevation: 5,
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: '700',
     marginBottom: 12,
     textAlign: 'center',
+    color: '#333',
   },
   optionContainer: {
     marginVertical: 12,
@@ -339,6 +373,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 8,
     textAlign: 'center',
+    color: '#333',
   },
   optionButtons: {
     flexDirection: 'row',
@@ -350,16 +385,38 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     marginBottom: 4,
+    color: '#333',
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 4,
     padding: 8,
+    color: '#333',
   },
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 16,
+  },
+  navBar: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    right: 20,
+    backgroundColor: 'rgba(233, 69, 96, 0.9)',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 15,
+    borderRadius: 40,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 5,
+    elevation: 10,
+  },
+  navButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

@@ -8,6 +8,7 @@ import { useAuth } from '../context/authContext';
 import ViewTaxi from './ViewTaxi';
 import RideRequestScreen from './rideRequest';
 import TaxiManagementScreen from './taxiManagement';
+import LiveChatScreen from './LiveChat';
 
 const Stack = createStackNavigator();
 
@@ -51,6 +52,11 @@ export default function TabLayout() {
           component={TaxiManagementScreen}
           options={{headerShown: false}}
           />
+          <Stack.Screen
+            name="LiveChat"
+            component={LiveChatScreen}
+            options={{headerShown: false}}
+            />
         </>
       ) : (
         <Stack.Screen
