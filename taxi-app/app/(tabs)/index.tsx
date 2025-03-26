@@ -1,5 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated, Alert, Dimensions } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Animated,
+  Alert,
+  Dimensions,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { getToken, fetchData } from '../api/api';
@@ -28,8 +36,8 @@ const HomeScreen = () => {
   const acceptedTaxiId = route.params?.acceptedTaxiId;
   const navigation = useNavigation<StackNavigationProp<any, 'Home'>>();
 
+  // Fetch user data with token
   useEffect(() => {
-    // Fetch user data with token
     const fetchUserData = async () => {
       const token = await getToken();
       if (token) {
@@ -67,6 +75,14 @@ const HomeScreen = () => {
     ]).start();
   }, [fadeAnim, slideAnim]);
 
+  // Automatically load monitoring details if acceptedTaxiId exists
+  useEffect(() => {
+    if (acceptedTaxiId && !monitoredTaxi) {
+      handleMonitorTaxi();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [acceptedTaxiId]);
+
   // Function to fetch live taxi details using the monitorTaxi endpoint.
   const handleMonitorTaxi = async () => {
     const token = await getToken();
@@ -86,7 +102,6 @@ const HomeScreen = () => {
       });
       if (response?.taxiInfo) {
         setMonitoredTaxi(response.taxiInfo);
-        Alert.alert('Taxi Monitored', 'Live taxi details are now available.');
       } else {
         Alert.alert('Error', 'Failed to fetch taxi details.');
       }
@@ -94,6 +109,13 @@ const HomeScreen = () => {
       console.error('Error monitoring taxi:', error);
       Alert.alert('Error', 'Failed to monitor taxi.');
     }
+  };
+
+  // End monitoring and return to static display
+  const handleEndMonitoring = () => {
+    setMonitoredTaxi(null);
+    // Optionally, clear the acceptedTaxiId parameter.
+    navigation.setParams({ acceptedTaxiId: undefined });
   };
 
   if (isLoading) {
@@ -108,27 +130,29 @@ const HomeScreen = () => {
         </Text>
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Live Taxi Status</Text>
-          <Text style={styles.cardContent}>🟢 5 taxis available</Text>
-          <Text style={styles.cardContent}>
-            ⌛ Estimated Time: <Text style={styles.timeText}>15 mins</Text>
-          </Text>
-          <TouchableOpacity style={[styles.actionButton, { marginTop: 15 }]} onPress={handleMonitorTaxi}>
-            <FontAwesome name="eye" size={24} color="white" />
-            <Text style={styles.buttonText}>Monitor Taxi</Text>
-          </TouchableOpacity>
+          {monitoredTaxi ? (
+            <>
+              <Text style={styles.cardContent}>Plate: {monitoredTaxi.numberPlate}</Text>
+              <Text style={styles.cardContent}>Status: {monitoredTaxi.status}</Text>
+              <Text style={styles.cardContent}>Current Stop: {monitoredTaxi.currentStop}</Text>
+              <Text style={styles.cardContent}>Load: {monitoredTaxi.currentLoad}</Text>
+              <Text style={styles.cardContent}>Route: {monitoredTaxi.routeName}</Text>
+              <Text style={styles.cardContent}>Next Stop: {monitoredTaxi.nextStop}</Text>
+              <Text style={styles.cardContent}>Driver: {monitoredTaxi.driverUsername}</Text>
+              <TouchableOpacity style={[styles.actionButton, { marginTop: 15 }]} onPress={handleEndMonitoring}>
+                <FontAwesome name="close" size={24} color="white" />
+                <Text style={styles.buttonText}>End Monitoring</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <Text style={styles.cardContent}>🟢 5 taxis available</Text>
+              <Text style={styles.cardContent}>
+                ⌛ Estimated Time: <Text style={styles.timeText}>15 mins</Text>
+              </Text>
+            </>
+          )}
         </View>
-        {monitoredTaxi && (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Monitored Taxi Details</Text>
-            <Text style={styles.cardContent}>Plate: {monitoredTaxi.numberPlate}</Text>
-            <Text style={styles.cardContent}>Status: {monitoredTaxi.status}</Text>
-            <Text style={styles.cardContent}>Current Stop: {monitoredTaxi.currentStop}</Text>
-            <Text style={styles.cardContent}>Load: {monitoredTaxi.currentLoad}</Text>
-            <Text style={styles.cardContent}>Route: {monitoredTaxi.routeName}</Text>
-            <Text style={styles.cardContent}>Next Stop: {monitoredTaxi.nextStop}</Text>
-            <Text style={styles.cardContent}>Driver: {monitoredTaxi.driverUsername}</Text>
-          </View>
-        )}
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate("requestRide")}>
             <FontAwesome name="car" size={24} color="white" />
@@ -147,10 +171,10 @@ const HomeScreen = () => {
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("LiveChat")}>
           <FontAwesome name="comment" size={24} color="#fff" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('TaxiManagement')}>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("TaxiManagement")}>
           <FontAwesome name="map" size={24} color="#fff" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Profile')}>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("Profile")}>
           <FontAwesome name="user" size={24} color="#fff" />
         </TouchableOpacity>
       </View>
@@ -158,6 +182,7 @@ const HomeScreen = () => {
   );
 };
 
+// Custom Loading Component with Animated Spinner
 const Loading = () => {
   const spinAnim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
