@@ -1,16 +1,8 @@
 const RideRequest = require("../models/RideRequest");
 const Route = require("../models/Route");
-const Taxi = require("../models/Taxi");
+const Taxi = require("../models/Taxi")
+const { getIo, getConnectedDrivers } = require("../socket");
 
-/**
- * Create a ride request.
- * Business logic:
- * - Passenger provides both startingStop and destinationStop.
- * - The system finds a route that contains both stops.
- * - Validates that startingStop comes before destinationStop.
- * - Eligible taxis are those on the same route with status "on trip"
- *   whose current stop order is less than the passenger's starting stop order.
- */
 exports.createRideRequest = async (req, res) => {
   try {
     const passenger = req.user._id;
@@ -22,7 +14,6 @@ exports.createRideRequest = async (req, res) => {
       });
     }
 
-    // Find a route that contains both stops.
     const route = await Route.findOne({
       "stops.name": { $all: [startingStop, destinationStop] },
     });
@@ -31,7 +22,6 @@ exports.createRideRequest = async (req, res) => {
       return res.status(404).json({ error: "No route found containing both stops." });
     }
 
-    // Retrieve stop details to validate the order.
     const startStopObj = route.stops.find((s) => s.name === startingStop);
     const destStopObj = route.stops.find((s) => s.name === destinationStop);
 
@@ -39,7 +29,6 @@ exports.createRideRequest = async (req, res) => {
       return res.status(400).json({ error: "Invalid stop order for ride request." });
     }
 
-    // Create the ride request with requestType "ride".
     const newRideRequest = new RideRequest({
       passenger,
       route: route._id,
@@ -50,17 +39,26 @@ exports.createRideRequest = async (req, res) => {
 
     await newRideRequest.save();
 
-    // Find eligible taxis:
-    // Taxis on the same route with status "on trip"
-    // whose current stop order is less than the startingStop order.
     const taxisOnRoute = await Taxi.find({ routeId: route._id, status: "on trip" });
     const eligibleTaxis = taxisOnRoute.filter((taxi) => {
-      // Map taxi's current stop name to its order in the route.
       const taxiStop = route.stops.find((s) => s.name === taxi.currentStop);
       return taxiStop && taxiStop.order < startStopObj.order;
     });
 
-    // TODO: Notify eligible taxis as needed (e.g., via Socket.io).
+    // **Emit notification to connected drivers**
+    const io = getIo();
+    const connectedDrivers = getConnectedDrivers();
+    
+    eligibleTaxis.forEach((taxi) => {
+      if (connectedDrivers.has(taxi.driverId.toString())) {
+        io.to(connectedDrivers.get(taxi.driverId.toString())).emit("newRideRequest", {
+          requestId: newRideRequest._id,
+          startingStop,
+          destinationStop,
+          route: route.name,
+        });
+      }
+    });
 
     return res.status(201).json({ rideRequest: newRideRequest, route, eligibleTaxis });
   } catch (err) {
@@ -69,129 +67,129 @@ exports.createRideRequest = async (req, res) => {
   }
 };
 
-/**
- * Create a pickup request.
- * Business logic:
- * - Passenger provides only the startingStop.
- * - The system finds a route that contains that startingStop.
- * - Eligible taxis are those on the same route with status "roaming".
- */
-exports.createPickupRequest = async (req, res) => {
-  try {
-    const passenger = req.user._id;
-    const { startingStop } = req.body;
-
-    if (!startingStop) {
-      return res.status(400).json({
-        error: "Starting stop is required for pickup requests.",
-      });
-    }
-
-    // Find a route that contains the starting stop.
-    const route = await Route.findOne({
-      "stops.name": startingStop,
-    });
-
-    if (!route) {
-      return res.status(404).json({ error: "No route found containing the starting stop." });
-    }
-
-    // Create the pickup request. destinationStop is not needed.
-    const newPickupRequest = new RideRequest({
-      passenger,
-      route: route._id,
-      requestType: "pickup",
-      startingStop,
-      destinationStop: "", // Not used for pickup.
-    });
-
-    await newPickupRequest.save();
-
-    // Find eligible taxis:
-    // Taxis on the same route with status "roaming".
-    const eligibleTaxis = await Taxi.find({ routeId: route._id, status: "roaming" });
-
-    // TODO: Notify eligible taxis as needed.
-
-    return res.status(201).json({ rideRequest: newPickupRequest, route, eligibleTaxis });
-  } catch (err) {
-    console.error("Error in createPickupRequest:", err);
-    return res.status(500).json({ error: "Server error." });
-  }
-};
-
-/**
- * Allow a driver to accept a ride or pickup request.
- * Business logic:
- * - For ride requests: the taxi must have status "on trip", be on the same route,
- *   and its current stop order must be less than the passenger's starting stop order.
- * - For pickup requests: the taxi must have status "roaming" and be on the same route.
- */
 exports.acceptRequest = async (req, res) => {
   try {
-    // Driver details are assumed to be set in req.user (including taxiId).
     const driverId = req.user._id;
-    const taxiId = req.user.taxiId; // Taxi associated with this driver.
     const { requestId } = req.params;
 
-    // Retrieve the request and populate its route.
     const rideRequest = await RideRequest.findById(requestId).populate("route");
     if (!rideRequest) {
       return res.status(404).json({ error: "Ride request not found." });
     }
 
-    // The request must still be pending.
     if (rideRequest.status !== "pending") {
       return res.status(400).json({ error: "Request is no longer pending." });
     }
 
-    // Retrieve taxi details.
-    const taxi = await Taxi.findById(taxiId);
+    const taxi = await Taxi.findOne({ driverId: driverId });
     if (!taxi) {
-      return res.status(404).json({ error: "Taxi not found." });
+      return res.status(404).json({ error: "Taxi for this driver not found." });
     }
 
-    // Ensure taxi is on the same route as the request.
     if (String(taxi.routeId) !== String(rideRequest.route._id)) {
       return res.status(400).json({ error: "Taxi is not on the correct route." });
     }
 
     if (rideRequest.requestType === "ride") {
-      // Taxi must be "on trip".
       if (taxi.status !== "on trip") {
         return res.status(400).json({ error: "Taxi is not available for ride requests." });
       }
 
-      // Verify taxi's current stop order is less than passenger's starting stop.
       const taxiStop = rideRequest.route.stops.find((s) => s.name === taxi.currentStop);
       const passengerStop = rideRequest.route.stops.find((s) => s.name === rideRequest.startingStop);
 
-      if (!taxiStop || !passengerStop || taxiStop.order >= passengerStop.order) {
+      if (!taxiStop || !passengerStop) {
+        return res.status(400).json({ error: "Invalid route stops data." });
+      }
+
+      if (taxiStop.order >= passengerStop.order) {
         return res.status(400).json({ error: "Taxi has already passed the passenger's starting stop." });
       }
     } else if (rideRequest.requestType === "pickup") {
-      // Taxi must be "roaming" for pickup.
       if (taxi.status !== "roaming") {
         return res.status(400).json({ error: "Taxi is not available for pickup requests." });
       }
+      taxi.status = "on trip"; // Update taxi status
+      await taxi.save();
+    } else {
+      return res.status(400).json({ error: "Unsupported request type." });
     }
 
-    // Accept the request.
     rideRequest.status = "accepted";
     rideRequest.taxi = taxi._id;
     await rideRequest.save();
 
-    // Optionally update taxi status. For example, if the taxi accepted a pickup, you might set it to "on trip".
-    if (rideRequest.requestType === "pickup") {
-      taxi.status = "on trip";
-      await taxi.save();
-    }
-
-    // TODO: Notify the passenger and driver of the acceptance.
+    // **Emit notification to the passenger**
+    const io = getIo();
+    io.to(rideRequest.passenger.toString()).emit("requestAccepted", {
+      requestId: rideRequest._id,
+      driverId: driverId,
+      taxi: taxi._id,
+      message: "Your ride request has been accepted!",
+    });
 
     return res.status(200).json({ message: "Request accepted.", rideRequest });
   } catch (err) {
     console.error("Error in acceptRequest:", err);
+    return res.status(500).json({ error: "Server error." });
+  }
+};
+
+/**
+ * Retrieve all requests made by the authenticated passenger
+ * where:
+ * - The starting stop is either the current stop or one stop ahead.
+ * - The destination stop exists in the taxi route's stops.
+ *
+ * Expects two query parameters:
+ * - currentStop: the name of the passenger's current stop.
+ * - routeId: the ID of the route the passenger is on.
+ */
+exports.getNearbyRequests = async (req, res) => {
+  try {
+    const passengerId = req.user._id;
+    const { currentStop, routeId } = req.query;
+
+    if (!currentStop || !routeId) {
+      return res.status(400).json({ error: "Both currentStop and routeId are required." });
+    }
+
+    // Retrieve the route details.
+    const route = await Route.findById(routeId);
+    if (!route) {
+      return res.status(404).json({ error: "Route not found." });
+    }
+
+    // Find the current stop object to get its order.
+    const currentStopObj = route.stops.find(s => s.name === currentStop);
+    if (!currentStopObj) {
+      return res.status(400).json({ error: "Invalid current stop provided." });
+    }
+    const currentOrder = currentStopObj.order;
+
+    // Retrieve all ride requests for the passenger on this route.
+    const rideRequests = await RideRequest.find({
+      passenger: passengerId,
+      route: routeId
+    }).populate("route");
+
+    // Filter the requests:
+    // - Check that startingStop is either the current stop or one stop ahead.
+    // - Check that the destinationStop is among the stops of the taxi route.
+    const nearbyRequests = rideRequests.filter(request => {
+      const requestStartStop = route.stops.find(s => s.name === request.startingStop);
+      const requestDestStop = route.stops.find(s => s.name === request.destinationStop);
+
+      // If either the startingStop or destinationStop is not valid in the route, skip the request.
+      if (!requestStartStop || !requestDestStop) return false;
+
+      // Only include requests where startingStop order is current or next.
+      return requestStartStop.order === currentOrder || requestStartStop.order === currentOrder + 1;
+    });
+
+    return res.status(200).json({ rideRequests: nearbyRequests });
+  } catch (err) {
+    console.error("Error in getNearbyRequests:", err);
     return res.status(500).json({ error: "Server error." });
   }
 };

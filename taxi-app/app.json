@@ -16,7 +16,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.kgotatso909.taxiapp"
+      "package": "com.moruditech.taxiapp"
     },
     "web": {
       "bundler": "metro",
