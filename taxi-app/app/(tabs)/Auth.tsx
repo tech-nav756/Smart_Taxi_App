@@ -9,7 +9,7 @@ import { fetchData } from "../api/api"; // Importing fetch function
 import { useAuth } from '../context/authContext'; // Importing auth context
 
 const AuthScreen = () => {
-  const apiUrl = "https://miniature-space-disco-g479vv79659pfw5jq-3000.app.github.dev"
+  const apiUrl = "https://fluffy-space-trout-7vgv67xv9xrhw77-3000.app.github.dev"
   const { login } = useAuth(); // Using auth context
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
@@ -17,7 +17,7 @@ const AuthScreen = () => {
   const [name, setName] = useState("");
   const translateX = new Animated.Value(0);
   const navigation = useNavigation<StackNavigationProp<RootStackParamList, 'Home'>>();
-
+  
   const toggleAuthMode = () => {
     Animated.timing(translateX, {
       toValue: isSignUp ? 0 : -100,

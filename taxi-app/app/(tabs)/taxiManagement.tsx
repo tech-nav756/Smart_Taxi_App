@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,15 +10,17 @@ import {
   TextInput,
   Alert,
   Platform,
+  Animated,
+  ScrollView,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { fetchData, getToken } from '../api/api';
 import { LinearGradient } from 'expo-linear-gradient';
-import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 
-const apiUrl = 'https://miniature-space-disco-g479vv79659pfw5jq-3000.app.github.dev/api';
+const apiUrl = 'https://fluffy-space-trout-7vgv67xv9xrhw77-3000.app.github.dev';
 
 type Taxi = {
   _id: string;
@@ -45,6 +47,67 @@ const statusOptions = [
   'not available',
 ];
 
+interface SidebarProps {
+  isVisible: boolean;
+  onClose: () => void;
+  onNavigate: (screen: string) => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ isVisible, onClose, onNavigate }) => {
+  const slideAnim = useRef(new Animated.Value(-250)).current;
+  useEffect(() => {
+    Animated.timing(slideAnim, {
+      toValue: isVisible ? 0 : -250,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [isVisible, slideAnim]);
+
+  return (
+    <Animated.View
+      style={[
+        styles.sidebar,
+        { transform: [{ translateX: slideAnim }] },
+      ]}
+    >
+      <View style={styles.sidebarHeader}>
+        <Text style={styles.sidebarTitle}>Menu</Text>
+        <TouchableOpacity onPress={onClose}>
+          <FontAwesome name="close" size={24} color="#003E7E" />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.logoContainer}>
+        <Text style={styles.logoText}>Taxi App</Text>
+      </View>
+      <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('requestRide'); onClose(); }}>
+        <FontAwesome name="car" size={22} color="#003E7E" />
+        <Text style={styles.sidebarButtonText}>Request Ride</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('ViewTaxi'); onClose(); }}>
+        <MaterialIcons name="directions-car" size={22} color="#003E7E" />
+        <Text style={styles.sidebarButtonText}>View Taxis</Text>
+      </TouchableOpacity>
+      <View style={styles.sidebarDivider} />
+      <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('ViewRequests'); onClose(); }}>
+        <FontAwesome name="search" size={22} color="#003E7E" />
+        <Text style={styles.sidebarButtonText}>Search Rides</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('LiveChat'); onClose(); }}>
+        <FontAwesome name="comment" size={22} color="#003E7E" />
+        <Text style={styles.sidebarButtonText}>Live Chat</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('TaxiManagement'); onClose(); }}>
+        <FontAwesome name="map" size={22} color="#003E7E" />
+        <Text style={styles.sidebarButtonText}>Manage Taxi</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('Profile'); onClose(); }}>
+        <FontAwesome name="user" size={22} color="#003E7E" />
+        <Text style={styles.sidebarButtonText}>Profile</Text>
+      </TouchableOpacity>
+    </Animated.View>
+  );
+};
+
 const TaxiManagement: React.FC = () => {
   const [taxis, setTaxis] = useState<Taxi[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -55,10 +118,10 @@ const TaxiManagement: React.FC = () => {
   const [newStop, setNewStop] = useState<string>('');
   const [newLoad, setNewLoad] = useState<string>('0');
   const [stopOptions, setStopOptions] = useState<string[]>([]);
+  const [sidebarVisible, setSidebarVisible] = useState(false);
 
   const navigation = useNavigation<StackNavigationProp<any, 'TaxiManagement'>>();
 
-  // Fetch taxi data
   const loadTaxis = async () => {
     setLoading(true);
     try {
@@ -68,7 +131,7 @@ const TaxiManagement: React.FC = () => {
         setLoading(false);
         return;
       }
-      const data = await fetchData(apiUrl, 'taxis/driver-taxi');
+      const data = await fetchData(apiUrl, 'api/taxis/driver-taxi');
       if (data && data.taxis) {
         setTaxis(data.taxis);
       } else {
@@ -86,10 +149,9 @@ const TaxiManagement: React.FC = () => {
     loadTaxis();
   }, []);
 
-  // Fetch stops for a taxi
   const fetchStopsForTaxi = async (taxiId: string) => {
     try {
-      const data = await fetchData(apiUrl, `taxis/${taxiId}/stops`);
+      const data = await fetchData(apiUrl, `api/taxis/${taxiId}/stops`);
       if (data && data.stops) {
         const names = data.stops.map((stop: Stop) => stop.name);
         setStopOptions(names);
@@ -105,7 +167,6 @@ const TaxiManagement: React.FC = () => {
     }
   };
 
-  // Open modal for selected taxi
   const handleActionPress = (taxi: Taxi) => {
     setSelectedTaxi(taxi);
     setUpdateType(null);
@@ -116,14 +177,12 @@ const TaxiManagement: React.FC = () => {
     setModalVisible(true);
   };
 
-  // Fetch stops when updating stop
   useEffect(() => {
     if (updateType === 'stop' && selectedTaxi) {
       fetchStopsForTaxi(selectedTaxi._id);
     }
   }, [updateType, selectedTaxi]);
 
-  // Handle update submission
   const handleUpdate = async () => {
     if (!selectedTaxi || !updateType) {
       Alert.alert('Error', 'Please select an update option.');
@@ -134,13 +193,13 @@ const TaxiManagement: React.FC = () => {
     let body = {};
 
     if (updateType === 'status') {
-      endpoint = `taxis/${selectedTaxi._id}/status`;
+      endpoint = `api/taxis/${selectedTaxi._id}/status`;
       body = { status: newStatus };
     } else if (updateType === 'stop') {
-      endpoint = `taxis/${selectedTaxi._id}/currentStopManual`;
+      endpoint = `api/taxis/${selectedTaxi._id}/currentStopManual`;
       body = { currentStop: newStop };
     } else if (updateType === 'load') {
-      endpoint = `taxis/${selectedTaxi._id}/load`;
+      endpoint = `api/taxis/${selectedTaxi._id}/load`;
       const parsedLoad = parseInt(newLoad, 10);
       if (isNaN(parsedLoad)) {
         Alert.alert('Error', 'Please enter a valid number for load.');
@@ -175,138 +234,213 @@ const TaxiManagement: React.FC = () => {
     </View>
   );
 
-  return (
-    <LinearGradient colors={['#0F2027', '#203A43', '#2C5364']} style={styles.gradient}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Taxi Management</Text>
-        {loading ? (
-          <Text style={styles.loadingText}>Loading taxis...</Text>
-        ) : (
-          <FlatList
-            data={taxis}
-            keyExtractor={(item) => item._id}
-            renderItem={renderTaxi}
-            ListHeaderComponent={
-              <View style={styles.headerRow}>
-                <Text style={styles.headerCell}>Number Plate</Text>
-                <Text style={styles.headerCell}>Status</Text>
-                <Text style={styles.headerCell}>Current Stop</Text>
-                <Text style={styles.headerCell}>Load</Text>
-                <Text style={styles.headerCell}>Action</Text>
-              </View>
-            }
-          />
-        )}
+  const handleNavigate = (screen: string) => {
+    navigation.navigate(screen);
+  };
 
-        {/* Modal for updating taxi details */}
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => setModalVisible(false)}>
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              {selectedTaxi && (
-                <>
-                  <Text style={styles.modalTitle}>Update Taxi: {selectedTaxi.numberPlate}</Text>
-                  {/* Option selection */}
-                  {!updateType && (
-                    <View style={styles.optionContainer}>
-                      <Text style={styles.optionTitle}>Select update type:</Text>
-                      <View style={styles.optionButtons}>
-                        <Button title="Status" onPress={() => setUpdateType('status')} />
-                        <Button title="Stop" onPress={() => setUpdateType('stop')} />
-                        <Button title="Load" onPress={() => setUpdateType('load')} />
+  const toggleSidebar = () => {
+    setSidebarVisible(!sidebarVisible);
+  };
+
+  return (
+    <LinearGradient colors={['#FFFFFF', '#E8F0FE']} style={styles.gradient}>
+      <View style={styles.navBar}>
+        <Text style={styles.navLogo}>Taxi App</Text>
+        <TouchableOpacity style={styles.toggleButton} onPress={toggleSidebar}>
+          <FontAwesome name="bars" size={28} color="#003E7E" />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.container}>
+        <Sidebar
+          isVisible={sidebarVisible}
+          onClose={toggleSidebar}
+          onNavigate={handleNavigate}
+        />
+        <ScrollView contentContainerStyle={styles.mainContent}>
+          <Text style={styles.title}>Taxi Management</Text>
+          {loading ? (
+            <Text style={styles.loadingText}>Loading taxis...</Text>
+          ) : (
+            <FlatList
+              data={taxis}
+              keyExtractor={(item) => item._id}
+              renderItem={renderTaxi}
+              ListHeaderComponent={
+                <View style={styles.headerRow}>
+                  <Text style={styles.headerCell}>Number Plate</Text>
+                  <Text style={styles.headerCell}>Status</Text>
+                  <Text style={styles.headerCell}>Current Stop</Text>
+                  <Text style={styles.headerCell}>Load</Text>
+                  <Text style={styles.headerCell}>Action</Text>
+                </View>
+              }
+            />
+          )}
+
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => setModalVisible(false)}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContent}>
+                {selectedTaxi && (
+                  <>
+                    <Text style={styles.modalTitle}>Update Taxi: {selectedTaxi.numberPlate}</Text>
+                    {!updateType && (
+                      <View style={styles.optionContainer}>
+                        <Text style={styles.optionTitle}>Select update type:</Text>
+                        <View style={styles.optionButtons}>
+                          <Button title="Status" onPress={() => setUpdateType('status')} />
+                          <Button title="Stop" onPress={() => setUpdateType('stop')} />
+                          <Button title="Load" onPress={() => setUpdateType('load')} />
+                        </View>
                       </View>
-                    </View>
-                  )}
-                  {/* Update form based on selected option */}
-                  {updateType === 'status' && (
-                    <View style={styles.formGroup}>
-                      <Text style={styles.label}>Select new status:</Text>
-                      <Picker selectedValue={newStatus} onValueChange={(itemValue) => setNewStatus(itemValue)}>
-                        {statusOptions.map((status) => (
-                          <Picker.Item key={status} label={status} value={status} />
-                        ))}
-                      </Picker>
-                    </View>
-                  )}
-                  {updateType === 'stop' && (
-                    <View style={styles.formGroup}>
-                      <Text style={styles.label}>Select new stop:</Text>
-                      {stopOptions.length ? (
-                        <Picker selectedValue={newStop} onValueChange={(itemValue) => setNewStop(itemValue)}>
-                          {stopOptions.map((stop) => (
-                            <Picker.Item key={stop} label={stop} value={stop} />
+                    )}
+                    {updateType === 'status' && (
+                      <View style={styles.formGroup}>
+                        <Text style={styles.label}>Select new status:</Text>
+                        <Picker selectedValue={newStatus} onValueChange={(itemValue) => setNewStatus(itemValue)}>
+                          {statusOptions.map((status) => (
+                            <Picker.Item key={status} label={status} value={status} />
                           ))}
                         </Picker>
-                      ) : (
-                        <Text style={styles.loadingText}>Loading stops...</Text>
-                      )}
+                      </View>
+                    )}
+                    {updateType === 'stop' && (
+                      <View style={styles.formGroup}>
+                        <Text style={styles.label}>Select new stop:</Text>
+                        {stopOptions.length ? (
+                          <Picker selectedValue={newStop} onValueChange={(itemValue) => setNewStop(itemValue)}>
+                            {stopOptions.map((stop) => (
+                              <Picker.Item key={stop} label={stop} value={stop} />
+                            ))}
+                          </Picker>
+                        ) : (
+                          <Text style={styles.loadingText}>Loading stops...</Text>
+                        )}
+                      </View>
+                    )}
+                    {updateType === 'load' && (
+                      <View style={styles.formGroup}>
+                        <Text style={styles.label}>Enter new load:</Text>
+                        <TextInput
+                          style={styles.input}
+                          keyboardType="numeric"
+                          value={newLoad}
+                          onChangeText={setNewLoad}
+                        />
+                      </View>
+                    )}
+                    <View style={styles.modalButtons}>
+                      <Button title="Cancel" onPress={() => setModalVisible(false)} />
+                      {updateType && <Button title="Submit" onPress={handleUpdate} />}
                     </View>
-                  )}
-                  {updateType === 'load' && (
-                    <View style={styles.formGroup}>
-                      <Text style={styles.label}>Enter new load:</Text>
-                      <TextInput
-                        style={styles.input}
-                        keyboardType="numeric"
-                        value={newLoad}
-                        onChangeText={setNewLoad}
-                      />
-                    </View>
-                  )}
-                  <View style={styles.modalButtons}>
-                    <Button title="Cancel" onPress={() => setModalVisible(false)} />
-                    {updateType && <Button title="Submit" onPress={handleUpdate} />}
-                  </View>
-                </>
-              )}
+                  </>
+                )}
+              </View>
             </View>
-          </View>
-        </Modal>
-      </View>
-
-      {/* Bottom Navigation Bar */}
-      <View style={styles.navBar}>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("Home")}>
-          <FontAwesome name="home" size={24} color="#fff" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("LiveChat")}>
-          <FontAwesome name="comment" size={24} color="#fff" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("TaxiManagement")}>
-          <FontAwesome name="map" size={24} color="#fff" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("Profile")}>
-          <FontAwesome name="user" size={24} color="#fff" />
-        </TouchableOpacity>
+          </Modal>
+        </ScrollView>
       </View>
     </LinearGradient>
   );
 };
 
-export default TaxiManagement;
-
 const styles = StyleSheet.create({
   gradient: {
     flex: 1,
   },
+  navBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    padding: 20,
+    backgroundColor: '#F7F9FC',
+    borderBottomWidth: 1,
+    borderBottomColor: '#DDD',
+    zIndex: 10,
+  },
+  navLogo: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#003E7E',
+  },
+  toggleButton: {
+    backgroundColor: 'transparent',
+    padding: 10,
+    borderRadius: 30,
+  },
+  sidebar: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    width: 250,
+    backgroundColor: '#F7F9FC',
+    paddingTop: 60,
+    paddingHorizontal: 15,
+    zIndex: 9,
+    borderRightWidth: 1,
+    borderRightColor: '#DDD',
+  },
+  sidebarHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  sidebarTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#003E7E',
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 25,
+  },
+  logoText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#003E7E',
+  },
+  sidebarButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 5,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  sidebarButtonText: {
+    fontSize: 16,
+    marginLeft: 10,
+    color: '#003E7E',
+    fontWeight: '600',
+  },
+  sidebarDivider: {
+    height: 1,
+    backgroundColor: '#DDD',
+    marginVertical: 15,
+  },
   container: {
     flex: 1,
+  },
+  mainContent: {
+    flexGrow: 1,
     padding: 16,
     paddingTop: 40,
-    marginBottom: 100, // space for nav bar
   },
   title: {
     fontSize: 26,
     fontWeight: '700',
-    color: '#fff',
+    color: '#003E7E',
     textAlign: 'center',
     marginBottom: 16,
   },
   loadingText: {
-    color: '#fff',
+    color: '#003E7E',
     textAlign: 'center',
     marginVertical: 20,
     fontSize: 18,
@@ -314,7 +448,7 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: 'row',
     paddingVertical: 10,
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    backgroundColor: '#F7F9FC',
     borderTopLeftRadius: 8,
     borderTopRightRadius: 8,
   },
@@ -327,7 +461,7 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     paddingVertical: 10,
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    backgroundColor: '#F7F9FC',
     borderBottomWidth: 1,
     borderColor: '#ddd',
     alignItems: 'center',
@@ -338,7 +472,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   actionButton: {
-    backgroundColor: '#007BFF',
+    backgroundColor: '#003E7E',
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 4,
@@ -354,7 +488,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: '90%',
-    backgroundColor: 'rgba(255,255,255,0.95)',
+    backgroundColor: '#F7F9FC',
     padding: 20,
     borderRadius: 8,
     elevation: 5,
@@ -399,24 +533,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 16,
   },
-  navBar: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
-    backgroundColor: 'rgba(233, 69, 96, 0.9)',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 15,
-    borderRadius: 40,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.4,
-    shadowRadius: 5,
-    elevation: 10,
-  },
-  navButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
 });
+
+export default TaxiManagement;

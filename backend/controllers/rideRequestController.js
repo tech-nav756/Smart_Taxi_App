@@ -67,6 +67,55 @@ exports.createRideRequest = async (req, res) => {
   }
 };
 
+exports.createPickupRequest = async (req, res) => {
+  try {
+    const passenger = req.user._id;
+    const { startingStop } = req.body;
+
+    if (!startingStop) {
+      return res.status(400).json({ error: "Starting stop is required for pickup requests." });
+    }
+
+    const route = await Route.findOne({ "stops.name": startingStop });
+
+    if (!route) {
+      return res.status(404).json({ error: "No route found containing the starting stop." });
+    }
+
+    const newPickupRequest = new RideRequest({
+      passenger,
+      route: route._id,
+      requestType: "pickup",
+      startingStop,
+      destinationStop: "", 
+    });
+
+    await newPickupRequest.save();
+
+    const eligibleTaxis = await Taxi.find({ routeId: route._id, status: "roaming" });
+
+    // **Emit notification to roaming drivers**
+    const io = getIo();
+    const connectedDrivers = getConnectedDrivers();
+
+    eligibleTaxis.forEach((taxi) => {
+      if (connectedDrivers.has(taxi.driverId.toString())) {
+        io.to(connectedDrivers.get(taxi.driverId.toString())).emit("newPickupRequest", {
+          requestId: newPickupRequest._id,
+          startingStop,
+          route: route.name,
+        });
+      }
+    });
+
+    return res.status(201).json({ rideRequest: newPickupRequest, route, eligibleTaxis });
+  } catch (err) {
+    console.error("Error in createPickupRequest:", err);
+    return res.status(500).json({ error: "Server error." });
+  }
+};
+
+
 exports.acceptRequest = async (req, res) => {
   try {
     const driverId = req.user._id;
@@ -145,51 +194,70 @@ exports.acceptRequest = async (req, res) => {
  * - currentStop: the name of the passenger's current stop.
  * - routeId: the ID of the route the passenger is on.
  */
-exports.getNearbyRequests = async (req, res) => {
+exports.getNearbyRequestsForDriver = async (req, res) => {
   try {
-    const passengerId = req.user._id;
-    const { currentStop, routeId } = req.query;
-
-    if (!currentStop || !routeId) {
-      return res.status(400).json({ error: "Both currentStop and routeId are required." });
+    // Ensure req.user exists and has _id.
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ error: "Unauthorized: Driver not authenticated." });
     }
 
-    // Retrieve the route details.
-    const route = await Route.findById(routeId);
+    const driverId = req.user._id;
+
+    // Retrieve the taxi associated with this driver.
+    const taxi = await Taxi.findOne({ driverId });
+    if (!taxi) {
+      return res.status(404).json({ error: "Taxi for this driver not found." });
+    }
+    
+    // Check that taxi has a routeId.
+    if (!taxi.routeId) {
+      console.error("Taxi found but routeId is undefined for taxi:", taxi);
+      return res.status(400).json({ error: "Taxi route information is missing." });
+    }
+
+    // Retrieve the route for the taxi.
+    const route = await Route.findById(taxi.routeId);
     if (!route) {
-      return res.status(404).json({ error: "Route not found." });
+      return res.status(404).json({ error: "Route not found for the taxi." });
     }
 
-    // Find the current stop object to get its order.
-    const currentStopObj = route.stops.find(s => s.name === currentStop);
-    if (!currentStopObj) {
-      return res.status(400).json({ error: "Invalid current stop provided." });
+    // Ensure the route has stops defined.
+    if (!route.stops || !Array.isArray(route.stops) || route.stops.length === 0) {
+      return res.status(400).json({ error: "Route stops are not defined." });
     }
-    const currentOrder = currentStopObj.order;
 
-    // Retrieve all ride requests for the passenger on this route.
+    // Find the taxi's current stop details from the route stops.
+    const taxiCurrentStopObj = route.stops.find((s) => s.name === taxi.currentStop);
+    if (!taxiCurrentStopObj) {
+      return res.status(400).json({ error: "Taxi's current stop is not found in the route stops." });
+    }
+    const currentOrder = taxiCurrentStopObj.order;
+    const nextOrder = currentOrder + 1;
+
+    // Retrieve pending ride requests on the same route.
     const rideRequests = await RideRequest.find({
-      passenger: passengerId,
-      route: routeId
-    }).populate("route");
+      route: route._id,
+      status: "pending",
+    });
 
-    // Filter the requests:
-    // - Check that startingStop is either the current stop or one stop ahead.
-    // - Check that the destinationStop is among the stops of the taxi route.
-    const nearbyRequests = rideRequests.filter(request => {
-      const requestStartStop = route.stops.find(s => s.name === request.startingStop);
-      const requestDestStop = route.stops.find(s => s.name === request.destinationStop);
+    // Filter requests based on startingStop order and ensure destinationStop exists on route.
+    const nearbyRequests = rideRequests.filter((request) => {
+      // Validate that request has startingStop and destinationStop.
+      if (!request.startingStop || !request.destinationStop) return false;
+      
+      const requestStartStop = route.stops.find((s) => s.name === request.startingStop);
+      const requestDestStop = route.stops.find((s) => s.name === request.destinationStop);
 
-      // If either the startingStop or destinationStop is not valid in the route, skip the request.
+      // Only include the request if both stops are valid.
       if (!requestStartStop || !requestDestStop) return false;
 
-      // Only include requests where startingStop order is current or next.
-      return requestStartStop.order === currentOrder || requestStartStop.order === currentOrder + 1;
+      // Include requests that are at the current stop or one stop ahead.
+      return requestStartStop.order === currentOrder || requestStartStop.order === nextOrder;
     });
 
     return res.status(200).json({ rideRequests: nearbyRequests });
   } catch (err) {
-    console.error("Error in getNearbyRequests:", err);
+    console.error("Error in getNearbyRequestsForDriver:", err);
     return res.status(500).json({ error: "Server error." });
   }
 };

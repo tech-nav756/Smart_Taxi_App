@@ -7,6 +7,7 @@ import {
   Animated,
   Alert,
   Dimensions,
+  ScrollView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
@@ -14,36 +15,153 @@ import { getToken, fetchData } from '../api/api';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 
-const { width } = Dimensions.get('window');
+const { width: windowWidth } = Dimensions.get('window');
 
-// Define your navigation parameter types
 type RootStackParamList = {
   Home: { acceptedTaxiId?: string };
-  // ... other routes
+  requestRide: undefined;
+  ViewTaxi: undefined;
+  ViewRequests: undefined;
+  LiveChat: undefined;
+  TaxiManagement: undefined;
+  Profile: undefined;
 };
 
 type HomeScreenRouteProp = RouteProp<RootStackParamList, 'Home'>;
 
+interface SidebarProps {
+  isVisible: boolean;
+  onClose: () => void;
+  onNavigate: (screen: keyof RootStackParamList) => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ isVisible, onClose, onNavigate }) => {
+  const slideAnim = useRef(new Animated.Value(-250)).current; // Sidebar width
+  useEffect(() => {
+    Animated.timing(slideAnim, {
+      toValue: isVisible ? 0 : -250,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [isVisible, slideAnim]);
+
+  return (
+    <Animated.View
+      style={[
+        styles.sidebar,
+        { transform: [{ translateX: slideAnim }] },
+      ]}
+    >
+      <View style={styles.sidebarHeader}>
+        <Text style={styles.sidebarTitle}>Menu</Text>
+        <TouchableOpacity onPress={onClose}>
+          <FontAwesome name="close" size={24} color="#003E7E" />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.logoContainer}>
+        <Text style={styles.logoText}>Taxi App</Text>
+      </View>
+      <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('requestRide'); onClose(); }}>
+        <FontAwesome name="car" size={22} color="#003E7E" />
+        <Text style={styles.sidebarButtonText}>Request Ride</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('ViewTaxi'); onClose(); }}>
+        <MaterialIcons name="directions-car" size={22} color="#003E7E" />
+        <Text style={styles.sidebarButtonText}>View Taxis</Text>
+      </TouchableOpacity>
+      <View style={styles.sidebarDivider} />
+      <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('ViewRequests'); onClose(); }}>
+        <FontAwesome name="search" size={22} color="#003E7E" />
+        <Text style={styles.sidebarButtonText}>Search Rides</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('LiveChat'); onClose(); }}>
+        <FontAwesome name="comment" size={22} color="#003E7E" />
+        <Text style={styles.sidebarButtonText}>Live Chat</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('TaxiManagement'); onClose(); }}>
+        <FontAwesome name="map" size={22} color="#003E7E" />
+        <Text style={styles.sidebarButtonText}>Manage Taxi</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('Profile'); onClose(); }}>
+        <FontAwesome name="user" size={22} color="#003E7E" />
+        <Text style={styles.sidebarButtonText}>Profile</Text>
+      </TouchableOpacity>
+    </Animated.View>
+  );
+};
+
+interface HomeContentProps {
+  userName: string | null;
+}
+
+const HomeContent: React.FC<HomeContentProps> = ({ userName }) => {
+  return (
+    <View style={styles.homeContent}>
+      <Text style={styles.greetingText}>
+        {userName ? `Welcome back, ${userName}!` : 'Welcome to Taxi Tracker!'}
+      </Text>
+      <View style={styles.customWidget}>
+        <Text style={styles.widgetTitle}>Search for Taxis</Text>
+      </View>
+    </View>
+  );
+};
+
+interface LiveStatusProps {
+  monitoredTaxi: any;
+  onEndMonitoring: () => void;
+}
+
+const LiveStatus: React.FC<LiveStatusProps> = ({ monitoredTaxi, onEndMonitoring }) => {
+  return (
+    <View style={styles.liveStatus}>
+      <Text style={styles.statusTitle}>Live Taxi Status</Text>
+      {monitoredTaxi ? (
+        <View style={styles.taxiDetails}>
+          <Text style={styles.taxiText}>Plate: {monitoredTaxi.numberPlate}</Text>
+          <Text style={styles.taxiText}>Status: {monitoredTaxi.status}</Text>
+          <Text style={styles.taxiText}>Current Stop: {monitoredTaxi.currentStop}</Text>
+          <Text style={styles.taxiText}>Load: {monitoredTaxi.currentLoad}</Text>
+          <Text style={styles.taxiText}>Route: {monitoredTaxi.routeName}</Text>
+          <Text style={styles.taxiText}>Next Stop: {monitoredTaxi.nextStop}</Text>
+          <Text style={styles.taxiText}>Driver: {monitoredTaxi.driverUsername}</Text>
+          <TouchableOpacity style={styles.endMonitorButton} onPress={onEndMonitoring}>
+            <FontAwesome name="close" size={20} color="#FFF" />
+            <Text style={styles.endMonitorText}>Stop Monitoring</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <View style={styles.taxiDetails}>
+          <Text style={styles.taxiText}>5 taxis available</Text>
+          <Text style={styles.taxiText}>
+            Estimated Time: <Text style={styles.estimateText}>15 mins</Text>
+          </Text>
+        </View>
+      )}
+    </View>
+  );
+};
+
 const HomeScreen = () => {
-  const apiUrl = "https://miniature-space-disco-g479vv79659pfw5jq-3000.app.github.dev";
+  const apiUrl = 'https://fluffy-space-trout-7vgv67xv9xrhw77-3000.app.github.dev';
   const [userName, setUserName] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [monitoredTaxi, setMonitoredTaxi] = useState<any>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(-50)).current;
-  
+  const slideAnim = useRef(new Animated.Value(-30)).current;
+  const [sidebarVisible, setSidebarVisible] = useState(false);
+
   const route = useRoute<HomeScreenRouteProp>();
   const acceptedTaxiId = route.params?.acceptedTaxiId;
   const navigation = useNavigation<StackNavigationProp<any, 'Home'>>();
 
-  // Fetch user data with token
+  // Fetch user data using token
   useEffect(() => {
     const fetchUserData = async () => {
       const token = await getToken();
       if (token) {
         try {
-          const endpoint = 'api/users/get-user';
-          const response = await fetchData(apiUrl, endpoint, {
+          const response = await fetchData(apiUrl, 'api/users/get-user', {
             method: 'GET',
             headers: { Authorization: `Bearer ${token}` },
           });
@@ -60,22 +178,21 @@ const HomeScreen = () => {
 
     fetchUserData();
 
-    // Parallel animations for fade in and slide up effect
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 1500,
+        duration: 1200,
         useNativeDriver: true,
       }),
       Animated.timing(slideAnim, {
         toValue: 0,
-        duration: 1000,
+        duration: 800,
         useNativeDriver: true,
       }),
     ]).start();
   }, [fadeAnim, slideAnim]);
 
-  // Automatically load monitoring details if acceptedTaxiId exists
+  // Load monitoring details if taxi is accepted
   useEffect(() => {
     if (acceptedTaxiId && !monitoredTaxi) {
       handleMonitorTaxi();
@@ -83,7 +200,6 @@ const HomeScreen = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [acceptedTaxiId]);
 
-  // Function to fetch live taxi details using the monitorTaxi endpoint.
   const handleMonitorTaxi = async () => {
     const token = await getToken();
     if (!token) {
@@ -111,10 +227,8 @@ const HomeScreen = () => {
     }
   };
 
-  // End monitoring and return to static display
   const handleEndMonitoring = () => {
     setMonitoredTaxi(null);
-    // Optionally, clear the acceptedTaxiId parameter.
     navigation.setParams({ acceptedTaxiId: undefined });
   };
 
@@ -122,68 +236,38 @@ const HomeScreen = () => {
     return <Loading />;
   }
 
+  const handleNavigate = (screen: keyof RootStackParamList) => {
+    navigation.navigate(screen);
+  };
+    const toggleSidebar = () => {
+        setSidebarVisible(!sidebarVisible);
+    }
+
   return (
-    <LinearGradient colors={['#0F2027', '#203A43', '#2C5364']} style={styles.gradient}>
-      <Animated.View style={[styles.container, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-        <Text style={styles.welcomeText}>
-          {userName ? `Welcome back, ${userName}!` : 'Welcome to Taxi Tracker!'}
-        </Text>
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Live Taxi Status</Text>
-          {monitoredTaxi ? (
-            <>
-              <Text style={styles.cardContent}>Plate: {monitoredTaxi.numberPlate}</Text>
-              <Text style={styles.cardContent}>Status: {monitoredTaxi.status}</Text>
-              <Text style={styles.cardContent}>Current Stop: {monitoredTaxi.currentStop}</Text>
-              <Text style={styles.cardContent}>Load: {monitoredTaxi.currentLoad}</Text>
-              <Text style={styles.cardContent}>Route: {monitoredTaxi.routeName}</Text>
-              <Text style={styles.cardContent}>Next Stop: {monitoredTaxi.nextStop}</Text>
-              <Text style={styles.cardContent}>Driver: {monitoredTaxi.driverUsername}</Text>
-              <TouchableOpacity style={[styles.actionButton, { marginTop: 15 }]} onPress={handleEndMonitoring}>
-                <FontAwesome name="close" size={24} color="white" />
-                <Text style={styles.buttonText}>End Monitoring</Text>
-              </TouchableOpacity>
-            </>
-          ) : (
-            <>
-              <Text style={styles.cardContent}>🟢 5 taxis available</Text>
-              <Text style={styles.cardContent}>
-                ⌛ Estimated Time: <Text style={styles.timeText}>15 mins</Text>
-              </Text>
-            </>
-          )}
-        </View>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate("requestRide")}>
-            <FontAwesome name="car" size={24} color="white" />
-            <Text style={styles.buttonText}>Request Ride</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate("ViewTaxi")}>
-            <MaterialIcons name="speed" size={24} color="white" />
-            <Text style={styles.buttonText}>View Taxis</Text>
-          </TouchableOpacity>
-        </View>
-      </Animated.View>
+    <LinearGradient colors={['#FFFFFF', '#E8F0FE']} style={styles.gradient}>
       <View style={styles.navBar}>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("Home")}>
-          <FontAwesome name="home" size={24} color="#fff" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("LiveChat")}>
-          <FontAwesome name="comment" size={24} color="#fff" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("TaxiManagement")}>
-          <FontAwesome name="map" size={24} color="#fff" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("Profile")}>
-          <FontAwesome name="user" size={24} color="#fff" />
+        <Text style={styles.navLogo}>Taxi App</Text>
+        <TouchableOpacity style={styles.toggleButton} onPress={toggleSidebar}>
+          <FontAwesome name="bars" size={28} color="#003E7E" />
         </TouchableOpacity>
       </View>
+      <Animated.View style={[styles.container, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+        {/* Sidebar */}
+        <Sidebar
+          isVisible={sidebarVisible}
+          onClose={toggleSidebar}
+          onNavigate={handleNavigate}
+        />
+        <ScrollView contentContainerStyle={styles.mainContent}>
+          <HomeContent userName={userName} />
+          <LiveStatus monitoredTaxi={monitoredTaxi} onEndMonitoring={handleEndMonitoring} />
+        </ScrollView>
+      </Animated.View>
     </LinearGradient>
   );
 };
 
-// Custom Loading Component with Animated Spinner
-const Loading = () => {
+const Loading: React.FC = () => {
   const spinAnim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     Animated.loop(
@@ -194,14 +278,16 @@ const Loading = () => {
       })
     ).start();
   }, [spinAnim]);
+
   const spin = spinAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ['0deg', '360deg']
+    outputRange: ['0deg', '360deg'],
   });
+
   return (
     <View style={styles.loadingContainer}>
       <Animated.View style={{ transform: [{ rotate: spin }] }}>
-        <FontAwesome name="spinner" size={50} color="#fff" />
+        <FontAwesome name="spinner" size={50} color="#003E7E" />
       </Animated.View>
       <Text style={styles.loadingText}>Loading...</Text>
     </View>
@@ -209,96 +295,164 @@ const Loading = () => {
 };
 
 const styles = StyleSheet.create({
-  gradient: { flex: 1 },
+  gradient: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  navBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    padding: 20,
+    backgroundColor: '#F7F9FC',
+    borderBottomWidth: 1,
+    borderBottomColor: '#DDD',
+    zIndex: 10,
+  },
+  navLogo: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#003E7E',
+  },
   container: {
     flex: 1,
+  },
+  toggleButton: {
+    backgroundColor: 'transparent',
+    padding: 10,
+    borderRadius: 30,
+  },
+  sidebar: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    width: 250,
+    backgroundColor: '#F7F9FC',
     paddingTop: 60,
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
+    zIndex: 9,
+    borderRightWidth: 1,
+    borderRightColor: '#DDD',
+  },
+  sidebarHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 20,
   },
-  welcomeText: {
-    fontSize: 30,
+  sidebarTitle: {
+    fontSize: 20,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#003E7E',
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 25,
+  },
+  logoText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#003E7E',
+  },
+  sidebarButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 5,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  sidebarButtonText: {
+    fontSize: 16,
+    marginLeft: 10,
+    color: '#003E7E',
+    fontWeight: '600',
+  },
+  sidebarDivider: {
+    height: 1,
+    backgroundColor: '#DDD',
+    marginVertical: 15,
+  },
+  mainContent: {
+    flexGrow: 1,
+    padding: 20,
+    backgroundColor: '#FFFFFF',
+    paddingTop: 20,
+  },
+  homeContent: {
     marginBottom: 30,
-    textAlign: 'center',
   },
-  card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    width: width * 0.9,
-    borderRadius: 20,
-    padding: 25,
-    marginVertical: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 10,
+  greetingText: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#000',
+    marginBottom: 20,
   },
-  cardTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#E94560',
+  customWidget: {
+    backgroundColor: '#E8F0FE',
+    padding: 15,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#003E7E',
+  },
+  widgetTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#003E7E',
+  },
+  liveStatus: {
+    backgroundColor: '#F7F9FC',
+    padding: 20,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#DDD',
+  },
+  statusTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#000',
     marginBottom: 15,
   },
-  cardContent: {
-    fontSize: 18,
+  taxiDetails: {
+    marginLeft: 10,
+  },
+  taxiText: {
+    fontSize: 16,
     color: '#333',
     marginBottom: 5,
   },
-  timeText: {
+  estimateText: {
     fontWeight: 'bold',
-    color: '#F2C14E',
+    color: '#003E7E',
   },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    width: '100%',
-    marginVertical: 30,
-  },
-  actionButton: {
+  endMonitorButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#E94560',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: 35,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 8,
+    backgroundColor: '#003E7E',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    marginTop: 15,
+    alignSelf: 'flex-start',
   },
-  buttonText: {
-    color: '#ffffff',
-    fontSize: 18,
-    marginLeft: 10,
+  endMonitorText: {
+    color: '#FFF',
+    fontSize: 16,
+    marginLeft: 6,
     fontWeight: '600',
   },
-  navBar: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
-    backgroundColor: 'rgba(233, 69, 96, 0.9)',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 15,
-    borderRadius: 40,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.4,
-    shadowRadius: 5,
-    elevation: 10,
-  },
-  navButton: { justifyContent: 'center', alignItems: 'center' },
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#0F2027',
+    backgroundColor: '#E8F0FE',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  loadingText: { fontSize: 22, color: '#ffffff', marginTop: 15 },
+  loadingText: {
+    fontSize: 22,
+    color: '#003E7E',
+    marginTop: 15,
+  },
 });
 
 export default HomeScreen;

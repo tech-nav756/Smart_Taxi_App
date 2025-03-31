@@ -2,13 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
-  TextInput,
-  StyleSheet,
-  Dimensions,
-  ScrollView,
+  FlatList,
   ActivityIndicator,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
   Animated,
+  ScrollView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { fetchData, getToken } from '../api/api';
@@ -16,8 +16,14 @@ import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 
-const { width } = Dimensions.get('window');
-const apiUrl = 'https://fluffy-space-trout-7vgv67xv9xrhw77-3000.app.github.dev';
+interface RideRequest {
+  _id: string;
+  passenger: string;
+  startingStop: string;
+  destinationStop: string;
+  requestType: string;
+  status: string;
+}
 
 interface SidebarProps {
   isVisible: boolean;
@@ -25,8 +31,10 @@ interface SidebarProps {
   onNavigate: (screen: string) => void;
 }
 
+const apiUrl = 'https://fluffy-space-trout-7vgv67xv9xrhw77-3000.app.github.dev';
+
 const Sidebar: React.FC<SidebarProps> = ({ isVisible, onClose, onNavigate }) => {
-  const slideAnim = useRef(new Animated.Value(-250)).current; // Sidebar width
+  const slideAnim = useRef(new Animated.Value(-250)).current;
   useEffect(() => {
     Animated.timing(slideAnim, {
       toValue: isVisible ? 0 : -250,
@@ -80,70 +88,78 @@ const Sidebar: React.FC<SidebarProps> = ({ isVisible, onClose, onNavigate }) => 
   );
 };
 
-const RideRequestScreen: React.FC = () => {
-  const [requestType, setRequestType] = useState<'ride' | 'pickup'>('ride');
-  const [startingStop, setStartingStop] = useState<string>('');
-  const [destinationStop, setDestinationStop] = useState<string>('');
+const ViewRequestScreen: React.FC = () => {
+  const [requests, setRequests] = useState<RideRequest[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string>('');
   const [sidebarVisible, setSidebarVisible] = useState(false);
 
-  const navigation = useNavigation<StackNavigationProp<any, 'RideRequest'>>();
+  const navigation = useNavigation<StackNavigationProp<any, 'ViewRequests'>>();
 
-  const handleSubmit = async () => {
+  const fetchNearbyRequests = async () => {
     setLoading(true);
-    setError(null);
-    setSuccessMessage(null);
-
+    setError('');
     try {
       const token = await getToken();
       if (!token) {
-        setError('Not authorized. Please log in.');
-        setLoading(false);
-        return;
+        throw new Error('Authentication token not found.');
       }
-
-      let endpoint = '';
-      let body: any = {};
-
-      if (requestType === 'ride') {
-        if (!startingStop || !destinationStop) {
-          setError('Both starting and destination stops are required for a ride request.');
-          setLoading(false);
-          return;
-        }
-        endpoint = 'api/rideRequest/ride';
-        body = { startingStop, destinationStop };
-      } else {
-        if (!startingStop) {
-          setError('Starting stop is required for a pickup request.');
-          setLoading(false);
-          return;
-        }
-        endpoint = 'api/rideRequest/pickup';
-        body = { startingStop };
-      }
-
-      const data = await fetchData(apiUrl, endpoint, {
-        method: 'POST',
-        body,
+      const data = await fetchData(apiUrl, 'api/rideRequest/driver/nearby', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-
-      setSuccessMessage('Request submitted successfully!');
-      setStartingStop('');
-      setDestinationStop('');
-    } catch (err) {
-      console.error('Error submitting request:', err);
-      setError('Failed to submit request.');
+      setRequests(data.rideRequests || []);
+    } catch (err: any) {
+      console.error('Error fetching nearby requests:', err);
+      setError(err.message || 'Failed to fetch nearby requests. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchNearbyRequests();
+  }, []);
+
+  const handleAccept = async (requestId: string) => {
+    try {
+      const token = await getToken();
+      if (!token) {
+        throw new Error('Authentication token not found.');
+      }
+      await fetchData(apiUrl, `api/rideRequest/accept/${requestId}`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      Alert.alert('Success', 'Request accepted.');
+      setRequests((prev) => prev.filter((req) => req._id !== requestId));
+    } catch (err: any) {
+      console.error('Error accepting request:', err);
+      Alert.alert('Error', err.message || 'Failed to accept request.');
+    }
+  };
+
+  const renderItem = ({ item }: { item: RideRequest }) => (
+    <View style={styles.requestItem}>
+      <Text style={styles.requestText}>Passenger: {item.passenger}</Text>
+      <Text style={styles.requestText}>Starting Stop: {item.startingStop}</Text>
+      <Text style={styles.requestText}>Destination Stop: {item.destinationStop}</Text>
+      <Text style={styles.requestText}>Type: {item.requestType}</Text>
+      <Text style={styles.requestText}>Status: {item.status}</Text>
+      <TouchableOpacity style={styles.acceptButton} onPress={() => handleAccept(item._id)}>
+        <Text style={styles.acceptButtonText}>Accept</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   const handleNavigate = (screen: string) => {
     navigation.navigate(screen);
   };
+
   const toggleSidebar = () => {
     setSidebarVisible(!sidebarVisible);
   };
@@ -163,51 +179,23 @@ const RideRequestScreen: React.FC = () => {
           onNavigate={handleNavigate}
         />
         <ScrollView contentContainerStyle={styles.mainContent}>
-          <Text style={styles.title}>Ride Request</Text>
-          <View style={styles.toggleContainer}>
-            <TouchableOpacity
-              style={[styles.toggleButtonType, requestType === 'ride' && styles.activeToggle]}
-              onPress={() => setRequestType('ride')}
-            >
-              <Text style={[styles.toggleText, requestType === 'ride' && styles.activeToggleText]}>Ride</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.toggleButtonType, requestType === 'pickup' && styles.activeToggle]}
-              onPress={() => setRequestType('pickup')}
-            >
-              <Text style={[styles.toggleText, requestType === 'pickup' && styles.activeToggleText]}>Pickup</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.form}>
-            <Text style={styles.label}>Starting Stop:</Text>
-            <TextInput
-              style={styles.input}
-              value={startingStop}
-              onChangeText={setStartingStop}
-              placeholder="Enter starting stop"
-              placeholderTextColor="#aaa"
+          <Text style={styles.title}>Nearby Ride/Pickup Requests</Text>
+          {loading ? (
+            <ActivityIndicator size="large" color="#003E7E" />
+          ) : error ? (
+            <Text style={styles.error}>{error}</Text>
+          ) : (
+            <FlatList
+              data={requests}
+              keyExtractor={(item) => item._id}
+              renderItem={renderItem}
+              contentContainerStyle={styles.listContainer}
+              ListEmptyComponent={<Text style={styles.emptyText}>No nearby requests found.</Text>}
             />
-
-            {requestType === 'ride' && (
-              <>
-                <Text style={styles.label}>Destination Stop:</Text>
-                <TextInput
-                  style={styles.input}
-                  value={destinationStop}
-                  onChangeText={setDestinationStop}
-                  placeholder="Enter destination stop"
-                  placeholderTextColor="#aaa"
-                />
-              </>
-            )}
-
-            <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={loading}>
-              {loading ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.submitButtonText}>Submit Request</Text>}
-            </TouchableOpacity>
-            {error && <Text style={styles.errorText}>{error}</Text>}
-            {successMessage && <Text style={styles.successText}>{successMessage}</Text>}
-          </View>
+          )}
+          <TouchableOpacity style={styles.refreshButton} onPress={fetchNearbyRequests}>
+            <Text style={styles.refreshText}>Refresh</Text>
+          </TouchableOpacity>
         </ScrollView>
       </View>
     </LinearGradient>
@@ -215,9 +203,7 @@ const RideRequestScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  gradient: {
-    flex: 1,
-  },
+  gradient: { flex: 1 },
   navBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -298,80 +284,60 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    fontSize: 30,
-    fontWeight: '700',
-    color: '#003E7E',
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 16,
     textAlign: 'center',
-    marginBottom: 30,
-  },
-  toggleContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  toggleButtonType: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderWidth: 1,
-    borderColor: '#003E7E',
-    borderRadius: 30,
-    marginHorizontal: 10,
-  },
-  activeToggle: {
-    backgroundColor: '#003E7E',
-  },
-  toggleText: {
-    fontSize: 18,
     color: '#003E7E',
-    fontWeight: '600',
   },
-  activeToggleText: {
-    color: '#fff',
+  listContainer: {
+    paddingBottom: 16,
   },
-  form: {
-    backgroundColor: '#F7F9FC',
-    borderRadius: 20,
-    padding: 25,
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 18,
-    color: '#333',
-    marginBottom: 8,
-  },
-  input: {
+  requestItem: {
+    padding: 12,
     borderWidth: 1,
     borderColor: '#ccc',
-    padding: 12,
-    borderRadius: 10,
+    borderRadius: 8,
+    marginBottom: 12,
+    backgroundColor: '#F7F9FC',
+  },
+  requestText: {
     fontSize: 16,
-    marginBottom: 20,
+    marginBottom: 4,
     color: '#333',
   },
-  submitButton: {
+  acceptButton: {
     backgroundColor: '#003E7E',
-    paddingVertical: 15,
-    borderRadius: 30,
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 8,
     alignItems: 'center',
-    marginTop: 10,
   },
-  submitButtonText: {
-    fontSize: 18,
-    fontWeight: '600',
+  acceptButtonText: {
     color: '#fff',
-  },
-  errorText: {
-    color: 'red',
-    textAlign: 'center',
-    marginTop: 15,
     fontSize: 16,
   },
-  successText: {
-    color: 'green',
+  emptyText: {
     textAlign: 'center',
-    marginTop: 15,
+    marginTop: 20,
+    fontSize: 16,
+    color: '#666',
+  },
+  error: {
+    color: 'red',
+    textAlign: 'center',
+  },
+  refreshButton: {
+    marginTop: 16,
+    alignSelf: 'center',
+    padding: 10,
+    backgroundColor: '#003E7E',
+    borderRadius: 5,
+  },
+  refreshText: {
+    color: '#fff',
     fontSize: 16,
   },
 });
 
-export default RideRequestScreen;
+export default ViewRequestScreen;
