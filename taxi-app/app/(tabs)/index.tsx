@@ -14,6 +14,7 @@ import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { getToken, fetchData } from '../api/api';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import io from 'socket.io-client';
 
 const { width: windowWidth } = Dimensions.get('window');
 
@@ -36,7 +37,7 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isVisible, onClose, onNavigate }) => {
-  const slideAnim = useRef(new Animated.Value(-250)).current; // Sidebar width
+  const slideAnim = useRef(new Animated.Value(-250)).current;
   useEffect(() => {
     Animated.timing(slideAnim, {
       toValue: isVisible ? 0 : -250,
@@ -59,8 +60,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isVisible, onClose, onNavigate }) => 
         </TouchableOpacity>
       </View>
       <View style={styles.logoContainer}>
-        <Text style={styles.logoText}>Taxi App</Text>
+        <Text style={styles.logoText}>Shesha</Text>
       </View>
+      <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('Home'); onClose(); }}>
+        <FontAwesome name="home" size={22} color="#003E7E" />
+        <Text style={styles.sidebarButtonText}>Home</Text>
+      </TouchableOpacity>
       <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('requestRide'); onClose(); }}>
         <FontAwesome name="car" size={22} color="#003E7E" />
         <Text style={styles.sidebarButtonText}>Request Ride</Text>
@@ -100,16 +105,23 @@ const HomeContent: React.FC<HomeContentProps> = ({ userName }) => {
       <Text style={styles.greetingText}>
         {userName ? `Welcome back, ${userName}!` : 'Welcome to Taxi Tracker!'}
       </Text>
-      <View style={styles.customWidget}>
-        <Text style={styles.widgetTitle}>Search for Taxis</Text>
-      </View>
     </View>
   );
 };
 
 interface LiveStatusProps {
-  monitoredTaxi: any;
+  monitoredTaxi: TaxiInfo | null;
   onEndMonitoring: () => void;
+}
+
+interface TaxiInfo {
+  numberPlate: string;
+  status: string;
+  currentStop: string;
+  currentLoad: number;
+  routeName: string;
+  nextStop: string;
+  driverUsername: string;
 }
 
 const LiveStatus: React.FC<LiveStatusProps> = ({ monitoredTaxi, onEndMonitoring }) => {
@@ -132,10 +144,7 @@ const LiveStatus: React.FC<LiveStatusProps> = ({ monitoredTaxi, onEndMonitoring 
         </View>
       ) : (
         <View style={styles.taxiDetails}>
-          <Text style={styles.taxiText}>5 taxis available</Text>
-          <Text style={styles.taxiText}>
-            Estimated Time: <Text style={styles.estimateText}>15 mins</Text>
-          </Text>
+          <Text style={styles.taxiText}>No taxi monitoring in progress.</Text>
         </View>
       )}
     </View>
@@ -143,21 +152,37 @@ const LiveStatus: React.FC<LiveStatusProps> = ({ monitoredTaxi, onEndMonitoring 
 };
 
 const HomeScreen = () => {
-  const apiUrl = 'https://fluffy-space-trout-7vgv67xv9xrhw77-3000.app.github.dev';
+  const apiUrl = 'https://shesha.onrender.com';
   const [userName, setUserName] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [monitoredTaxi, setMonitoredTaxi] = useState<any>(null);
+  const [monitoredTaxi, setMonitoredTaxi] = useState<TaxiInfo | null>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(-30)).current;
   const [sidebarVisible, setSidebarVisible] = useState(false);
+  const [socket, setSocket] = useState<any>(null);
 
   const route = useRoute<HomeScreenRouteProp>();
   const acceptedTaxiId = route.params?.acceptedTaxiId;
   const navigation = useNavigation<StackNavigationProp<any, 'Home'>>();
 
-  // Fetch user data using token
+  useEffect(() => {
+    console.log('Connecting to socket...');
+    const newSocket = io(apiUrl);
+    setSocket(newSocket);
+
+    newSocket.on('connect', () => console.log('Socket connected'));
+    newSocket.on('disconnect', () => console.log('Socket disconnected'));
+    newSocket.on('connect_error', (err: Error) => console.log('Socket connection error:', err));
+
+    return () => {
+      console.log('Closing socket connection');
+      newSocket.close();
+    };
+  }, [apiUrl]);
+
   useEffect(() => {
     const fetchUserData = async () => {
+      console.log('Fetching user data...');
       const token = await getToken();
       if (token) {
         try {
@@ -166,12 +191,17 @@ const HomeScreen = () => {
             headers: { Authorization: `Bearer ${token}` },
           });
           if (response?.user) {
+            console.log('User data fetched:', response.user.name);
             setUserName(response.user.name);
+          } else {
+            console.log('User data fetch failed, no user in response');
           }
         } catch (error) {
           console.error('Error fetching user data:', error);
           Alert.alert('Error', 'Failed to fetch user data.');
         }
+      } else {
+        console.log('No token found, skipping user data fetch');
       }
       setIsLoading(false);
     };
@@ -192,33 +222,75 @@ const HomeScreen = () => {
     ]).start();
   }, [fadeAnim, slideAnim]);
 
-  // Load monitoring details if taxi is accepted
   useEffect(() => {
     if (acceptedTaxiId && !monitoredTaxi) {
+      console.log('Attempting to monitor taxi with ID:', acceptedTaxiId);
       handleMonitorTaxi();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [acceptedTaxiId]);
+  }, [acceptedTaxiId, socket]);
+
+  useEffect(() => {
+    if (socket && acceptedTaxiId) {
+      console.log('Setting up taxiUpdateForPassenger listener');
+      socket.on('taxiUpdateForPassenger', (taxiInfo: TaxiInfo) => {
+        console.log('Received taxiUpdateForPassenger:', taxiInfo);
+        if (monitoredTaxi && monitoredTaxi.numberPlate === taxiInfo.numberPlate) {
+          console.log('Updating monitored taxi info');
+          setMonitoredTaxi(taxiInfo);
+        }
+      });
+
+      return () => {
+        console.log('Removing taxiUpdateForPassenger listener');
+        if (socket) {
+          socket.off('taxiUpdateForPassenger');
+        }
+      };
+    }
+  }, [socket, monitoredTaxi]);
+
+  useEffect(() => {
+    if (socket && monitoredTaxi) {
+      socket.on('taxiUpdate', (updatedTaxi: TaxiInfo) => {
+        if (monitoredTaxi.numberPlate === updatedTaxi.numberPlate) {
+          console.log('Received taxiUpdate, updating monitored taxi:', updatedTaxi);
+          setMonitoredTaxi(updatedTaxi);
+        }
+      });
+
+      return () => {
+        if (socket) {
+          socket.off('taxiUpdate');
+        }
+      };
+    }
+  }, [socket, monitoredTaxi]);
 
   const handleMonitorTaxi = async () => {
+    console.log('handleMonitorTaxi called');
     const token = await getToken();
     if (!token) {
+      console.log('No token for taxi monitoring');
       Alert.alert('Authentication Error', 'Please login to monitor taxis.');
       return;
     }
     if (!acceptedTaxiId) {
+      console.log('No taxi ID for monitoring');
       Alert.alert('No Taxi Assigned', 'There is no taxi assigned to your ride yet.');
       return;
     }
     try {
+      console.log('Fetching taxi monitoring details');
       const endpoint = `api/taxis/${acceptedTaxiId}/monitor`;
       const response = await fetchData(apiUrl, endpoint, {
         method: 'GET',
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response?.taxiInfo) {
+        console.log('Taxi monitoring details fetched:', response.taxiInfo);
         setMonitoredTaxi(response.taxiInfo);
       } else {
+        console.log('Failed to fetch taxi details for monitoring');
         Alert.alert('Error', 'Failed to fetch taxi details.');
       }
     } catch (error) {
@@ -228,6 +300,7 @@ const HomeScreen = () => {
   };
 
   const handleEndMonitoring = () => {
+    console.log('Ending taxi monitoring');
     setMonitoredTaxi(null);
     navigation.setParams({ acceptedTaxiId: undefined });
   };
@@ -239,25 +312,21 @@ const HomeScreen = () => {
   const handleNavigate = (screen: keyof RootStackParamList) => {
     navigation.navigate(screen);
   };
-    const toggleSidebar = () => {
-        setSidebarVisible(!sidebarVisible);
-    }
+
+  const toggleSidebar = () => {
+    setSidebarVisible(!sidebarVisible);
+  };
 
   return (
     <LinearGradient colors={['#FFFFFF', '#E8F0FE']} style={styles.gradient}>
       <View style={styles.navBar}>
-        <Text style={styles.navLogo}>Taxi App</Text>
+        <Text style={styles.navLogo}>Shesha</Text>
         <TouchableOpacity style={styles.toggleButton} onPress={toggleSidebar}>
           <FontAwesome name="bars" size={28} color="#003E7E" />
         </TouchableOpacity>
       </View>
       <Animated.View style={[styles.container, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-        {/* Sidebar */}
-        <Sidebar
-          isVisible={sidebarVisible}
-          onClose={toggleSidebar}
-          onNavigate={handleNavigate}
-        />
+        <Sidebar isVisible={sidebarVisible} onClose={toggleSidebar} onNavigate={handleNavigate} />
         <ScrollView contentContainerStyle={styles.mainContent}>
           <HomeContent userName={userName} />
           <LiveStatus monitoredTaxi={monitoredTaxi} onEndMonitoring={handleEndMonitoring} />
@@ -429,29 +498,24 @@ const styles = StyleSheet.create({
   endMonitorButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#003E7E',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 20,
+    backgroundColor: '#D32F2F',
+    padding: 10,
+    borderRadius: 5,
     marginTop: 15,
-    alignSelf: 'flex-start',
   },
   endMonitorText: {
     color: '#FFF',
-    fontSize: 16,
-    marginLeft: 6,
-    fontWeight: '600',
+    marginLeft: 5,
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#E8F0FE',
     justifyContent: 'center',
     alignItems: 'center',
   },
   loadingText: {
-    fontSize: 22,
+    marginTop: 10,
+    fontSize: 18,
     color: '#003E7E',
-    marginTop: 15,
   },
 });
 

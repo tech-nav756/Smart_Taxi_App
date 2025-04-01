@@ -9,7 +9,6 @@ import {
   StyleSheet,
   TextInput,
   Alert,
-  Platform,
   Animated,
   ScrollView,
 } from 'react-native';
@@ -19,8 +18,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import io from 'socket.io-client';
 
-const apiUrl = 'https://fluffy-space-trout-7vgv67xv9xrhw77-3000.app.github.dev';
+const apiUrl = 'https://shesha.onrender.com';
 
 type Taxi = {
   _id: string;
@@ -77,8 +77,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isVisible, onClose, onNavigate }) => 
         </TouchableOpacity>
       </View>
       <View style={styles.logoContainer}>
-        <Text style={styles.logoText}>Taxi App</Text>
+        <Text style={styles.logoText}>Shesha</Text>
       </View>
+       <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('Home'); onClose(); }}>
+                    <FontAwesome name="home" size={22} color="#003E7E" />
+                    <Text style={styles.sidebarButtonText}>Home</Text>
+                  </TouchableOpacity>
       <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('requestRide'); onClose(); }}>
         <FontAwesome name="car" size={22} color="#003E7E" />
         <Text style={styles.sidebarButtonText}>Request Ride</Text>
@@ -119,8 +123,25 @@ const TaxiManagement: React.FC = () => {
   const [newLoad, setNewLoad] = useState<string>('0');
   const [stopOptions, setStopOptions] = useState<string[]>([]);
   const [sidebarVisible, setSidebarVisible] = useState(false);
+  const [socket, setSocket] = useState<any>(null);
 
   const navigation = useNavigation<StackNavigationProp<any, 'TaxiManagement'>>();
+
+  useEffect(() => {
+    const newSocket = io(apiUrl);
+    setSocket(newSocket);
+    newSocket.on('taxiUpdate', (updatedTaxi: Taxi) => {
+      setTaxis((currentTaxis) =>
+        currentTaxis.map((taxi) =>
+          taxi._id === updatedTaxi._id ? updatedTaxi : taxi
+        )
+      );
+    });
+
+    return () => {
+      newSocket.close();
+    };
+  }, []);
 
   const loadTaxis = async () => {
     setLoading(true);
@@ -245,7 +266,7 @@ const TaxiManagement: React.FC = () => {
   return (
     <LinearGradient colors={['#FFFFFF', '#E8F0FE']} style={styles.gradient}>
       <View style={styles.navBar}>
-        <Text style={styles.navLogo}>Taxi App</Text>
+        <Text style={styles.navLogo}>Shesha</Text>
         <TouchableOpacity style={styles.toggleButton} onPress={toggleSidebar}>
           <FontAwesome name="bars" size={28} color="#003E7E" />
         </TouchableOpacity>

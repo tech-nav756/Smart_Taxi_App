@@ -1,9 +1,10 @@
 const Taxi = require("../models/Taxi");
 const Route = require("../models/Route");
 const User = require("../models/User");
-const { getIo } = require("../socket"); // Import Socket.IO instance
-
+const { getIo, getConnectedDrivers } = require("../socket"); // Import Socket.IO instance
 const io = getIo();
+const connectedDrivers = getConnectedDrivers();
+
 
 // Add a new taxi (Only for drivers)
 exports.addTaxi = async (req, res) => {
@@ -118,8 +119,6 @@ exports.getDriverTaxis = async (req, res) => {
   }
 };
 
-
-// Update the status of a taxi (for drivers to update taxi status)
 exports.updateStatus = async (req, res, next) => {
   try {
     const { taxiId } = req.params; // Get taxiId from the request parameters
@@ -132,7 +131,7 @@ exports.updateStatus = async (req, res, next) => {
     }
 
     // Find the taxi by taxiId
-    const taxi = await Taxi.findById(taxiId);
+    const taxi = await Taxi.findById(taxiId).populate('routeId', 'routeName stops').populate('driverId', 'username');
     if (!taxi) {
       return res.status(404).json({ message: "Taxi not found." });
     }
@@ -150,6 +149,7 @@ exports.updateStatus = async (req, res, next) => {
 
     // Emit an event to notify other connected clients about the taxi status update
     io.emit("taxiStatusUpdate", taxi);
+    io.emit("taxiUpdateForPassenger", formatTaxiInfo(taxi));
   } catch (error) {
     // Log the error for debugging
     console.error("Error updating taxi status:", error);
@@ -159,14 +159,13 @@ exports.updateStatus = async (req, res, next) => {
   }
 };
 
-
 // Update the current stop of the taxi by incrementing the stop order
 exports.updateCurrentStop = async (req, res, next) => {
   try {
     const { taxiId } = req.params; // Get taxiId from request params
 
     // Fetch the taxi using taxiId
-    const taxi = await Taxi.findById(taxiId);
+    const taxi = await Taxi.findById(taxiId).populate('routeId', 'routeName stops').populate('driverId', 'username');
     if (!taxi) {
       return res.status(404).json({ message: "Taxi not found." });
     }
@@ -200,47 +199,9 @@ exports.updateCurrentStop = async (req, res, next) => {
 
     // Emit an event to notify other connected clients about the update (optional)
     io.emit("taxiCurrentStopUpdate", taxi);
+    io.emit("taxiUpdateForPassenger", formatTaxiInfo(taxi));
   } catch (error) {
     console.error("Error updating taxi's current stop:", error);
-    next(error); // Pass the error to the next middleware for global error handling
-  }
-};
-
-// Update the current load of the taxi
-exports.updateLoad = async (req, res, next) => {
-  try {
-    const { taxiId } = req.params; // Get taxiId from request params
-    const { newLoad } = req.body;  // Get the new load from the request body
-
-    // Check if newLoad is a valid number and not negative
-    if (isNaN(newLoad) || newLoad < 0) {
-      return res.status(400).json({ message: "Load must be a non-negative number." });
-    }
-
-    // Fetch the taxi using taxiId
-    const taxi = await Taxi.findById(taxiId);
-    if (!taxi) {
-      return res.status(404).json({ message: "Taxi not found." });
-    }
-
-    // Ensure the new load does not exceed the taxi's capacity
-    if (newLoad > taxi.capacity) {
-      return res.status(400).json({ message: "Load cannot exceed the taxi's capacity." });
-    }
-
-    // Update the taxi's current load
-    taxi.currentLoad = newLoad;
-
-    // Save the updated taxi document to the database
-    await taxi.save();
-
-    // Return the updated taxi data as response
-    res.status(200).json({ message: "Taxi load updated successfully.", taxi });
-
-    // Emit an event to notify other connected clients about the load update (optional)
-    io.emit("taxiLoadUpdate", taxi);
-  } catch (error) {
-    console.error("Error updating taxi load:", error);
     next(error); // Pass the error to the next middleware for global error handling
   }
 };
@@ -265,7 +226,7 @@ exports.monitorTaxi = async (req, res, next) => {
       currentLoad: taxi.currentLoad,
       routeName: taxi.routeId.routeName,
       nextStop: getNextStop(taxi), // Function to calculate the next stop
-      driverUsername: taxi.driverId.username,
+      driverUsername: taxi.driverId.name,
     };
 
     // Return the taxi information as a response
@@ -289,6 +250,61 @@ const getNextStop = (taxi) => {
   }
 
   return taxi.routeId.stops[currentStopIndex + 1].name; // Return the next stop name
+};
+
+
+// Update the current load of the taxi
+exports.updateLoad = async (req, res, next) => {
+  try {
+    const { taxiId } = req.params; // Get taxiId from request params
+    const { newLoad } = req.body;  // Get the new load from the request body
+
+    // Check if newLoad is a valid number and not negative
+    if (isNaN(newLoad) || newLoad < 0) {
+      return res.status(400).json({ message: "Load must be a non-negative number." });
+    }
+
+    // Fetch the taxi using taxiId
+    const taxi = await Taxi.findById(taxiId).populate('routeId', 'routeName stops').populate('driverId', 'username');
+    if (!taxi) {
+      return res.status(404).json({ message: "Taxi not found." });
+    }
+
+    // Ensure the new load does not exceed the taxi's capacity
+    if (newLoad > taxi.capacity) {
+      return res.status(400).json({ message: "Load cannot exceed the taxi's capacity." });
+    }
+
+    // Update the taxi's current load
+    taxi.currentLoad = newLoad;
+
+    // Save the updated taxi document to the database
+    await taxi.save();
+
+    // Return the updated taxi data as response
+    res.status(200).json({ message: "Taxi load updated successfully.", taxi });
+
+    // Emit an event to notify other connected clients about the load update (optional)
+    io.emit("taxiLoadUpdate", taxi);
+    io.emit("taxiUpdateForPassenger", formatTaxiInfo(taxi));
+  } catch (error) {
+    console.error("Error updating taxi load:", error);
+    next(error); // Pass the error to the next middleware for global error handling
+  }
+};
+
+
+// Helper function to format taxi info
+const formatTaxiInfo = (taxi) => {
+  return {
+    numberPlate: taxi.numberPlate,
+    status: taxi.status,
+    currentStop: taxi.currentStop,
+    currentLoad: taxi.currentLoad,
+    routeName: taxi.routeId.routeName,
+    nextStop: getNextStop(taxi), // Function to calculate the next stop
+    driverUsername: taxi.driverId.name,
+  };
 };
 
 
