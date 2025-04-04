@@ -20,7 +20,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import io from 'socket.io-client';
 
-const apiUrl = 'https://shesha.onrender.com';
+const apiUrl = 'https://fluffy-space-trout-7vgv67xv9xrhw77-3000.app.github.dev';
 
 type Taxi = {
   _id: string;
@@ -79,10 +79,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isVisible, onClose, onNavigate }) => 
       <View style={styles.logoContainer}>
         <Text style={styles.logoText}>Shesha</Text>
       </View>
-       <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('Home'); onClose(); }}>
-                    <FontAwesome name="home" size={22} color="#003E7E" />
-                    <Text style={styles.sidebarButtonText}>Home</Text>
-                  </TouchableOpacity>
+      <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('Home'); onClose(); }}>
+        <FontAwesome name="home" size={22} color="#003E7E" />
+        <Text style={styles.sidebarButtonText}>Home</Text>
+      </TouchableOpacity>
       <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('requestRide'); onClose(); }}>
         <FontAwesome name="car" size={22} color="#003E7E" />
         <Text style={styles.sidebarButtonText}>Request Ride</Text>
@@ -119,7 +119,7 @@ const TaxiManagement: React.FC = () => {
   const [selectedTaxi, setSelectedTaxi] = useState<Taxi | null>(null);
   const [updateType, setUpdateType] = useState<UpdateType>(null);
   const [newStatus, setNewStatus] = useState<string>(statusOptions[0]);
-  const [newStop, setNewStop] = useState<string>('');
+  const [newStop, setNewStop] = useState<string>(''); 
   const [newLoad, setNewLoad] = useState<string>('0');
   const [stopOptions, setStopOptions] = useState<string[]>([]);
   const [sidebarVisible, setSidebarVisible] = useState(false);
@@ -128,8 +128,14 @@ const TaxiManagement: React.FC = () => {
   const navigation = useNavigation<StackNavigationProp<any, 'TaxiManagement'>>();
 
   useEffect(() => {
+    console.log('Connecting to socket...');
     const newSocket = io(apiUrl);
     setSocket(newSocket);
+
+    newSocket.on('connect', () => console.log('Socket connected'));
+    newSocket.on('disconnect', () => console.log('Socket disconnected'));
+    newSocket.on('connect_error', (err: Error) => console.log('Socket connection error:', err));
+
     newSocket.on('taxiUpdate', (updatedTaxi: Taxi) => {
       setTaxis((currentTaxis) =>
         currentTaxis.map((taxi) =>
@@ -139,8 +145,13 @@ const TaxiManagement: React.FC = () => {
     });
 
     return () => {
+      console.log('Closing socket connection');
       newSocket.close();
     };
+  }, [apiUrl]);
+
+  useEffect(() => {
+    loadTaxis();
   }, []);
 
   const loadTaxis = async () => {
@@ -152,7 +163,9 @@ const TaxiManagement: React.FC = () => {
         setLoading(false);
         return;
       }
-      const data = await fetchData(apiUrl, 'api/taxis/driver-taxi');
+      const data = await fetchData(apiUrl, 'api/taxis/driver-taxi', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (data && data.taxis) {
         setTaxis(data.taxis);
       } else {
@@ -165,10 +178,6 @@ const TaxiManagement: React.FC = () => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    loadTaxis();
-  }, []);
 
   const fetchStopsForTaxi = async (taxiId: string) => {
     try {
@@ -234,6 +243,11 @@ const TaxiManagement: React.FC = () => {
         method: 'PUT',
         body,
       });
+
+      if (socket) {
+        socket.emit('taxiUpdate', { ...selectedTaxi, ...body });
+      }
+
       Alert.alert('Success', response.message || 'Update successful.');
       loadTaxis();
       setModalVisible(false);
@@ -445,114 +459,108 @@ const styles = StyleSheet.create({
     backgroundColor: '#DDD',
     marginVertical: 15,
   },
-  container: {
-    flex: 1,
-  },
   mainContent: {
     flexGrow: 1,
-    padding: 16,
-    paddingTop: 40,
+    padding: 20,
+    backgroundColor: '#FFFFFF',
+    paddingTop: 20,
   },
   title: {
-    fontSize: 26,
-    fontWeight: '700',
-    color: '#003E7E',
-    textAlign: 'center',
-    marginBottom: 16,
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 20,
   },
   loadingText: {
-    color: '#003E7E',
-    textAlign: 'center',
-    marginVertical: 20,
-    fontSize: 18,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    paddingVertical: 10,
-    backgroundColor: '#F7F9FC',
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
-  },
-  headerCell: {
-    flex: 1,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontSize: 16,
     color: '#333',
+    textAlign: 'center',
+    marginTop: 10,
   },
   row: {
     flexDirection: 'row',
-    paddingVertical: 10,
-    backgroundColor: '#F7F9FC',
     borderBottomWidth: 1,
-    borderColor: '#ddd',
-    alignItems: 'center',
+    borderBottomColor: '#EEE',
+    paddingVertical: 10,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 2,
+    borderBottomColor: '#CCC',
+    paddingVertical: 10,
   },
   cell: {
     flex: 1,
+    fontSize: 16,
     textAlign: 'center',
-    color: '#333',
+  },
+  headerCell: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   actionButton: {
     backgroundColor: '#003E7E',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 4,
+    padding: 8,
+    borderRadius: 5,
+    flex: 1,
+    maxWidth: 80,
+    alignItems: 'center',
   },
   actionButtonText: {
-    color: '#fff',
+    color: '#FFF',
+    fontSize: 16,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    width: '90%',
-    backgroundColor: '#F7F9FC',
+    backgroundColor: '#FFF',
     padding: 20,
-    borderRadius: 8,
-    elevation: 5,
+    borderRadius: 10,
+    width: '80%',
   },
   modalTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    marginBottom: 12,
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
     textAlign: 'center',
-    color: '#333',
   },
   optionContainer: {
-    marginVertical: 12,
+    marginBottom: 15,
   },
   optionTitle: {
     fontSize: 16,
     marginBottom: 8,
-    textAlign: 'center',
-    color: '#333',
   },
   optionButtons: {
     flexDirection: 'row',
     justifyContent: 'space-around',
   },
   formGroup: {
-    marginVertical: 12,
+    marginBottom: 15,
   },
   label: {
     fontSize: 16,
-    marginBottom: 4,
-    color: '#333',
+    marginBottom: 5,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 4,
+    borderColor: '#CCC',
+    borderRadius: 5,
     padding: 8,
-    color: '#333',
   },
   modalButtons: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 16,
+    justifyContent: 'space-around',
+    marginTop: 20,
+  },
+  container: {
+    flex: 1,  // Ensures the container takes full available height
+    paddingHorizontal: 10,
   },
 });
 

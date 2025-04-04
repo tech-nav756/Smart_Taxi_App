@@ -17,7 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 
 const { width } = Dimensions.get('window');
-const apiUrl = 'https://shesha.onrender.com';
+const apiUrl = 'https://fluffy-space-trout-7vgv67xv9xrhw77-3000.app.github.dev';
 
 interface SidebarProps {
   isVisible: boolean;

@@ -23,7 +23,7 @@ import { useAuth } from "../context/authContext";
 const { width } = Dimensions.get("window");
 
 const AuthScreen = () => {
-  const apiUrl = "https://shesha.onrender.com";
+  const apiUrl = "https://fluffy-space-trout-7vgv67xv9xrhw77-3000.app.github.dev";
   const { login } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");

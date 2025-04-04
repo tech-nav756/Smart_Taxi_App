@@ -674,3 +674,155 @@ Error: Route.post() requires a callback function but got a [object Undefined]
     at Module.require (node:internal/modules/cjs/loader:1298:19)
     at require (node:internal/modules/helpers:182:18)
     at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:19:27)
+[2025-04-04 09:11:24] ERROR: uncaughtException: Unexpected identifier 'numberPlate'
+/workspaces/Smart_Taxi_App/backend/controllers/taxiController.js:257
+    numberPlate: taxi.numberPlaate,
+    ^^^^^^^^^^^
+
+SyntaxError: Unexpected identifier 'numberPlate'
+    at wrapSafe (node:internal/modules/cjs/loader:1472:18)
+    at Module._compile (node:internal/modules/cjs/loader:1501:20)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+    at require (node:internal/modules/helpers:182:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/taxiRoutes.js:4:24)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+[2025-04-04 10:29:56] ERROR: uncaughtException: Unexpected token '}'
+/workspaces/Smart_Taxi_App/backend/controllers/taxiController.js:204
+    };
+    ^
+
+SyntaxError: Unexpected token '}'
+    at wrapSafe (node:internal/modules/cjs/loader:1472:18)
+    at Module._compile (node:internal/modules/cjs/loader:1501:20)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+    at require (node:internal/modules/helpers:182:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/taxiRoutes.js:4:24)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+[2025-04-04 10:29:58] ERROR: uncaughtException: Unexpected token '}'
+/workspaces/Smart_Taxi_App/backend/controllers/taxiController.js:204
+    };
+    ^
+
+SyntaxError: Unexpected token '}'
+    at wrapSafe (node:internal/modules/cjs/loader:1472:18)
+    at Module._compile (node:internal/modules/cjs/loader:1501:20)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+    at require (node:internal/modules/helpers:182:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/taxiRoutes.js:4:24)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+[2025-04-04 10:30:02] ERROR: uncaughtException: Unexpected token '}'
+/workspaces/Smart_Taxi_App/backend/controllers/taxiController.js:204
+    };
+    ^
+
+SyntaxError: Unexpected token '}'
+    at wrapSafe (node:internal/modules/cjs/loader:1472:18)
+    at Module._compile (node:internal/modules/cjs/loader:1501:20)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+    at require (node:internal/modules/helpers:182:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/taxiRoutes.js:4:24)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+[2025-04-04 10:30:11] ERROR: uncaughtException: Unexpected token '}'
+/workspaces/Smart_Taxi_App/backend/controllers/taxiController.js:204
+    };
+    ^
+
+SyntaxError: Unexpected token '}'
+    at wrapSafe (node:internal/modules/cjs/loader:1472:18)
+    at Module._compile (node:internal/modules/cjs/loader:1501:20)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+    at require (node:internal/modules/helpers:182:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/taxiRoutes.js:4:24)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+[2025-04-04 11:01:43] ERROR: uncaughtException: Route.get() requires a callback function but got a [object Undefined]
+Error: Route.get() requires a callback function but got a [object Undefined]
+    at Route.<computed> [as get] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
+    at proto.<computed> [as get] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/taxiRoutes.js:15:8)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+    at require (node:internal/modules/helpers:182:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:17:20)
+[2025-04-04 11:01:44] ERROR: uncaughtException: Route.get() requires a callback function but got a [object Undefined]
+Error: Route.get() requires a callback function but got a [object Undefined]
+    at Route.<computed> [as get] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
+    at proto.<computed> [as get] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/taxiRoutes.js:15:8)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+    at require (node:internal/modules/helpers:182:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:17:20)
+[2025-04-04 13:30:26] ERROR: uncaughtException: Unexpected token ')'
+/workspaces/Smart_Taxi_App/backend/routes/rideRequestRoutes.js:12
+router.get("/acceptedRequests", protect,  rideRe?questController.getNearbyRequestsForDriver);
+                                                                                           ^
+
+SyntaxError: Unexpected token ')'
+    at wrapSafe (node:internal/modules/cjs/loader:1472:18)
+    at Module._compile (node:internal/modules/cjs/loader:1501:20)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+    at require (node:internal/modules/helpers:182:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:19:27)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+[2025-04-04 13:30:47] ERROR: uncaughtException: Unexpected token ')'
+/workspaces/Smart_Taxi_App/backend/routes/rideRequestRoutes.js:12
+router.get("/acceptedRequests", protect,  rideRequestController.);
+                                                                ^
+
+SyntaxError: Unexpected token ')'
+    at wrapSafe (node:internal/modules/cjs/loader:1472:18)
+    at Module._compile (node:internal/modules/cjs/loader:1501:20)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+    at require (node:internal/modules/helpers:182:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:19:27)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+[2025-04-04 13:30:50] ERROR: uncaughtException: Unexpected token ')'
+/workspaces/Smart_Taxi_App/backend/routes/rideRequestRoutes.js:12
+router.get("/acceptedRequests", protect,  rideRequestController.);
+                                                                ^
+
+SyntaxError: Unexpected token ')'
+    at wrapSafe (node:internal/modules/cjs/loader:1472:18)
+    at Module._compile (node:internal/modules/cjs/loader:1501:20)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+    at require (node:internal/modules/helpers:182:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:19:27)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)

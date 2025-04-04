@@ -1,6 +1,7 @@
 const RideRequest = require("../models/RideRequest");
 const Route = require("../models/Route");
 const Taxi = require("../models/Taxi")
+const User = require("../models/User")
 const { getIo, getConnectedDrivers } = require("../socket");
 
 exports.createRideRequest = async (req, res) => {
@@ -258,6 +259,50 @@ exports.getNearbyRequestsForDriver = async (req, res) => {
     return res.status(200).json({ rideRequests: nearbyRequests });
   } catch (err) {
     console.error("Error in getNearbyRequestsForDriver:", err);
+    return res.status(500).json({ error: "Server error." });
+  }
+};
+
+
+exports.getAcceptedTaxiDetails = async (req, res) => {
+  try {
+    const passengerId = req.user._id;
+    const { requestId } = req.params;
+
+    const rideRequest = await RideRequest.findOne({
+      passenger: passengerId,
+      status: "accepted",
+    }).populate("taxi route");
+
+    if (!rideRequest) {
+      return res.status(404).json({ error: "Ride request not found or not accepted." });
+    }
+
+    if (!rideRequest.taxi) {
+        return res.status(404).json({error: "Taxi details not available for this request."})
+    }
+
+    const driver = await User.findOne({_id: rideRequest.taxi.driverId});
+
+    if (!driver){
+        return res.status(404).json({error: "Driver details not found."})
+    }
+
+    const taxiDetails = {
+      taxiId: rideRequest.taxi._id,
+      numberPlate: rideRequest.taxi.numberPlate,
+      driverName: driver.name,
+      driverContact: driver.contact,
+      route: rideRequest.route.routeName,
+      currentStop: rideRequest.taxi.currentStop,
+      capacity: rideRequest.taxi.capacity,
+      currentLoad: rideRequest.taxi.currentLoad,
+      status: rideRequest.taxi.status,
+    };
+
+    return res.status(200).json({ taxiDetails });
+  } catch (err) {
+    console.error("Error in getAcceptedTaxiDetails:", err);
     return res.status(500).json({ error: "Server error." });
   }
 };

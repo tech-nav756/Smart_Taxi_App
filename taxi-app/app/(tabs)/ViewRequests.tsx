@@ -31,7 +31,7 @@ interface SidebarProps {
   onNavigate: (screen: string) => void;
 }
 
-const apiUrl = 'https://shesha.onrender.com';
+const apiUrl = 'https://fluffy-space-trout-7vgv67xv9xrhw77-3000.app.github.dev';
 
 const Sidebar: React.FC<SidebarProps> = ({ isVisible, onClose, onNavigate }) => {
   const slideAnim = useRef(new Animated.Value(-250)).current;

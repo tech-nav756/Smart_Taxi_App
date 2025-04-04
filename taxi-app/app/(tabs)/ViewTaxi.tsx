@@ -17,7 +17,7 @@ import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from '@react-navigation/stack';
 
 const { width } = Dimensions.get("window");
-const apiUrl = "https://shesha.onrender.com";
+const apiUrl = "https://fluffy-space-trout-7vgv67xv9xrhw77-3000.app.github.dev";
 
 interface Taxi {
   _id: string;
@@ -62,10 +62,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isVisible, onClose, onNavigate }) => 
               <FontAwesome name="home" size={22} color="#003E7E" />
               <Text style={styles.sidebarButtonText}>Home</Text>
             </TouchableOpacity>
-      <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate("requestRide"); onClose(); }}>
-        <FontAwesome name="car" size={22} color="#003E7E" />
-        <Text style={styles.sidebarButtonText}>Request Ride</Text>
-      </TouchableOpacity>
       <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate("ViewTaxi"); onClose(); }}>
         <MaterialIcons name="directions-car" size={22} color="#003E7E" />
         <Text style={styles.sidebarButtonText}>View Taxis</Text>

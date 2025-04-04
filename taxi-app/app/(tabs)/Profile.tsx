@@ -19,7 +19,7 @@ import React, { useEffect, useState, useRef } from 'react';
  import { LinearGradient } from 'expo-linear-gradient';
  import { useAuth } from '../context/authContext';
 
- const apiUrl = 'https://shesha.onrender.com';
+ const apiUrl = 'https://fluffy-space-trout-7vgv67xv9xrhw77-3000.app.github.dev';
 
  interface SidebarProps {
   isVisible: boolean;

@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "taxi-app",
+    "name": "shesha",
     "slug": "taxi-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -16,7 +16,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.moruditech.taxiapp"
+      "package": "com.moruditech.shesha"
     },
     "web": {
       "bundler": "metro",

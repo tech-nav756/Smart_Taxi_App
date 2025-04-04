@@ -7,5 +7,6 @@ export type RootStackParamList = {
     Profile: undefined;
     Help: undefined;
     Settings: undefined;
+    AcceptedRequest: undefined;
   };
   
