@@ -3,6 +3,7 @@ const express = require('express');
 const http = require('http'); // Import http module
 const dotenv = require('dotenv').config();
 const helmetMiddleware = require('./middlewares/helmetMiddleware');
+const { initializeSocket } = require('./config/socket'); 
 const rateLimiterMiddleware = require('./middlewares/rateLimiterMiddleware');
 const corsMiddleware = require('./middlewares/corsMiddleware');
 const forceHttpsMiddleware = require('./middlewares/forceHttpsMiddleware');
@@ -27,6 +28,7 @@ process.on("uncaughtException", (err) => {
   process.exit(1);
 });
 
+
 process.on("unhandledRejection", (reason, promise) => {
   console.error("Unhandled Rejection at:", promise, "reason:", reason);
 });
@@ -39,6 +41,7 @@ app.use(corsMiddleware);
 app.use(forceHttpsMiddleware);
 
 const server = http.createServer(app); // Create HTTP server
+const io = initializeSocket(server);
 connectDB();
 
 // Graceful shutdown
@@ -60,3 +63,6 @@ const port = process.env.PORT || 5000;
 server.listen(port, () => { // Use server.listen()
   console.log(`Server is running on port ${port}`);
 });
+
+
+exports.module = server

@@ -1,8 +1,7 @@
 const Taxi = require("../models/Taxi");
 const Route = require("../models/Route");
 const User = require("../models/User");
-const { getIo } = require("../socket"); // Import Socket.IO instance
-const io = getIo();
+const { getIo } = require("../config/socket"); // Import Socket.IO instance
 
 // Add a new taxi (Only for drivers)
 exports.addTaxi = async (req, res) => {

@@ -1,44 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Alert,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { getToken, fetchData } from '../api/api';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-interface TaxiDetails {
-  taxiId: string;
-  numberPlate: string;
-  driverName: string;
-  route: string;
-  currentStop: string;
-  capacity: number;
-  currentLoad: number;
-  status: string;
+interface PassengerDetails {
   requestId: string;
+  passengerId: string;
+  passengerName: string;
+  passengerEmail: string;
+  passengerPhone: string;
+  startingStop: string;
+  destinationStop: string;
+  status: string;
+  route: string;
 }
 
 type RootStackParamList = {
-  AcceptedRequests: undefined;
+  AcceptedPassenger: undefined;
   LiveChat: { chatSessionId: string };
 };
 
-type AcceptedRequestsScreenNavigationProp = NativeStackNavigationProp<
+type AcceptedPassengersScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
-  'AcceptedRequests'
+  'AcceptedPassenger'
 >;
 
-const AcceptedRequestsScreen = () => {
-  const [taxiDetails, setTaxiDetails] = useState<TaxiDetails | null>(null);
+const AcceptedPassengersScreen = () => {
+  const [passengerDetails, setPassengerDetails] = useState<PassengerDetails[]>([]);
   const [loading, setLoading] = useState(true);
-  const navigation = useNavigation<AcceptedRequestsScreenNavigationProp>();
+  const navigation = useNavigation<AcceptedPassengersScreenNavigationProp>();
   const apiUrl = 'https://fluffy-space-trout-7vgv67xv9xrhw77-3000.app.github.dev';
 
   useEffect(() => {
-    fetchTaxiDetails();
+    fetchPassengerDetails();
   }, []);
 
-  const fetchTaxiDetails = async () => {
+  const fetchPassengerDetails = async () => {
     setLoading(true);
     const token = await getToken();
     if (!token) {
@@ -46,29 +54,25 @@ const AcceptedRequestsScreen = () => {
       setLoading(false);
       return;
     }
-
     try {
-      const response = await fetchData(apiUrl, 'api/rideRequest/acceptedTaxiDetails', {
+      const response = await fetchData(apiUrl, 'api/rideRequest/acceptedPassengerDetails', {
         method: 'GET',
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      if (response && response.taxiDetails) {
-        setTaxiDetails(response.taxiDetails);
+      if (response && response.passengerDetails) {
+        setPassengerDetails(response.passengerDetails);
       } else {
-        Alert.alert('Error', 'Failed to fetch taxi details.');
+        Alert.alert('Error', 'Failed to fetch passenger details.');
       }
     } catch (error) {
-      console.error('Error fetching taxi details:', error);
-      Alert.alert('Error', 'Failed to fetch taxi details.');
+      console.error('Error fetching passenger details:', error);
+      Alert.alert('Error', 'Failed to fetch passenger details.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChat = async () => {
-    if (!taxiDetails) return;
-
+  const handleChat = async (requestId: string) => {
     setLoading(true);
     const token = await getToken();
     if (!token) {
@@ -76,17 +80,15 @@ const AcceptedRequestsScreen = () => {
       setLoading(false);
       return;
     }
-
     try {
-      const response = await fetchData(apiUrl, 'api/chat/passenger-initiate', {
+      const response = await fetchData(apiUrl, 'api/chat/driver-initiate', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ requestId: taxiDetails.requestId }),
+        body: JSON.stringify({ requestId }),
       });
-
       if (response && response.chatSessionId) {
         navigation.navigate('LiveChat', { chatSessionId: response.chatSessionId });
       } else {
@@ -107,7 +109,7 @@ const AcceptedRequestsScreen = () => {
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
             <FontAwesome name="arrow-left" size={24} color="#003E7E" />
           </TouchableOpacity>
-          <Text style={styles.navTitle}>Taxi Details</Text>
+          <Text style={styles.navTitle}>Passenger Details</Text>
         </View>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#003E7E" />
@@ -117,17 +119,17 @@ const AcceptedRequestsScreen = () => {
     );
   }
 
-  if (!taxiDetails) {
+  if (!passengerDetails || passengerDetails.length === 0) {
     return (
       <LinearGradient colors={['#FFFFFF', '#E8F0FE']} style={styles.gradient}>
         <View style={styles.navBar}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
             <FontAwesome name="arrow-left" size={24} color="#003E7E" />
           </TouchableOpacity>
-          <Text style={styles.navTitle}>Taxi Details</Text>
+          <Text style={styles.navTitle}>Passenger Details</Text>
         </View>
         <View style={styles.container}>
-          <Text>No taxi details found.</Text>
+          <Text>No passenger details found.</Text>
         </View>
       </LinearGradient>
     );
@@ -139,30 +141,33 @@ const AcceptedRequestsScreen = () => {
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <FontAwesome name="arrow-left" size={24} color="#003E7E" />
         </TouchableOpacity>
-        <Text style={styles.navTitle}>Taxi Details</Text>
+        <Text style={styles.navTitle}>Passenger Details</Text>
       </View>
       <ScrollView style={styles.container}>
-        <View style={styles.contentContainer}>
-          <Text style={styles.requestText}>Taxi ID: {taxiDetails.taxiId}</Text>
-          <Text style={styles.requestText}>Number Plate: {taxiDetails.numberPlate}</Text>
-          <Text style={styles.requestText}>Driver Name: {taxiDetails.driverName}</Text>
-          <Text style={styles.requestText}>Route: {taxiDetails.route}</Text>
-          <Text style={styles.requestText}>Current Stop: {taxiDetails.currentStop}</Text>
-          <Text style={styles.requestText}>Capacity: {taxiDetails.capacity}</Text>
-          <Text style={styles.requestText}>Current Load: {taxiDetails.currentLoad}</Text>
-          <Text style={styles.requestText}>Status: {taxiDetails.status}</Text>
-        </View>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.chatButton} onPress={handleChat}>
-            <Text style={styles.buttonText}>Chat</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.cancelButton}
-            onPress={() => Alert.alert('Cancel', 'Cancel functionality not implemented.')}
-          >
-            <Text style={styles.buttonText}>Cancel</Text>
-          </TouchableOpacity>
-        </View>
+        {passengerDetails.map((passenger) => (
+          <View key={passenger.requestId} style={styles.contentContainer}>
+            <Text style={styles.requestText}>Request ID: {passenger.requestId}</Text>
+            <Text style={styles.requestText}>Passenger Name: {passenger.passengerName}</Text>
+            <Text style={styles.requestText}>Passenger Email: {passenger.passengerEmail}</Text>
+            <Text style={styles.requestText}>Passenger Phone: {passenger.passengerPhone}</Text>
+            <Text style={styles.requestText}>Starting Stop: {passenger.startingStop}</Text>
+            <Text style={styles.requestText}>Destination Stop: {passenger.destinationStop}</Text>
+            <Text style={styles.requestText}>Status: {passenger.status}</Text>
+            <Text style={styles.requestText}>Route: {passenger.route}</Text>
+
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity style={styles.chatButton} onPress={() => handleChat(passenger.requestId)}>
+                <Text style={styles.buttonText}>Chat</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => Alert.alert('Cancel', 'Cancel functionality not implemented.')}
+              >
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ))}
       </ScrollView>
     </LinearGradient>
   );
@@ -206,7 +211,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginBottom: 20,
+    marginTop: 15,
   },
   chatButton: {
     backgroundColor: '#007AFF',
@@ -238,4 +243,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AcceptedRequestsScreen;
+export default AcceptedPassengersScreen;
