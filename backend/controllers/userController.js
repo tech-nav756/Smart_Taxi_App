@@ -11,6 +11,7 @@ exports.getUserDetails = async (req, res) => {
 
     res.status(200).json({
       user: {
+        id: user._id, 
         name: user.name, // Ensure the correct fields are returned
         email: user.email,
         role: user.role,

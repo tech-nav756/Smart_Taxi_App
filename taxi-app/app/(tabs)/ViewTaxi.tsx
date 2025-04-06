@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -7,17 +7,18 @@ import {
   FlatList,
   StyleSheet,
   Dimensions,
+  Animated,
+  ActivityIndicator,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { getToken, fetchData } from "../api/api";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { StackNavigationProp } from "@react-navigation/stack";
+import { StackNavigationProp } from '@react-navigation/stack';
 
 const { width } = Dimensions.get("window");
-const apiUrl = "https://miniature-space-disco-g479vv79659pfw5jq-3000.app.github.dev";
+const apiUrl = "https://fluffy-space-trout-7vgv67xv9xrhw77-3000.app.github.dev";
 
-// Define Taxi type
 interface Taxi {
   _id: string;
   numberPlate: string;
@@ -25,15 +26,76 @@ interface Taxi {
   status: string;
 }
 
+interface SidebarProps {
+  isVisible: boolean;
+  onClose: () => void;
+  onNavigate: (screen: string) => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ isVisible, onClose, onNavigate }) => {
+  const slideAnim = useRef(new Animated.Value(-250)).current;
+  useEffect(() => {
+    Animated.timing(slideAnim, {
+      toValue: isVisible ? 0 : -250,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [isVisible, slideAnim]);
+
+  return (
+    <Animated.View
+      style={[
+        styles.sidebar,
+        { transform: [{ translateX: slideAnim }] },
+      ]}
+    >
+      <View style={styles.sidebarHeader}>
+        <Text style={styles.sidebarTitle}>Menu</Text>
+        <TouchableOpacity onPress={onClose}>
+          <FontAwesome name="close" size={24} color="#003E7E" />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.logoContainer}>
+        <Text style={styles.logoText}>Shesha</Text>
+      </View>
+            <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('Home'); onClose(); }}>
+              <FontAwesome name="home" size={22} color="#003E7E" />
+              <Text style={styles.sidebarButtonText}>Home</Text>
+            </TouchableOpacity>
+      <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate("ViewTaxi"); onClose(); }}>
+        <MaterialIcons name="directions-car" size={22} color="#003E7E" />
+        <Text style={styles.sidebarButtonText}>View Taxis</Text>
+      </TouchableOpacity>
+      <View style={styles.sidebarDivider} />
+      <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate("ViewRequests"); onClose(); }}>
+        <FontAwesome name="search" size={22} color="#003E7E" />
+        <Text style={styles.sidebarButtonText}>Search Rides</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate("LiveChat"); onClose(); }}>
+        <FontAwesome name="comment" size={22} color="#003E7E" />
+        <Text style={styles.sidebarButtonText}>Live Chat</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate("TaxiManagement"); onClose(); }}>
+        <FontAwesome name="map" size={22} color="#003E7E" />
+        <Text style={styles.sidebarButtonText}>Manage Taxi</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate("Profile"); onClose(); }}>
+        <FontAwesome name="user" size={22} color="#003E7E" />
+        <Text style={styles.sidebarButtonText}>Profile</Text>
+      </TouchableOpacity>
+    </Animated.View>
+  );
+};
+
 const ViewTaxi: React.FC = () => {
   const [startLocation, setStartLocation] = useState<string>("");
   const [endLocation, setEndLocation] = useState<string>("");
   const [taxis, setTaxis] = useState<Taxi[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [sidebarVisible, setSidebarVisible] = useState(false);
 
   const navigation = useNavigation<StackNavigationProp<any, "ViewTaxi">>();
 
-  // Fetch taxis based on search criteria
   const searchTaxis = async () => {
     if (!startLocation || !endLocation) {
       alert("Please enter both start and end locations.");
@@ -64,7 +126,6 @@ const ViewTaxi: React.FC = () => {
     setLoading(false);
   };
 
-  // Render each taxi row
   const renderTaxi = ({ item }: { item: Taxi }) => (
     <View style={styles.tableRow}>
       <Text style={styles.tableCell}>{item.numberPlate}</Text>
@@ -73,9 +134,7 @@ const ViewTaxi: React.FC = () => {
       <View style={styles.actionButtons}>
         <TouchableOpacity
           style={styles.monitorButton}
-          onPress={() =>
-            navigation.navigate("Home", { acceptedTaxiId: item._id })
-          }
+          onPress={() => navigation.navigate("Home", { acceptedTaxiId: item._id })}
         >
           <Text style={styles.actionButtonText}>Monitor</Text>
         </TouchableOpacity>
@@ -86,80 +145,71 @@ const ViewTaxi: React.FC = () => {
     </View>
   );
 
+  const handleNavigate = (screen: string) => {
+    navigation.navigate(screen);
+  };
+  const toggleSidebar = () => {
+    setSidebarVisible(!sidebarVisible);
+  };
+
   return (
-    <LinearGradient
-      colors={["#0F2027", "#203A43", "#2C5364"]}
-      style={styles.gradient}
-    >
-      <View style={styles.container}>
-        <Text style={styles.title}>Search Available Taxis</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Start Location"
-          placeholderTextColor="#aaa"
-          value={startLocation}
-          onChangeText={setStartLocation}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Enter End Location"
-          placeholderTextColor="#aaa"
-          value={endLocation}
-          onChangeText={setEndLocation}
-        />
-        <TouchableOpacity
-          style={styles.button}
-          onPress={searchTaxis}
-          disabled={loading}
-        >
-          <Text style={styles.buttonText}>
-            {loading ? "Searching..." : "Find Taxis"}
-          </Text>
-        </TouchableOpacity>
-        <FlatList
-          data={taxis}
-          keyExtractor={(item) => item._id}
-          ListHeaderComponent={() =>
-            taxis.length > 0 && (
-              <View style={styles.tableHeader}>
-                <Text style={styles.tableCellHeader}>Plate</Text>
-                <Text style={styles.tableCellHeader}>Current Stop</Text>
-                <Text style={styles.tableCellHeader}>Status</Text>
-                <Text style={styles.tableCellHeader}>Actions</Text>
-              </View>
-            )
-          }
-          renderItem={renderTaxi}
-          ListEmptyComponent={() =>
-            !loading ? <Text style={styles.noResults}>No taxis found.</Text> : null
-          }
-        />
-      </View>
+    <LinearGradient colors={["#FFFFFF", "#E8F0FE"]} style={styles.gradient}>
       <View style={styles.navBar}>
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={() => navigation.navigate("Home")}
-        >
-          <FontAwesome name="home" size={24} color="#fff" />
+        <Text style={styles.navLogo}>Shesha</Text>
+        <TouchableOpacity style={styles.toggleButton} onPress={toggleSidebar}>
+          <FontAwesome name="bars" size={28} color="#003E7E" />
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={() => navigation.navigate("LiveChat")}
-        >
-          <FontAwesome name="comment" size={24} color="#fff" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={() => navigation.navigate("TaxiManagement")}
-        >
-          <FontAwesome name="map" size={24} color="#fff" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={() => navigation.navigate("Profile")}
-        >
-          <FontAwesome name="user" size={24} color="#fff" />
-        </TouchableOpacity>
+      </View>
+      <View style={styles.container}>
+        <Sidebar
+          isVisible={sidebarVisible}
+          onClose={toggleSidebar}
+          onNavigate={handleNavigate}
+        />
+        <View style={styles.mainContent}>
+          <Text style={styles.title}>Search Available Taxis</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter Start Location"
+            placeholderTextColor="#aaa"
+            value={startLocation}
+            onChangeText={setStartLocation}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Enter End Location"
+            placeholderTextColor="#aaa"
+            value={endLocation}
+            onChangeText={setEndLocation}
+          />
+          <TouchableOpacity
+            style={styles.button}
+            onPress={searchTaxis}
+            disabled={loading}
+          >
+            <Text style={styles.buttonText}>
+              {loading ? <ActivityIndicator size="small" color="#fff" /> : "Find Taxis"}
+            </Text>
+          </TouchableOpacity>
+          <FlatList
+            data={taxis}
+            keyExtractor={(item) => item._id}
+            ListHeaderComponent={() =>
+              taxis.length > 0 && (
+                <View style={styles.tableHeader}>
+                  <Text style={styles.tableCellHeader}>Plate</Text>
+                  <Text style={styles.tableCellHeader}>Current Stop</Text>
+                  <Text style={styles.tableCellHeader}>Status</Text>
+                  <Text style={styles.tableCellHeader}>Actions</Text>
+                </View>
+              )
+            }
+            renderItem={renderTaxi}
+            ListEmptyComponent={() =>
+              !loading ? <Text style={styles.noResults}>No taxis found.</Text> : null
+            }
+          />
+        </View>
       </View>
     </LinearGradient>
   );
@@ -167,23 +217,96 @@ const ViewTaxi: React.FC = () => {
 
 const styles = StyleSheet.create({
   gradient: { flex: 1 },
+  navBar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    padding: 20,
+    backgroundColor: "#F7F9FC",
+    borderBottomWidth: 1,
+    borderBottomColor: "#DDD",
+    zIndex: 10,
+  },
+  navLogo: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#003E7E",
+  },
+  toggleButton: {
+    backgroundColor: "transparent",
+    padding: 10,
+    borderRadius: 30,
+  },
+  sidebar: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    width: 250,
+    backgroundColor: "#F7F9FC",
+    paddingTop: 60,
+    paddingHorizontal: 15,
+    zIndex: 9,
+    borderRightWidth: 1,
+    borderRightColor: "#DDD",
+  },
+  sidebarHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  sidebarTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#003E7E",
+  },
+  logoContainer: {
+    alignItems: "center",
+    marginBottom: 25,
+  },
+  logoText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#003E7E",
+  },
+  sidebarButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 5,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  sidebarButtonText: {
+    fontSize: 16,
+    marginLeft: 10,
+    color: "#003E7E",
+    fontWeight: "600",
+  },
+  sidebarDivider: {
+    height: 1,
+    backgroundColor: "#DDD",
+    marginVertical: 15,
+  },
   container: {
     flex: 1,
-    paddingTop: 60,
-    paddingHorizontal: 20,
-    marginBottom: 100, // To avoid overlapping the bottom nav
+  },
+  mainContent: {
+    flexGrow: 1,
+    padding: 20,
   },
   title: {
     fontSize: 30,
     fontWeight: "700",
-    color: "#ffffff",
+    color: "#003E7E",
     textAlign: "center",
     marginBottom: 30,
   },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
-    backgroundColor: "rgba(255,255,255,0.9)",
+    backgroundColor: "#F7F9FC",
     padding: 12,
     marginBottom: 15,
     borderRadius: 10,
@@ -191,16 +314,11 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   button: {
-    backgroundColor: "#E94560",
+    backgroundColor: "#003E7E",
     paddingVertical: 15,
     borderRadius: 30,
     alignItems: "center",
     marginBottom: 25,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 8,
   },
   buttonText: {
     color: "#fff",
@@ -209,7 +327,7 @@ const styles = StyleSheet.create({
   },
   tableHeader: {
     flexDirection: "row",
-    backgroundColor: "rgba(255,255,255,0.9)",
+    backgroundColor: "#F7F9FC",
     paddingVertical: 10,
     paddingHorizontal: 5,
     marginBottom: 5,
@@ -224,7 +342,7 @@ const styles = StyleSheet.create({
   },
   tableRow: {
     flexDirection: "row",
-    backgroundColor: "rgba(255,255,255,0.9)",
+    backgroundColor: "#F7F9FC",
     paddingVertical: 10,
     paddingHorizontal: 5,
     borderBottomWidth: 1,
@@ -263,26 +381,6 @@ const styles = StyleSheet.create({
     marginTop: 15,
     fontSize: 18,
     color: "#aaa",
-  },
-  navBar: {
-    position: "absolute",
-    bottom: 20,
-    left: 20,
-    right: 20,
-    backgroundColor: "rgba(233, 69, 96, 0.9)",
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingVertical: 15,
-    borderRadius: 40,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.4,
-    shadowRadius: 5,
-    elevation: 10,
-  },
-  navButton: {
-    alignItems: "center",
-    justifyContent: "center",
   },
 });
 

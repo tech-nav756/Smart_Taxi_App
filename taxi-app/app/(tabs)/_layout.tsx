@@ -9,7 +9,9 @@ import ViewTaxi from './ViewTaxi';
 import RideRequestScreen from './rideRequest';
 import TaxiManagementScreen from './taxiManagement';
 import LiveChatScreen from './LiveChat';
-
+import AcceptedPassengersScreen from './AcceptedPassenger';
+import AcceptedRequestsScreen from './AcceptedRequests';
+import ViewRequestScreen from './ViewRequests';
 const Stack = createStackNavigator();
 
 export default function TabLayout() {
@@ -38,6 +40,17 @@ export default function TabLayout() {
             options={{ headerShown: false }}
           />
           <Stack.Screen
+           name='AcceptedRequest'
+           component={AcceptedRequestsScreen}
+           options={{headerShown: false}}
+          />
+         <Stack.Screen
+           name='AcceptedPassenger'
+           component={AcceptedPassengersScreen}
+           options={{headerShown: false}}
+          />
+      
+          <Stack.Screen
           name="ViewTaxi"
           component={ViewTaxi}
           options={{headerShown: false}}
@@ -55,6 +68,11 @@ export default function TabLayout() {
           <Stack.Screen
             name="LiveChat"
             component={LiveChatScreen}
+            options={{headerShown: false}}
+            />
+            <Stack.Screen
+            name='ViewRequests'
+            component={ViewRequestScreen}
             options={{headerShown: false}}
             />
         </>
