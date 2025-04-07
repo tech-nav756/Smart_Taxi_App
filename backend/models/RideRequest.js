@@ -1,60 +1,52 @@
-// models/RideRequest.js
+const mongoose = require("mongoose");
 
-const mongoose = require('mongoose');
-const { Schema } = mongoose;
-
-const rideRequestSchema = new Schema(
+const rideRequestSchema = new mongoose.Schema(
   {
-    passengerId: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
+    // The user who is making the request.
+    passenger: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
-    assignedTaxiId: {
-      type: Schema.Types.ObjectId,
-      ref: 'Taxi',
-      default: null, // Assigned automatically when available
+    // Reference to the route, which holds the stops (with orders) and route details.
+    route: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Route",
+      required: true,
     },
-    assignedBy: {
+    // Type of request: "ride" for a stop-order based ride request, or "pickup" for on-demand pickup.
+    requestType: {
       type: String,
-      enum: ['system', 'admin'],
-      default: 'system', // Most assignments will be automated
+      enum: ["ride", "pickup"],
+      required: true,
     },
+    // The name of the stop where the passenger is waiting.
+    // You can use this value to look up the stop order in the referenced route.
+    startingStop: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    // The destination stop name (optional based on your app's flow).
+    destinationStop: {
+      type: String,
+      trim: true,
+    },
+    // Current status of the request.
     status: {
       type: String,
-      enum: ['pending', 'assigned', 'accepted', 'completed', 'cancelled'],
-      default: 'pending',
+      enum: ["pending", "accepted", "cancelled", "completed"],
+      default: "pending",
     },
-    pickupLocation: {
-      type: {
-        type: String,
-        enum: ['Point'],
-        required: true,
-      },
-      coordinates: {
-        type: [Number], // [longitude, latitude]
-        required: true,
-      },
+    // The taxi assigned to this request (if any).
+    taxi: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Taxi",
     },
-    dropoffLocation: {
-      type: {
-        type: String,
-        enum: ['Point'],
-        required: true,
-      },
-      coordinates: {
-        type: [Number], // [longitude, latitude]
-        required: true,
-      },
-    },
+    // Timestamps such as createdAt and updatedAt will be added automatically.
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-// Indexes for geospatial queries
-rideRequestSchema.index({ pickupLocation: '2dsphere' });
-rideRequestSchema.index({ dropoffLocation: '2dsphere' });
-
-module.exports = mongoose.model('RideRequest', rideRequestSchema);
+const RideRequest = mongoose.model("RideRequest", rideRequestSchema);
+module.exports = RideRequest;

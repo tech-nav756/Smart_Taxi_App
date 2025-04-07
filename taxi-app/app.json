@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "taxi-app",
+    "name": "shesha",
     "slug": "taxi-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -15,7 +15,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.moruditech.shesha"
     },
     "web": {
       "bundler": "metro",
@@ -36,6 +37,15 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "5d688e69-ccfb-45ac-b371-bc2ced3825fd"
+      }
+    },
+    "owner": "kgotatso909"
   }
 }

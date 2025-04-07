@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
-const Route = require("./Route");
-const User = require("./User");
+
 
 const taxiSchema = new mongoose.Schema(
   {
