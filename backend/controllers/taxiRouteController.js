@@ -30,3 +30,55 @@ exports.createRoute = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+
+
+exports.getRoutes = async (req, res, next) => {
+  try {
+    // Fetch all routes from the database
+    const routes = await Route.find();
+
+    // If no routes found
+    if (routes.length === 0) {
+      return res.status(404).json({ message: "No routes available" });
+    }
+
+    // Return all available routes
+    res.status(200).json({
+      message: "Routes fetched successfully",
+      routes: routes,
+    });
+  } catch (error) {
+    next(error)
+  }
+};
+
+// Search routes with optional filters
+exports.searchRoutes = async (req, res) => {
+  try {
+    const { startLocation, endLocation } = req.query;
+
+    // Build a filter object based on provided search criteria
+    let filter = {};
+    if (startLocation) {
+      filter.startLocation = { $regex: startLocation, $options: 'i' };  // Case-insensitive search
+    }
+    if (endLocation) {
+      filter.endLocation = { $regex: endLocation, $options: 'i' };  // Case-insensitive search
+    }
+
+    // Find routes based on the filter
+    const routes = await Route.find(filter);
+
+    if (routes.length === 0) {
+      return res.status(404).json({ message: "No routes found matching your criteria" });
+    }
+
+    res.status(200).json({
+      message: "Routes found successfully",
+      routes: routes,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};

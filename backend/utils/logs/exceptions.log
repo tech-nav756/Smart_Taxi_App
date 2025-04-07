@@ -1,23 +1,7 @@
-[2025-04-05 11:58:27] ERROR: uncaughtException: Cannot find module './routes/chatRoutes'
-Require stack:
-- /workspaces/Smart_Taxi_App/backend/server.js
-Error: Cannot find module './routes/chatRoutes'
-Require stack:
-- /workspaces/Smart_Taxi_App/backend/server.js
-    at Module._resolveFilename (node:internal/modules/cjs/loader:1212:15)
-    at Module._load (node:internal/modules/cjs/loader:1043:27)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)
-[2025-04-05 16:34:14] ERROR: uncaughtException: Invalid or unexpected token
-/workspaces/Smart_Taxi_App/backend/controllers/chatController.js:21
-            status: { $in: ['accepted', 'on trip', 'completed', 'suc] }, // More flexible: Allow chat during/after ride
-                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2025-04-06 04:56:36] ERROR: uncaughtException: Invalid or unexpected token
+/workspaces/Smart_Taxi_App/backend/routes/taxirouteRoutes.js:8
+router.use(protect, authorizeRoles(["
+                                    ^
 
 SyntaxError: Invalid or unexpected token
     at wrapSafe (node:internal/modules/cjs/loader:1472:18)
@@ -27,27 +11,15 @@ SyntaxError: Invalid or unexpected token
     at Module._load (node:internal/modules/cjs/loader:1096:12)
     at Module.require (node:internal/modules/cjs/loader:1298:19)
     at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:2:24)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:19:25)
     at Module._compile (node:internal/modules/cjs/loader:1529:14)
     at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-[2025-04-05 20:32:33] ERROR: uncaughtException: router.g is not a function
-TypeError: router.g is not a function
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:17:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-[2025-04-05 20:32:36] ERROR: uncaughtException: Unexpected token '('
-/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:17
-router.('/:chatSessionId/messages', chatController.getChatMessages);
-       ^
+[2025-04-06 04:56:41] ERROR: uncaughtException: missing ) after argument list
+/workspaces/Smart_Taxi_App/backend/routes/taxirouteRoutes.js:8
+router.use(protect
+           ^^^^^^^
 
-SyntaxError: Unexpected token '('
+SyntaxError: missing ) after argument list
     at wrapSafe (node:internal/modules/cjs/loader:1472:18)
     at Module._compile (node:internal/modules/cjs/loader:1501:20)
     at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
@@ -55,485 +27,97 @@ SyntaxError: Unexpected token '('
     at Module._load (node:internal/modules/cjs/loader:1096:12)
     at Module.require (node:internal/modules/cjs/loader:1298:19)
     at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:19:25)
     at Module._compile (node:internal/modules/cjs/loader:1529:14)
     at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-[2025-04-05 20:33:06] ERROR: uncaughtException: Unexpected token ')'
-/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:17
-router.post('/:chatSessionId/messages', chatController.);
-                                                       ^
-
-SyntaxError: Unexpected token ')'
-    at wrapSafe (node:internal/modules/cjs/loader:1472:18)
-    at Module._compile (node:internal/modules/cjs/loader:1501:20)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-[2025-04-05 20:33:10] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:17:8)
+[2025-04-06 04:56:55] ERROR: uncaughtException: ro is not defined
+ReferenceError: ro is not defined
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/taxirouteRoutes.js:11:1)
     at Module._compile (node:internal/modules/cjs/loader:1529:14)
     at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
     at Module.load (node:internal/modules/cjs/loader:1275:32)
     at Module._load (node:internal/modules/cjs/loader:1096:12)
     at Module.require (node:internal/modules/cjs/loader:1298:19)
     at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 21:17:42] ERROR: uncaughtException: Unexpected strict mode reserved word
-SyntaxError: Unexpected strict mode reserved word
-    at compileSourceTextModule (node:internal/modules/esm/utils:340:16)
-    at ModuleLoader.importSyncForRequire (node:internal/modules/esm/loader:316:18)
-    at loadESMFromCJS (node:internal/modules/cjs/loader:1371:24)
-    at Module._compile (node:internal/modules/cjs/loader:1511:5)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:19:25)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
     at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:2:24)
-[2025-04-05 22:42:04] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
+[2025-04-06 04:56:57] ERROR: uncaughtException: routet is not defined
+ReferenceError: routet is not defined
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/taxirouteRoutes.js:11:1)
     at Module._compile (node:internal/modules/cjs/loader:1529:14)
     at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
     at Module.load (node:internal/modules/cjs/loader:1275:32)
     at Module._load (node:internal/modules/cjs/loader:1096:12)
     at Module.require (node:internal/modules/cjs/loader:1298:19)
     at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:42:05] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:19:25)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+[2025-04-06 04:57:01] ERROR: uncaughtException: Cannot set properties of undefined (setting 'exports')
+TypeError: Cannot set properties of undefined (setting 'exports')
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/taxirouteRoutes.js:12:16)
     at Module._compile (node:internal/modules/cjs/loader:1529:14)
     at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
     at Module.load (node:internal/modules/cjs/loader:1275:32)
     at Module._load (node:internal/modules/cjs/loader:1096:12)
     at Module.require (node:internal/modules/cjs/loader:1298:19)
     at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:42:08] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:19:25)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+[2025-04-06 04:57:07] ERROR: uncaughtException: Cannot set properties of undefined (setting 'exports')
+TypeError: Cannot set properties of undefined (setting 'exports')
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/taxirouteRoutes.js:12:16)
     at Module._compile (node:internal/modules/cjs/loader:1529:14)
     at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
     at Module.load (node:internal/modules/cjs/loader:1275:32)
     at Module._load (node:internal/modules/cjs/loader:1096:12)
     at Module.require (node:internal/modules/cjs/loader:1298:19)
     at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:42:10] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:19:25)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+[2025-04-06 04:57:12] ERROR: uncaughtException: path must be a string, array of strings, or regular expression
+TypeError: path must be a string, array of strings, or regular expression
+    at pathToRegexp (/workspaces/Smart_Taxi_App/backend/node_modules/path-to-regexp/index.js:69:11)
+    at new Layer (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/layer.js:45:17)
+    at Function.route (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:505:15)
+    at proto.<computed> [as get] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:520:22)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/taxirouteRoutes.js:11:8)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+[2025-04-06 04:57:57] ERROR: uncaughtException: rou is not defined
+ReferenceError: rou is not defined
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/taxirouteRoutes.js:11:32)
     at Module._compile (node:internal/modules/cjs/loader:1529:14)
     at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
     at Module.load (node:internal/modules/cjs/loader:1275:32)
     at Module._load (node:internal/modules/cjs/loader:1096:12)
     at Module.require (node:internal/modules/cjs/loader:1298:19)
     at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:42:13] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:19:25)
     at Module._compile (node:internal/modules/cjs/loader:1529:14)
     at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:42:15] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:42:23] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:42:39] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:42:42] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:42:45] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:42:48] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:42:50] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:43:24] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:43:28] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:43:30] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:43:34] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:43:36] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:43:43] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:43:47] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:43:51] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:43:53] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:44:02] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:44:05] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:44:13] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:44:20] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:44:25] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:44:27] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:44:29] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:44:31] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:44:33] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:44:34] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:44:47] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:44:49] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:44:50] ERROR: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
-Error: Route.post() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as post] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/chatRoutes.js:12:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:21:20)
-[2025-04-05 22:58:03] ERROR: uncaughtException: Route.get() requires a callback function but got a [object Undefined]
-Error: Route.get() requires a callback function but got a [object Undefined]
+[2025-04-06 04:58:00] ERROR: uncaughtException: Route.get() requires a callback function but got a [object Object]
+Error: Route.get() requires a callback function but got a [object Object]
     at Route.<computed> [as get] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
     at proto.<computed> [as get] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/rideRequestRoutes.js:13:8)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/taxirouteRoutes.js:11:8)
     at Module._compile (node:internal/modules/cjs/loader:1529:14)
     at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
     at Module.load (node:internal/modules/cjs/loader:1275:32)
     at Module._load (node:internal/modules/cjs/loader:1096:12)
     at Module.require (node:internal/modules/cjs/loader:1298:19)
     at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:20:27)
-[2025-04-05 22:58:05] ERROR: uncaughtException: Route.get() requires a callback function but got a [object Undefined]
-Error: Route.get() requires a callback function but got a [object Undefined]
-    at Route.<computed> [as get] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
-    at proto.<computed> [as get] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/rideRequestRoutes.js:13:8)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Module.require (node:internal/modules/cjs/loader:1298:19)
-    at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:20:27)
-[2025-04-05 22:58:10] ERROR: uncaughtException: Unexpected token ')'
-/workspaces/Smart_Taxi_App/backend/routes/rideRequestRoutes.js:13
-router.get("/acceptedPassengeretails", protect,  rideRequestController.);
-                                                                       ^
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:19:25)
+[2025-04-06 04:58:02] ERROR: uncaughtException: Unexpected token ')'
+/workspaces/Smart_Taxi_App/backend/routes/taxirouteRoutes.js:11
+router.get('/availableRoutes', routeController.)
+                                               ^
 
 SyntaxError: Unexpected token ')'
     at wrapSafe (node:internal/modules/cjs/loader:1472:18)
@@ -543,18 +127,138 @@ SyntaxError: Unexpected token ')'
     at Module._load (node:internal/modules/cjs/loader:1096:12)
     at Module.require (node:internal/modules/cjs/loader:1298:19)
     at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:20:27)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:19:25)
     at Module._compile (node:internal/modules/cjs/loader:1529:14)
     at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-[2025-04-05 22:58:11] ERROR: uncaughtException: Route.get() requires a callback function but got a [object Undefined]
+[2025-04-06 05:29:10] ERROR: uncaughtException: Invalid or unexpected token
+/workspaces/Smart_Taxi_App/backend/routes/taxirouteRoutes.js:12
+router.get('/availableRoutes
+           ^^^^^^^^^^^^^^^^^
+
+SyntaxError: Invalid or unexpected token
+    at wrapSafe (node:internal/modules/cjs/loader:1472:18)
+    at Module._compile (node:internal/modules/cjs/loader:1501:20)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+    at require (node:internal/modules/helpers:182:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:19:25)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+[2025-04-06 05:29:32] ERROR: uncaughtException: Route.get() requires a callback function but got a [object Undefined]
 Error: Route.get() requires a callback function but got a [object Undefined]
     at Route.<computed> [as get] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
     at proto.<computed> [as get] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/rideRequestRoutes.js:13:8)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/taxirouteRoutes.js:12:8)
     at Module._compile (node:internal/modules/cjs/loader:1529:14)
     at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
     at Module.load (node:internal/modules/cjs/loader:1275:32)
     at Module._load (node:internal/modules/cjs/loader:1096:12)
     at Module.require (node:internal/modules/cjs/loader:1298:19)
     at require (node:internal/modules/helpers:182:18)
-    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:20:27)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:19:25)
+[2025-04-06 05:29:33] ERROR: uncaughtException: Route.get() requires a callback function but got a [object Undefined]
+Error: Route.get() requires a callback function but got a [object Undefined]
+    at Route.<computed> [as get] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
+    at proto.<computed> [as get] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/taxirouteRoutes.js:12:8)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+    at require (node:internal/modules/helpers:182:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:19:25)
+[2025-04-06 05:29:39] ERROR: uncaughtException: Route.get() requires a callback function but got a [object Undefined]
+Error: Route.get() requires a callback function but got a [object Undefined]
+    at Route.<computed> [as get] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
+    at proto.<computed> [as get] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/taxirouteRoutes.js:12:8)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+    at require (node:internal/modules/helpers:182:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:19:25)
+[2025-04-06 05:29:43] ERROR: uncaughtException: Unexpected token ')'
+/workspaces/Smart_Taxi_App/backend/routes/taxirouteRoutes.js:12
+router.get('/search', routeController.)
+                                      ^
+
+SyntaxError: Unexpected token ')'
+    at wrapSafe (node:internal/modules/cjs/loader:1472:18)
+    at Module._compile (node:internal/modules/cjs/loader:1501:20)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+    at require (node:internal/modules/helpers:182:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:19:25)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+[2025-04-06 05:29:44] ERROR: uncaughtException: Route.get() requires a callback function but got a [object Object]
+Error: Route.get() requires a callback function but got a [object Object]
+    at Route.<computed> [as get] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/route.js:216:15)
+    at proto.<computed> [as get] (/workspaces/Smart_Taxi_App/backend/node_modules/express/lib/router/index.js:521:19)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/taxirouteRoutes.js:12:8)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+    at require (node:internal/modules/helpers:182:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:19:25)
+[2025-04-06 05:29:46] ERROR: uncaughtException: Unexpected token ')'
+/workspaces/Smart_Taxi_App/backend/routes/taxirouteRoutes.js:12
+router.get('/search', routeController.)
+                                      ^
+
+SyntaxError: Unexpected token ')'
+    at wrapSafe (node:internal/modules/cjs/loader:1472:18)
+    at Module._compile (node:internal/modules/cjs/loader:1501:20)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+    at require (node:internal/modules/helpers:182:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/server.js:19:25)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+[2025-04-07 05:17:00] ERROR: uncaughtException: c is not defined
+ReferenceError: c is not defined
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/controllers/taxiController.js:250:1)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+    at require (node:internal/modules/helpers:182:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/taxiRoutes.js:4:24)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+[2025-04-07 05:17:07] ERROR: uncaughtException: cz is not defined
+ReferenceError: cz is not defined
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/controllers/taxiController.js:250:1)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+    at require (node:internal/modules/helpers:182:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/taxiRoutes.js:4:24)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+[2025-04-07 05:17:17] ERROR: uncaughtException: c is not defined
+ReferenceError: c is not defined
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/controllers/taxiController.js:250:1)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+    at require (node:internal/modules/helpers:182:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/taxiRoutes.js:4:24)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)

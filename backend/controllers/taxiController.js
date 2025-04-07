@@ -251,9 +251,9 @@ const getNextStop = (taxi) => {
 exports.updateLoad = async (req, res, next) => {
   try {
     const { taxiId } = req.params;
-    const { newLoad } = req.body;
+    const { currentLoad } = req.body;
 
-    if (isNaN(newLoad) || newLoad < 0) {
+    if (isNaN(currentLoad) || currentLoad < 0) {
       return res.status(400).json({ message: "Load must be a non-negative number." });
     }
 
@@ -262,11 +262,11 @@ exports.updateLoad = async (req, res, next) => {
       return res.status(404).json({ message: "Taxi not found." });
     }
 
-    if (newLoad > taxi.capacity) {
+    if (currentLoad > taxi.capacity) {
       return res.status(400).json({ message: "Load cannot exceed the taxi's capacity." });
     }
 
-    taxi.currentLoad = newLoad;
+    taxi.currentLoad = currentLoad;
     await taxi.save();
 
     res.status(200).json({ message: "Taxi load updated successfully.", taxi });

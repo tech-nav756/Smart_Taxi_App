@@ -54,6 +54,7 @@ app.use('/api/taxis', taxiRoutes);
 app.use('/api/chat', chatRoutes); //chat routes
 app.use('/api/chatGroups', chatGroupRoutes); // chat groups route
 app.use("/api/admin/routes", taxirouteRoutes);
+app.use("/api/routes", taxirouteRoutes)
 app.use('/api/rideRequest', rideRequestRoutes);
 
 app.use(errorHandler);
