@@ -12,6 +12,8 @@ import LiveChatScreen from './LiveChat';
 import AcceptedPassengersScreen from './AcceptedPassenger';
 import AcceptedRequestsScreen from './AcceptedRequests';
 import ViewRequestScreen from './ViewRequests';
+import ViewRoute from './ViewRoute';
+
 const Stack = createStackNavigator();
 
 export default function TabLayout() {
@@ -55,6 +57,12 @@ export default function TabLayout() {
           component={ViewTaxi}
           options={{headerShown: false}}
           />  
+          
+          <Stack.Screen
+          name="ViewRoute"
+          component={ViewRoute}
+          options={{headerShown: false}}
+          />
           <Stack.Screen
            name="requestRide"
            component={RideRequestScreen}

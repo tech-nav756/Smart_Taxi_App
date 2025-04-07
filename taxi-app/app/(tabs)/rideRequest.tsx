@@ -9,102 +9,209 @@ import {
   ScrollView,
   ActivityIndicator,
   Animated,
+  SafeAreaView, // Added
+  Platform,      // Added
+  Alert,         // Added
+  ViewStyle      // Added for Sidebar typing consistency
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { fetchData, getToken } from '../api/api';
-import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
+import { fetchData, getToken } from '../api/api'; // Assuming correct path
+import { FontAwesome, MaterialIcons, Ionicons } from '@expo/vector-icons'; // Added Ionicons
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 
-const { width } = Dimensions.get('window');
+// --- Constants ---
+const { width: windowWidth } = Dimensions.get('window'); // Use windowWidth if needed
 const apiUrl = 'https://fluffy-space-trout-7vgv67xv9xrhw77-3000.app.github.dev';
 
+// --- Navigation Types (Ensure this is consistent across your app) ---
+type RootStackParamList = {
+  Home: { acceptedTaxiId?: string };
+  requestRide: undefined; // Current screen
+  ViewTaxi: undefined;
+  ViewRequests: undefined;
+  LiveChat: undefined;
+  TaxiManagement: undefined;
+  Profile: undefined;
+  AcceptedRequest: undefined;
+  AcceptedPassenger: undefined;
+  ViewRoute: undefined;
+  Auth: undefined;
+  // Add other screens if necessary
+};
+
+type RideRequestScreenNavigationProp = StackNavigationProp<RootStackParamList, 'requestRide'>;
+
+// --- Interfaces ---
 interface SidebarProps {
   isVisible: boolean;
   onClose: () => void;
-  onNavigate: (screen: string) => void;
+  onNavigate: (screen: keyof RootStackParamList) => void;
+  activeScreen: keyof RootStackParamList;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isVisible, onClose, onNavigate }) => {
-  const slideAnim = useRef(new Animated.Value(-250)).current; // Sidebar width
+// --- Reusable Components Defined Directly In This File ---
+
+// --- Enhanced Sidebar Component (Copied from HomeScreen/ProfileScreen) ---
+const Sidebar: React.FC<SidebarProps> = ({ isVisible, onClose, onNavigate, activeScreen }) => {
+  const slideAnim = useRef(new Animated.Value(-300)).current;
+
   useEffect(() => {
     Animated.timing(slideAnim, {
-      toValue: isVisible ? 0 : -250,
+      toValue: isVisible ? 0 : -300,
       duration: 300,
       useNativeDriver: true,
     }).start();
   }, [isVisible, slideAnim]);
 
-  return (
-    <Animated.View
-      style={[
-        styles.sidebar,
-        { transform: [{ translateX: slideAnim }] },
-      ]}
+  const NavItem: React.FC<{ screen: keyof RootStackParamList; label: string; icon: React.ReactNode }> = ({ screen, label, icon }) => (
+    <TouchableOpacity
+      style={[styles.sidebarButtonInternal, activeScreen === screen && styles.sidebarButtonActiveInternal]}
+      onPress={() => { onNavigate(screen); onClose(); }}
     >
-      <View style={styles.sidebarHeader}>
-        <Text style={styles.sidebarTitle}>Menu</Text>
-        <TouchableOpacity onPress={onClose}>
-          <FontAwesome name="close" size={24} color="#003E7E" />
+      {icon}
+      <Text style={[styles.sidebarButtonTextInternal, activeScreen === screen && styles.sidebarButtonTextActiveInternal]}>{label}</Text>
+    </TouchableOpacity>
+  );
+
+  return (
+    <Animated.View style={[styles.sidebarInternal, { transform: [{ translateX: slideAnim }] }]}>
+      <SafeAreaView style={{ flex: 1 }}>
+        <TouchableOpacity style={styles.sidebarCloseButtonInternal} onPress={onClose}>
+          <Ionicons name="close" size={30} color="#FFFFFF" />
         </TouchableOpacity>
-      </View>
-      <View style={styles.logoContainer}>
-        <Text style={styles.logoText}>Shesha</Text>
-      </View>
-            <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('Home'); onClose(); }}>
-              <FontAwesome name="home" size={22} color="#003E7E" />
-              <Text style={styles.sidebarButtonText}>Home</Text>
-            </TouchableOpacity>
-      <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('requestRide'); onClose(); }}>
-        <FontAwesome name="car" size={22} color="#003E7E" />
-        <Text style={styles.sidebarButtonText}>Request Ride</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('ViewTaxi'); onClose(); }}>
-        <MaterialIcons name="directions-car" size={22} color="#003E7E" />
-        <Text style={styles.sidebarButtonText}>View Taxis</Text>
-      </TouchableOpacity>
-      <View style={styles.sidebarDivider} />
-      <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('ViewRequests'); onClose(); }}>
-        <FontAwesome name="search" size={22} color="#003E7E" />
-        <Text style={styles.sidebarButtonText}>Search Rides</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('LiveChat'); onClose(); }}>
-        <FontAwesome name="comment" size={22} color="#003E7E" />
-        <Text style={styles.sidebarButtonText}>Live Chat</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('TaxiManagement'); onClose(); }}>
-        <FontAwesome name="map" size={22} color="#003E7E" />
-        <Text style={styles.sidebarButtonText}>Manage Taxi</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.sidebarButton} onPress={() => { onNavigate('Profile'); onClose(); }}>
-        <FontAwesome name="user" size={22} color="#003E7E" />
-        <Text style={styles.sidebarButtonText}>Profile</Text>
-      </TouchableOpacity>
+        <View style={styles.sidebarHeaderInternal}>
+          <Ionicons name="car-sport-outline" size={40} color="#FFFFFF" style={styles.sidebarLogoIconInternal} />
+          <Text style={styles.sidebarTitleInternal}>Shesha</Text>
+        </View>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <NavItem screen="Home" label="Home" icon={<FontAwesome name="home" size={22} color="#FFFFFF" />} />
+          <NavItem screen="requestRide" label="Request Ride" icon={<FontAwesome name="car" size={22} color="#FFFFFF" />} />
+          <NavItem screen="ViewTaxi" label="View Taxis" icon={<MaterialIcons name="local-taxi" size={22} color="#FFFFFF" />} />
+           <NavItem screen="ViewRoute" label="View Routes" icon={<MaterialIcons name="route" size={22} color="#FFFFFF" />} />
+          <NavItem screen="AcceptedRequest" label="My Ride" icon={<FontAwesome name="check-circle" size={22} color="#FFFFFF" />} />
+          <NavItem screen="AcceptedPassenger" label="View Passenger" icon={<FontAwesome name="circle" size={22} color="#FFFFFF" />} />
+          <NavItem screen="ViewRequests" label="Search Rides" icon={<FontAwesome name="search" size={22} color="#FFFFFF" />} />
+          <NavItem screen="LiveChat" label="Live Chat" icon={<Ionicons name="chatbubbles-outline" size={22} color="#FFFFFF" />} />
+          <NavItem screen="TaxiManagement" label="Manage Taxi" icon={<MaterialIcons name="settings" size={22} color="#FFFFFF" />} />
+          <NavItem screen="Profile" label="Profile" icon={<FontAwesome name="user-circle-o" size={22} color="#FFFFFF" />} />
+        </ScrollView>
+      </SafeAreaView>
     </Animated.View>
   );
 };
 
+// --- Loading Component (Copied from HomeScreen/ProfileScreen) ---
+const Loading: React.FC = () => {
+  const spinAnim = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(spinAnim, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      })
+    ).start();
+  }, [spinAnim]);
+
+  const spin = spinAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
+  return (
+    <LinearGradient colors={['#FFFFFF', '#E8F0FE']} style={styles.loadingGradient}>
+        <View style={styles.loadingContainerInternal}>
+            <Animated.View style={{ transform: [{ rotate: spin }] }}>
+                <Ionicons name="refresh" size={50} color="#003E7E" />
+            </Animated.View>
+            <Text style={styles.loadingTextInternal}>Loading...</Text>
+        </View>
+    </LinearGradient>
+  );
+};
+
+// --- Action Button Component (Copied from ProfileScreen) ---
+const ActionButton: React.FC<{ onPress: () => void; title: string; iconName?: any; iconFamily?: 'Ionicons' | 'MaterialIcons' | 'FontAwesome'; color?: string; textColor?: string; loading?: boolean; style?: object; disabled?: boolean }> =
+    ({ onPress, title, iconName, iconFamily = 'Ionicons', color = '#003E7E', textColor = '#FFFFFF', loading = false, style = {}, disabled = false }) => {
+    const IconComponent = iconFamily === 'MaterialIcons' ? MaterialIcons : iconFamily === 'FontAwesome' ? FontAwesome : Ionicons;
+    const isDisabled = disabled || loading;
+    return (
+        <TouchableOpacity
+            style={[
+                styles.actionButtonBase,
+                { backgroundColor: color },
+                style,
+                isDisabled && styles.actionButtonDisabled // Added disabled style
+            ]}
+            onPress={onPress}
+            disabled={isDisabled}
+        >
+        {loading ? (
+            <ActivityIndicator size="small" color={textColor} />
+        ) : (
+            <>
+            {iconName && <IconComponent name={iconName} size={18} color={textColor} style={styles.actionButtonIcon} />}
+            <Text style={[styles.actionButtonText, { color: textColor }]}>{title}</Text>
+            </>
+        )}
+        </TouchableOpacity>
+    );
+};
+
+
+// --- Main RideRequestScreen Component ---
 const RideRequestScreen: React.FC = () => {
   const [requestType, setRequestType] = useState<'ride' | 'pickup'>('ride');
   const [startingStop, setStartingStop] = useState<string>('');
   const [destinationStop, setDestinationStop] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false); // For API call loading
+  // Error and success states removed, using Alert instead
   const [sidebarVisible, setSidebarVisible] = useState(false);
 
-  const navigation = useNavigation<StackNavigationProp<any, 'RideRequest'>>();
+  const navigation = useNavigation<RideRequestScreenNavigationProp>();
+
+  // Animations
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(30)).current;
+
+  useEffect(() => {
+      // Trigger animations on mount
+      const animationTimer = setTimeout(() => {
+          Animated.parallel([
+            Animated.timing(fadeAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
+            Animated.timing(slideAnim, { toValue: 0, duration: 600, useNativeDriver: true }),
+          ]).start();
+      }, 100);
+      return () => clearTimeout(animationTimer);
+  }, [fadeAnim, slideAnim]); // Run once on mount
+
+  // Clear destination when switching to pickup
+  useEffect(() => {
+      if (requestType === 'pickup') {
+          setDestinationStop('');
+      }
+  }, [requestType]);
 
   const handleSubmit = async () => {
-    setLoading(true);
-    setError(null);
-    setSuccessMessage(null);
+    // --- Input Validation ---
+    if (!startingStop.trim()) {
+        Alert.alert('Missing Information', 'Please enter the starting stop or rank name.');
+        return;
+    }
+    if (requestType === 'ride' && !destinationStop.trim()) {
+        Alert.alert('Missing Information', 'Please enter the destination stop for a ride request.');
+        return;
+    }
+
+    setIsLoading(true); // Start loading indicator on the button
 
     try {
       const token = await getToken();
       if (!token) {
-        setError('Not authorized. Please log in.');
-        setLoading(false);
+        Alert.alert('Authentication Error', 'You seem to be logged out. Please log in again.');
+        setIsLoading(false);
+        // Optionally navigate to login: navigation.navigate('Auth');
         return;
       }
 
@@ -112,270 +219,329 @@ const RideRequestScreen: React.FC = () => {
       let body: any = {};
 
       if (requestType === 'ride') {
-        if (!startingStop || !destinationStop) {
-          setError('Both starting and destination stops are required for a ride request.');
-          setLoading(false);
-          return;
-        }
         endpoint = 'api/rideRequest/ride';
-        body = { startingStop, destinationStop };
-      } else {
-        if (!startingStop) {
-          setError('Starting stop is required for a pickup request.');
-          setLoading(false);
-          return;
-        }
+        body = { startingStop: startingStop.trim(), destinationStop: destinationStop.trim() };
+      } else { // pickup
         endpoint = 'api/rideRequest/pickup';
-        body = { startingStop };
+        body = { startingStop: startingStop.trim() };
       }
 
-      const data = await fetchData(apiUrl, endpoint, {
+      // Make the API call
+      const response = await fetchData(apiUrl, endpoint, {
         method: 'POST',
         body,
+        // headers implicitly handled by fetchData if it includes Authorization
       });
 
-      setSuccessMessage('Request submitted successfully!');
+       // Check response status or data if needed. Assuming success if no error thrown.
+       console.log('Request Response:', response); // Log response for debugging
+
+      Alert.alert(
+          'Request Submitted',
+          'Your request has been successfully submitted. You can view its status under "My Ride".',
+          [{ text: 'OK', onPress: () => navigation.navigate('AcceptedRequest') }] // Navigate to My Ride screen on OK
+      );
+      // Clear form after successful submission
       setStartingStop('');
       setDestinationStop('');
-    } catch (err) {
+
+    } catch (err: any) {
       console.error('Error submitting request:', err);
-      setError('Failed to submit request.');
+      // Provide more specific error messages if possible based on error type or message
+      let errorMessage = 'Failed to submit request. Please try again later.';
+      if (err.message) {
+          // You might want to parse specific backend errors here
+          errorMessage = `Failed to submit request: ${err.message}`;
+      }
+      Alert.alert('Submission Error', errorMessage);
     } finally {
-      setLoading(false);
+      setIsLoading(false); // Stop loading indicator
     }
   };
 
-  const handleNavigate = (screen: string) => {
-    navigation.navigate(screen);
-  };
+  // Consistent Navigation Handler
+   const handleNavigate = (screen: keyof RootStackParamList) => {
+     setSidebarVisible(false);
+     switch (screen) {
+        case 'Home':
+            navigation.navigate({ name: 'Home', params: { acceptedTaxiId: undefined }, merge: true });
+            break;
+        case 'requestRide':
+            break; // Already here
+        case 'ViewTaxi':
+            navigation.navigate({ name: 'ViewTaxi', params: undefined, merge: true });
+            break;
+        case 'ViewRoute':
+             navigation.navigate({ name: 'ViewRoute', params: undefined, merge: true });
+             break;
+        case 'ViewRequests':
+            navigation.navigate({ name: 'ViewRequests', params: undefined, merge: true });
+            break;
+        case 'LiveChat':
+            navigation.navigate({ name: 'LiveChat', params: undefined, merge: true });
+            break;
+        case 'TaxiManagement':
+            navigation.navigate({ name: 'TaxiManagement', params: undefined, merge: true });
+            break;
+        case 'Profile':
+             navigation.navigate({ name: 'Profile', params: undefined, merge: true });
+            break;
+        case 'AcceptedRequest':
+            navigation.navigate({ name: 'AcceptedRequest', params: undefined, merge: true });
+            break;
+        case 'AcceptedPassenger':
+            navigation.navigate({ name: 'AcceptedPassenger', params: undefined, merge: true });
+            break;
+        case 'Auth':
+            navigation.navigate({ name: 'Auth', params: undefined, merge: true });
+            break;
+        default:
+            console.warn(`Attempted to navigate to unhandled screen: ${screen}`);
+            break;
+     }
+   };
+
   const toggleSidebar = () => {
     setSidebarVisible(!sidebarVisible);
   };
 
+  // --- Render Logic ---
+  // This screen doesn't have a primary loading state like Profile,
+  // but keeping the Loading component definition is fine.
+  // We mainly use the inline isLoading state for the button.
+
   return (
     <LinearGradient colors={['#FFFFFF', '#E8F0FE']} style={styles.gradient}>
-      <View style={styles.navBar}>
-        <Text style={styles.navLogo}>Shesha</Text>
-        <TouchableOpacity style={styles.toggleButton} onPress={toggleSidebar}>
-          <FontAwesome name="bars" size={28} color="#003E7E" />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.container}>
-        <Sidebar
-          isVisible={sidebarVisible}
-          onClose={toggleSidebar}
-          onNavigate={handleNavigate}
-        />
-        <ScrollView contentContainerStyle={styles.mainContent}>
-          <Text style={styles.title}>Ride Request</Text>
-          <View style={styles.toggleContainer}>
-            <TouchableOpacity
-              style={[styles.toggleButtonType, requestType === 'ride' && styles.activeToggle]}
-              onPress={() => setRequestType('ride')}
-            >
-              <Text style={[styles.toggleText, requestType === 'ride' && styles.activeToggleText]}>Ride</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.toggleButtonType, requestType === 'pickup' && styles.activeToggle]}
-              onPress={() => setRequestType('pickup')}
-            >
-              <Text style={[styles.toggleText, requestType === 'pickup' && styles.activeToggleText]}>Pickup</Text>
-            </TouchableOpacity>
-          </View>
+      <SafeAreaView style={styles.safeArea}>
+         {/* Use the Sidebar component defined above */}
+         <Sidebar isVisible={sidebarVisible} onClose={toggleSidebar} onNavigate={handleNavigate} activeScreen="requestRide" />
 
-          <View style={styles.form}>
-            <Text style={styles.label}>Starting Stop:</Text>
-            <TextInput
-              style={styles.input}
-              value={startingStop}
-              onChangeText={setStartingStop}
-              placeholder="Enter starting stop"
-              placeholderTextColor="#aaa"
-            />
+        <Animated.View style={[styles.mainContainer, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+           {/* Header (Matches HomeScreen/ProfileScreen) */}
+           <View style={styles.header}>
+                <TouchableOpacity style={styles.headerButton} onPress={toggleSidebar}>
+                  <Ionicons name="menu" size={32} color="#003E7E" />
+                </TouchableOpacity>
+                <Text style={styles.headerTitle}>Request Ride</Text>
+                 <View style={styles.headerButton} />
+                {/* Optional: Right header button */}
+                {/* <TouchableOpacity style={styles.headerButton} onPress={() => handleNavigate('Profile')}>
+                    <FontAwesome name="user-circle-o" size={28} color="#003E7E" />
+                </TouchableOpacity> */}
+           </View>
 
-            {requestType === 'ride' && (
-              <>
-                <Text style={styles.label}>Destination Stop:</Text>
-                <TextInput
-                  style={styles.input}
-                  value={destinationStop}
-                  onChangeText={setDestinationStop}
-                  placeholder="Enter destination stop"
-                  placeholderTextColor="#aaa"
-                />
-              </>
-            )}
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled" // Good for forms
+          >
+              {/* Request Type Toggle - Redesigned */}
+              <View style={styles.requestTypeContainer}>
+                 <TouchableOpacity
+                     style={[styles.requestTypeButton, requestType === 'ride' && styles.requestTypeButtonActive]}
+                     onPress={() => setRequestType('ride')}
+                 >
+                    <MaterialIcons name="directions-car" size={20} color={requestType === 'ride' ? '#FFFFFF' : '#003E7E'} style={styles.requestTypeIcon}/>
+                    <Text style={[styles.requestTypeText, requestType === 'ride' && styles.requestTypeTextActive]}>Ride Request</Text>
+                     <Text style={styles.requestTypeSubText}>(Origin & Destination)</Text>
+                 </TouchableOpacity>
+                 <TouchableOpacity
+                     style={[styles.requestTypeButton, requestType === 'pickup' && styles.requestTypeButtonActive]}
+                     onPress={() => setRequestType('pickup')}
+                 >
+                     <MaterialIcons name="hail" size={20} color={requestType === 'pickup' ? '#FFFFFF' : '#003E7E'} style={styles.requestTypeIcon}/>
+                    <Text style={[styles.requestTypeText, requestType === 'pickup' && styles.requestTypeTextActive]}>Pickup Request</Text>
+                     <Text style={styles.requestTypeSubText}>(Specific Location)</Text>
+                 </TouchableOpacity>
+             </View>
 
-            <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={loading}>
-              {loading ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.submitButtonText}>Submit Request</Text>}
-            </TouchableOpacity>
-            {error && <Text style={styles.errorText}>{error}</Text>}
-            {successMessage && <Text style={styles.successText}>{successMessage}</Text>}
-          </View>
-        </ScrollView>
-      </View>
+              {/* Form Section */}
+              <View style={styles.formSection}>
+                 <Text style={styles.sectionTitle}>Request Details</Text>
+
+                 <TextInput
+                    style={styles.input} // Use consistent input style
+                    value={startingStop}
+                    onChangeText={setStartingStop}
+                    placeholder="Starting Stop / Rank / Location"
+                    placeholderTextColor="#aaa"
+                 />
+
+                 {requestType === 'ride' && (
+                     // Conditional rendering with smooth animation (optional but nice)
+                     <Animated.View>
+                         <TextInput
+                             style={styles.input}
+                             value={destinationStop}
+                             onChangeText={setDestinationStop}
+                             placeholder="Destination Stop / Rank"
+                             placeholderTextColor="#aaa"
+                         />
+                     </Animated.View>
+                 )}
+
+                {/* Use ActionButton defined above */}
+                 <ActionButton
+                     title="Submit Request"
+                     onPress={handleSubmit}
+                     loading={isLoading}
+                     iconName="send-outline"
+                     style={{ marginTop: 20 }} // Add some margin top
+                     disabled={isLoading} // Explicitly disable when loading
+                 />
+                {/* Removed inline error/success messages, using Alert now */}
+             </View>
+
+          </ScrollView>
+        </Animated.View>
+      </SafeAreaView>
     </LinearGradient>
   );
 };
 
+// --- Styles ---
 const styles = StyleSheet.create({
-  gradient: {
-    flex: 1,
+  // Keep gradient, safeArea, mainContainer, header, headerButton, headerTitle styles
+  // identical to ProfileScreen for consistency
+  gradient: { flex: 1 },
+  safeArea: { flex: 1, backgroundColor: 'transparent' },
+  mainContainer: { flex: 1 },
+  header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 15,
+      paddingTop: Platform.OS === 'android' ? 15 : 10,
+      paddingBottom: 10,
+      width: '100%',
   },
-  navBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-    padding: 20,
-    backgroundColor: '#F7F9FC',
-    borderBottomWidth: 1,
-    borderBottomColor: '#DDD',
-    zIndex: 10,
-  },
-  navLogo: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#003E7E',
-  },
-  toggleButton: {
-    backgroundColor: 'transparent',
-    padding: 10,
-    borderRadius: 30,
-  },
-  sidebar: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    width: 250,
-    backgroundColor: '#F7F9FC',
-    paddingTop: 60,
-    paddingHorizontal: 15,
-    zIndex: 9,
-    borderRightWidth: 1,
-    borderRightColor: '#DDD',
-  },
-  sidebarHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  sidebarTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#003E7E',
-  },
-  logoContainer: {
-    alignItems: 'center',
-    marginBottom: 25,
-  },
-  logoText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#003E7E',
-  },
-  sidebarButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 5,
-    borderRadius: 8,
-    marginBottom: 10,
-  },
-  sidebarButtonText: {
-    fontSize: 16,
-    marginLeft: 10,
-    color: '#003E7E',
-    fontWeight: '600',
-  },
-  sidebarDivider: {
-    height: 1,
-    backgroundColor: '#DDD',
-    marginVertical: 15,
-  },
-  container: {
-    flex: 1,
-  },
-  mainContent: {
-    flexGrow: 1,
-    padding: 20,
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: '700',
-    color: '#003E7E',
-    textAlign: 'center',
-    marginBottom: 30,
-  },
-  toggleContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  toggleButtonType: {
-    paddingVertical: 10,
+  headerButton: { padding: 8, minWidth: 40, alignItems: 'center' },
+  headerTitle: { fontSize: 22, fontWeight: 'bold', color: '#000000' },
+
+  scrollContent: {
     paddingHorizontal: 20,
-    borderWidth: 1,
-    borderColor: '#003E7E',
-    borderRadius: 30,
-    marginHorizontal: 10,
+    paddingBottom: 40,
+    paddingTop: 20, // Give some space below header
   },
-  activeToggle: {
-    backgroundColor: '#003E7E',
+  // Redesigned Request Type Toggle
+  requestTypeContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-around', // Space out buttons
+      marginBottom: 30,
   },
-  toggleText: {
+  requestTypeButton: {
+      flex: 1, // Each button takes half the space roughly
+      alignItems: 'center',
+      paddingVertical: 15,
+      paddingHorizontal: 10,
+      borderWidth: 1.5,
+      borderColor: '#003E7E',
+      borderRadius: 12,
+      backgroundColor: '#FFFFFF',
+      marginHorizontal: 5, // Space between buttons
+      elevation: 2,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+  },
+  requestTypeButtonActive: {
+      backgroundColor: '#003E7E', // Theme blue background when active
+      borderColor: '#003E7E',
+      elevation: 4,
+      shadowOpacity: 0.2,
+  },
+   requestTypeIcon: {
+      marginBottom: 5,
+  },
+  requestTypeText: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: '#003E7E', // Theme blue text when inactive
+      textAlign: 'center',
+  },
+  requestTypeTextActive: {
+      color: '#FFFFFF', // White text when active
+  },
+  requestTypeSubText: {
+      fontSize: 12,
+      color: '#666',
+      marginTop: 2,
+      textAlign: 'center',
+  },
+  requestTypeButtonActive_SubText: { // Style if needed for active subtext
+       color: '#E0EFFF',
+  },
+  // Form Section
+  formSection: {
+      // No card background needed, elements sit on gradient
+      marginBottom: 20,
+  },
+  sectionTitle: { // Consistent section title
     fontSize: 18,
-    color: '#003E7E',
     fontWeight: '600',
+    color: '#000000',
+    marginBottom: 20, // Space below title
   },
-  activeToggleText: {
-    color: '#fff',
-  },
-  form: {
-    backgroundColor: '#F7F9FC',
-    borderRadius: 20,
-    padding: 25,
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 18,
-    color: '#333',
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 12,
-    borderRadius: 10,
-    fontSize: 16,
-    marginBottom: 20,
-    color: '#333',
-  },
-  submitButton: {
-    backgroundColor: '#003E7E',
-    paddingVertical: 15,
-    borderRadius: 30,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  submitButtonText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  errorText: {
-    color: 'red',
-    textAlign: 'center',
-    marginTop: 15,
-    fontSize: 16,
-  },
-  successText: {
-    color: 'green',
-    textAlign: 'center',
-    marginTop: 15,
-    fontSize: 16,
-  },
+  // Input Style (Consistent with ProfileScreen)
+   input: {
+        backgroundColor: '#FFFFFF', // White background for better contrast on gradient
+        borderWidth: 1,
+        borderColor: '#D0D0D0',
+        borderRadius: 8,
+        paddingHorizontal: 15,
+        paddingVertical: 14, // Slightly taller inputs
+        fontSize: 16,
+        color: '#000000',
+        marginBottom: 15,
+        elevation: 1, // Subtle shadow
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 1,
+   },
+
+  // Action Button Styles (Copied from ProfileScreen)
+    actionButtonBase: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 14,
+        paddingHorizontal: 20,
+        borderRadius: 8,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.2,
+        shadowRadius: 2,
+    },
+    actionButtonIcon: { marginRight: 10 },
+    actionButtonText: { fontSize: 16, fontWeight: '600' },
+    actionButtonDisabled: {
+        backgroundColor: '#A0A0A0', // Grey out when disabled
+        elevation: 0,
+        shadowOpacity: 0,
+    },
+
+    // Removed old styles: title, toggleContainer, toggleButtonType, activeToggle, toggleText,
+    // activeToggleText, form, label, submitButton, submitButtonText, errorText, successText
+    // Removed old sidebar styles if they existed here
+
+  // --- Sidebar Styles (Copied from HomeScreen/ProfileScreen) ---
+    sidebarInternal: { position: 'absolute', top: 0, left: 0, bottom: 0, width: 300, backgroundColor: '#003E7E', zIndex: 1000, elevation: 10, shadowColor: '#000', shadowOffset: { width: 2, height: 0 }, shadowOpacity: 0.3, shadowRadius: 5, paddingTop: Platform.OS === 'ios' ? 20 : 0 },
+    sidebarCloseButtonInternal: { position: 'absolute', top: Platform.OS === 'android' ? 45 : 55, right: 15, zIndex: 1010, padding: 5 },
+    sidebarHeaderInternal: { alignItems: 'center', marginBottom: 30, paddingTop: 60 },
+    sidebarLogoIconInternal: { marginBottom: 10 },
+    sidebarTitleInternal: { fontSize: 26, fontWeight: 'bold', color: '#FFFFFF', textAlign: 'center' },
+    sidebarButtonInternal: { flexDirection: 'row', alignItems: 'center', paddingVertical: 15, paddingHorizontal: 20, borderRadius: 8, marginBottom: 8, marginHorizontal: 10 },
+    sidebarButtonActiveInternal: { backgroundColor: 'rgba(255, 255, 255, 0.2)' },
+    sidebarButtonTextInternal: { fontSize: 16, marginLeft: 15, color: '#E0EFFF', fontWeight: '600' },
+    sidebarButtonTextActiveInternal: { color: '#FFFFFF', fontWeight: 'bold' },
+
+  // --- Loading Styles (Copied from HomeScreen/ProfileScreen) ---
+   loadingGradient: { flex: 1 },
+   loadingContainerInternal: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+   loadingTextInternal: { marginTop: 15, fontSize: 16, color: '#003E7E', fontWeight: '500' },
 });
 
 export default RideRequestScreen;

@@ -17,4 +17,5 @@ const validateErrors = (req, res, next) => {
   next();
 };
 
+
 module.exports = { validateSignup, validateErrors };
