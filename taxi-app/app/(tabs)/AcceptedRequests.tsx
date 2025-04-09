@@ -59,7 +59,8 @@ interface SidebarProps {
 }
 
 // --- Constants ---
-const apiUrl = 'https://fluffy-space-trout-7vgv67xv9xrhw77-3000.app.github.dev';
+const apiUrl = "https://ominous-space-computing-machine-4jvr5prgx4qq3jp66-3000.app.github.dev"
+
 // *** Define AsyncStorage Key (Ensure it matches HomeScreen) ***
 const ASYNC_STORAGE_MONITOR_KEY = 'monitoredTaxiId';
 
