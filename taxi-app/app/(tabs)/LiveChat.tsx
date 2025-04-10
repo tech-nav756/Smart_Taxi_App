@@ -77,8 +77,8 @@ const LiveChatScreen = () => {
   const flatListRef = useRef<FlatList<Message>>(null); // Ref for FlatList
 
   // Define API URL (consider moving to a config file)
-  const apiUrl = 'https://fluffy-space-trout-7vgv67xv9xrhw77-3000.app.github.dev';
-
+const apiUrl = "https://ominous-space-computing-machine-4jvr5prgx4qq3jp66-3000.app.github.dev"
+  
   // --- Effects ---
 
   // Initial setup: Fetch user details, messages, and set up socket
