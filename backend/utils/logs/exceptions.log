@@ -262,3 +262,15 @@ ReferenceError: c is not defined
     at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/taxiRoutes.js:4:24)
     at Module._compile (node:internal/modules/cjs/loader:1529:14)
     at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+[2025-04-10 09:04:59] ERROR: uncaughtException: z is not defined
+ReferenceError: z is not defined
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/controllers/rideRequestController.js:1:1)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+    at require (node:internal/modules/helpers:182:18)
+    at Object.<anonymous> (/workspaces/Smart_Taxi_App/backend/routes/rideRequestRoutes.js:4:31)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
