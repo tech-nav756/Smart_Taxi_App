@@ -13,25 +13,18 @@ import { StackNavigationProp } from '@react-navigation/stack';
 // Import Manager and Socket types
 import { Manager, Socket } from 'socket.io-client';
 
+// **** Import the shared navigation types ****
+import { RootStackParamList } from '../types/navigation'; // (ADJUST PATH if needed)
+// **** Import the separated Sidebar component ****
+import Sidebar from '../components/Sidebar'; // (ADJUST PATH if needed)
+
+
 const { width: windowWidth, height: windowHeight } = Dimensions.get('window');
 const apiUrl = "https://ominous-space-computing-machine-4jvr5prgx4qq3jp66-3000.app.github.dev"; // Ensure this is your backend URL
 
 const ASYNC_STORAGE_MONITOR_KEY = 'monitoredTaxiId'; // Key for AsyncStorage
 
-// --- Navigation Types ---
-type RootStackParamList = {
-    Home: { acceptedTaxiId?: string | undefined };
-    requestRide: undefined;
-    ViewTaxi: undefined;
-    ViewRequests: undefined;
-    ViewRoute: undefined;
-    LiveChat: { chatSessionId: string };
-    TaxiManagement: undefined;
-    Profile: undefined;
-    AcceptedRequest: undefined;
-    AcceptedPassenger: undefined;
-    Auth: undefined;
-};
+// --- Type Alias for Navigation Prop ---
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
 
 // --- Interfaces ---
@@ -41,64 +34,27 @@ interface TaxiInfo {
     driverName?: string; updatedAt?: string; routeId?: string; driverId?: string;
     stops?: any[];
 }
-interface UserDetails { // Added from LiveChat example
+interface UserDetails {
     id: string;
-    name?: string; // Optional name
+    name?: string;
 }
-interface SidebarProps { isVisible: boolean; onClose: () => void; onNavigate: (screen: keyof RootStackParamList) => void; activeScreen: keyof RootStackParamList; }
-interface QuickActionProps { icon: string; iconFamily?: 'FontAwesome' | 'MaterialIcons' | 'Ionicons'; label: string; onPress: () => void; }
-
-// --- Styles (Defined fully at the end) ---
+// **** FIX: Ensure QuickActionProps interface is defined correctly ****
+interface QuickActionProps {
+    icon: string;
+    iconFamily?: 'FontAwesome' | 'MaterialIcons' | 'Ionicons';
+    label: string;
+    onPress: () => void;
+}
+// SidebarProps is now defined within Sidebar.tsx
 
 // --- Reusable Component Definitions ---
 
-// **** FIX: Full Sidebar Implementation ****
-const Sidebar: React.FC<SidebarProps> = ({ isVisible, onClose, onNavigate, activeScreen }) => {
-    const slideAnim = useRef(new Animated.Value(-300)).current;
-    useEffect(() => {
-        Animated.timing(slideAnim, { toValue: isVisible ? 0 : -300, duration: 300, useNativeDriver: true }).start();
-    }, [isVisible, slideAnim]);
+// Sidebar is imported
 
-    const NavItem: React.FC<{ screen: keyof RootStackParamList; label: string; icon: React.ReactNode }> = ({ screen, label, icon }) => (
-        <TouchableOpacity
-            style={[styles.sidebarButton, activeScreen === screen && styles.sidebarButtonActive]}
-            onPress={() => { onNavigate(screen); onClose(); }}>
-            {icon}
-            <Text style={[styles.sidebarButtonText, activeScreen === screen && styles.sidebarButtonTextActive]}>{label}</Text>
-        </TouchableOpacity>
-    );
-
-    return ( // Added return
-        <Animated.View style={[styles.sidebar, { transform: [{ translateX: slideAnim }] }]}>
-            <SafeAreaView style={{ flex: 1 }}>
-                <TouchableOpacity style={styles.sidebarCloseButton} onPress={onClose}>
-                    <Ionicons name="close" size={30} color="#FFFFFF" />
-                </TouchableOpacity>
-                <View style={styles.sidebarHeader}>
-                    <Ionicons name="car-sport-outline" size={40} color="#FFFFFF" style={styles.sidebarLogoIcon} />
-                    <Text style={styles.sidebarTitle}>Shesha</Text>
-                </View>
-                <ScrollView showsVerticalScrollIndicator={false}>
-                    <NavItem screen="Home" label="Home" icon={<FontAwesome name="home" size={22} color="#FFFFFF" />} />
-                    <NavItem screen="requestRide" label="Request Ride" icon={<FontAwesome name="car" size={22} color="#FFFFFF" />} />
-                    <NavItem screen="ViewTaxi" label="View Taxis" icon={<MaterialIcons name="local-taxi" size={22} color="#FFFFFF" />} />
-                    <NavItem screen="ViewRoute" label="View Routes" icon={<MaterialIcons name="route" size={22} color="#FFFFFF" />} />
-                    <NavItem screen="AcceptedRequest" label="My Ride" icon={<FontAwesome name="check-circle" size={22} color="#FFFFFF" />} />
-                    <NavItem screen="AcceptedPassenger" label="View Passenger" icon={<FontAwesome name="user" size={22} color="#FFFFFF" />} />
-                    <NavItem screen="ViewRequests" label="Search Rides" icon={<FontAwesome name="search" size={22} color="#FFFFFF" />} />
-                    {/* <NavItem screen="LiveChat" label="Live Chat" icon={<Ionicons name="chatbubbles-outline" size={22} color="#FFFFFF" />} /> */}
-                    <NavItem screen="TaxiManagement" label="Manage Taxi" icon={<MaterialIcons name="settings" size={22} color="#FFFFFF" />} />
-                    <NavItem screen="Profile" label="Profile" icon={<FontAwesome name="user-circle-o" size={22} color="#FFFFFF" />} />
-                </ScrollView>
-            </SafeAreaView>
-        </Animated.View>
-    ); // Added closing parenthesis
-};
-
-// **** FIX: Full QuickActionButton Implementation ****
+// **** FIX: Ensure QuickActionButton definition matches props ****
 const QuickActionButton: React.FC<QuickActionProps> = ({ icon, iconFamily = 'FontAwesome', label, onPress }) => {
     const IconComponent = iconFamily === 'MaterialIcons' ? MaterialIcons : iconFamily === 'Ionicons' ? Ionicons : FontAwesome;
-    const iconName = icon as any; // Use 'as any' if icon names aren't strictly typed across libraries
+    const iconName = icon as any; // Use 'as any' if icon names aren't strictly typed
     return ( // Added return
         <TouchableOpacity style={styles.quickActionButton} onPress={onPress}>
             <View style={styles.quickActionIconContainer}>
@@ -109,14 +65,11 @@ const QuickActionButton: React.FC<QuickActionProps> = ({ icon, iconFamily = 'Fon
     ); // Added closing parenthesis
 };
 
-// **** FIX: Full LiveStatusCard Implementation ****
 const LiveStatusCard: React.FC<{ monitoredTaxi: TaxiInfo | null; onEndMonitoring: () => void }> = ({ monitoredTaxi, onEndMonitoring }) => {
     const cardAnim = useRef(new Animated.Value(0)).current;
     const pulseAnim = useRef(new Animated.Value(1)).current;
 
-    useEffect(() => {
-        Animated.timing(cardAnim, { toValue: monitoredTaxi ? 1 : 0, duration: 400, useNativeDriver: false }).start();
-    }, [monitoredTaxi, cardAnim]);
+    useEffect(() => { Animated.timing(cardAnim, { toValue: monitoredTaxi ? 1 : 0, duration: 400, useNativeDriver: false }).start(); }, [monitoredTaxi, cardAnim]);
 
     const animatedCardStyle = {
         height: cardAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 210], extrapolate: 'clamp' }),
@@ -168,7 +121,6 @@ const LiveStatusCard: React.FC<{ monitoredTaxi: TaxiInfo | null; onEndMonitoring
     ); // Added closing parenthesis
 };
 
-// **** FIX: Full Loading Implementation ****
 const Loading: React.FC = () => {
     const spinAnim = useRef(new Animated.Value(0)).current;
     useEffect(() => { Animated.loop(Animated.timing(spinAnim, { toValue: 1, duration: 1000, useNativeDriver: true })).start(); }, [spinAnim]);
@@ -187,55 +139,57 @@ const HomeScreen = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [monitoredTaxi, setMonitoredTaxi] = useState<TaxiInfo | null>(null);
     const [sidebarVisible, setSidebarVisible] = useState(false);
-    const [isSocketConnected, setIsSocketConnected] = useState(false); // Track connection status
+    const [isSocketConnected, setIsSocketConnected] = useState(false);
 
     const isMountedRef = useRef(true);
     const socketRef = useRef<Socket | null>(null);
-    const currentMonitoredTaxiId = useRef<string | null>(null); // Tracks the ID being monitored
+    const currentMonitoredTaxiId = useRef<string | null>(null);
 
     const navigation = useNavigation<HomeScreenNavigationProp>();
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const slideAnim = useRef(new Animated.Value(30)).current;
 
-    // --- Fetch User Details (Similar to LiveChat) ---
+    // **** FIX: Added explicit return null for all paths ****
     const fetchUserDetails = useCallback(async (): Promise<UserDetails | null> => {
         const token = await getToken();
-        if (!token) { console.error('HS: Auth token not found for user details.'); return null; }
+        if (!token) { console.error('HS: Auth token not found for user details.'); return null; } // Added return
         try {
             const response = await fetchData(apiUrl, 'api/users/get-user', {
                 method: 'GET', headers: { Authorization: `Bearer ${token}` },
-            }) as { user: UserDetails }; // Type assertion
-            if (response?.user?.id) { return response.user; }
-            else { console.error('HS: User details not in response:', response); return null; }
-        } catch (error) { console.error('HS: Error fetching user details:', error); return null; }
+            }) as { user: UserDetails };
+            if (response?.user?.id) { return response.user; } // Return user
+            else { console.error('HS: User details not in response:', response); return null; } // Added return
+        } catch (error) { console.error('HS: Error fetching user details:', error); return null; } // Added return
     }, []);
 
-    // --- Fetch Initial Taxi Data (If monitoring) ---
+    // **** FIX: Added explicit return null for all paths ****
     const fetchInitialTaxiData = useCallback(async (taxiId: string): Promise<TaxiInfo | null> => {
-        if (!isMountedRef.current) return null;
+        if (!isMountedRef.current) return null; // Added return
         console.log(`HS: Fetching initial data for taxi ${taxiId}`);
         const token = await getToken();
-        if (!token) { console.log("HS: No token for initial fetch."); await handleEndMonitoring(); return null; }
+        if (!token) { console.log("HS: No token for initial fetch."); await handleEndMonitoring(); return null; } // Added return
         try {
             const response = await fetchData(apiUrl, `api/taxis/${taxiId}/monitor`, { method: 'GET', headers: { Authorization: `Bearer ${token}` } });
-            if (!isMountedRef.current) return null;
+            if (!isMountedRef.current) return null; // Added return
             if (response?.taxiInfo) {
                 console.log(`HS: Initial fetch success for ${taxiId}`);
                 const fetchedTaxiData = { ...response.taxiInfo, _id: taxiId };
                 if (isMountedRef.current) setMonitoredTaxi(fetchedTaxiData);
-                return fetchedTaxiData;
-            } else { console.warn(`HS: No taxiInfo initially for ${taxiId}.`); await handleEndMonitoring(); return null; }
+                return fetchedTaxiData; // Return fetched data
+            } else { console.warn(`HS: No taxiInfo initially for ${taxiId}.`); await handleEndMonitoring(); return null; } // Added return
         } catch (error: any) {
             console.error(`HS: Initial Fetch Error for ${taxiId}:`, error.message);
             if (error.status === 404 || error.status === 401 || error.status === 403) {
                  if (isMountedRef.current) Alert.alert('Error', `Could not fetch details for Taxi ${taxiId}. Monitoring stopped.`);
                  await handleEndMonitoring();
             } else if (isMountedRef.current) { Alert.alert('Network Error', 'Could not fetch initial taxi details.'); }
-            return null;
+            return null; // Added return
         }
-    }, []); // Removed handleEndMonitoring dep, call directly
+        // No finally needed as all paths return
+    }, []); // handleEndMonitoring removed dep
 
-    // --- Stop Monitoring ---
+    // **** FIX: Async function implicitly returns Promise<void> ****
+    // No explicit return needed for Promise<void> if all paths complete normally
     const handleEndMonitoring = useCallback(async () => {
         console.log('HS: Ending monitoring...');
         const taxiIdToUnsubscribe = currentMonitoredTaxiId.current;
@@ -245,97 +199,51 @@ const HomeScreen = () => {
         }
         if (isMountedRef.current) setMonitoredTaxi(null);
         currentMonitoredTaxiId.current = null;
-        try { await AsyncStorage.removeItem(ASYNC_STORAGE_MONITOR_KEY); console.log('HS: Cleared monitoredTaxiId AsyncStorage.'); }
-        catch (e) { console.error("HS: Failed to clear AsyncStorage", e); }
+        try { await AsyncStorage.removeItem(ASYNC_STORAGE_MONITOR_KEY); console.log('HS: Cleared AsyncStorage.'); }
+        catch (e) { console.error("HS: Failed clear AsyncStorage", e); }
+        // Implicit return;
     }, []);
 
-    // --- Setup Socket Connection (Using Manager like LiveChat) ---
+    // --- Setup Socket Connection ---
     const setupSocket = useCallback(async (fetchedUserId: string) => {
         const token = await getToken();
-        if (!token) { Alert.alert('Connection Error', 'Authentication required.'); return; }
+        if (!token) { Alert.alert('Connection Error', 'Auth required.'); return; } // Added return
         if (socketRef.current) { socketRef.current.disconnect(); }
-
         console.log('HS: Setting up socket using Manager...');
         try {
-            const manager = new Manager(apiUrl, {
-                reconnectionAttempts: 5, reconnectionDelay: 2000, transports: ['websocket'],
-                extraHeaders: { Authorization: `Bearer ${token}` }, // Send token in header
-            });
+            const manager = new Manager(apiUrl, { reconnectionAttempts: 5, reconnectionDelay: 2000, transports: ['websocket'], extraHeaders: { Authorization: `Bearer ${token}` }});
             const newSocket = manager.socket('/');
             socketRef.current = newSocket;
-
-            newSocket.on('connect', () => {
-                console.log('HS: Socket connected:', newSocket.id);
-                setIsSocketConnected(true);
-                console.log(`HS: Emitting authenticate for ${fetchedUserId}`);
-                newSocket.emit('authenticate', fetchedUserId); // Authenticate via event
-                if (currentMonitoredTaxiId.current) {
-                    console.log(`HS: Subscribing to ${currentMonitoredTaxiId.current} after connect.`);
-                    newSocket.emit('passenger:subscribeToTaxiUpdates', { taxiId: currentMonitoredTaxiId.current });
-                }
-            });
+            newSocket.on('connect', () => { console.log('HS: Socket connected:', newSocket.id); setIsSocketConnected(true); if (fetchedUserId) { console.log(`HS: Authenticating ${fetchedUserId}`); newSocket.emit('authenticate', fetchedUserId); } if (currentMonitoredTaxiId.current) { console.log(`HS: Subscribing to ${currentMonitoredTaxiId.current}.`); newSocket.emit('passenger:subscribeToTaxiUpdates', { taxiId: currentMonitoredTaxiId.current }); } });
             newSocket.on('disconnect', (reason) => { console.log('HS: Socket disconnected:', reason); setIsSocketConnected(false); });
             newSocket.on('connect_error', (error) => { console.error('HS: Socket connect error:', error.message); setIsSocketConnected(false); });
-            newSocket.on('taxiUpdate', (taxiData: TaxiInfo) => {
-                // console.log('HS: Received taxiUpdate:', JSON.stringify(taxiData));
-                if (taxiData && taxiData._id === currentMonitoredTaxiId.current && isMountedRef.current) {
-                     console.log(`HS: Processing update for monitored taxi ${taxiData._id} - Status: ${taxiData.status}`);
-                     setMonitoredTaxi(taxiData); // <<<< STATE UPDATE >>>>>
-                }
-            });
-            newSocket.on('taxiError', (error) => { console.error('HS: Received taxiError:', error.message); if (isMountedRef.current) Alert.alert('Taxi Monitor Error', error.message || 'An issue occurred.'); });
+            newSocket.on('taxiUpdate', (taxiData: TaxiInfo) => { if (taxiData && taxiData._id === currentMonitoredTaxiId.current && isMountedRef.current) { console.log(`HS: Processing update for ${taxiData._id}`); setMonitoredTaxi(taxiData); } });
+            newSocket.on('taxiError', (error) => { console.error('HS: Received taxiError:', error.message); if (isMountedRef.current) Alert.alert('Monitor Error', error.message); });
+        } catch (error) { console.error("HS: Socket manager setup failed:", error); if (isMountedRef.current) Alert.alert('Error', 'Connection failed.'); }
+        // Implicit return Promise<void>
+    }, []);
 
-        } catch (error) { console.error("HS: Failed to setup socket manager:", error); if (isMountedRef.current) Alert.alert('Error', 'Could not initialize connection.'); }
-
-    }, []); // Empty dependency array, relies on being called with userId
-
-    // --- Effect for Initial Load and Socket Setup Trigger ---
+    // --- Effect for Initial Load ---
     useEffect(() => {
-        isMountedRef.current = true;
-        setIsLoading(true);
-        console.log("HS: Initial mount effect...");
+        isMountedRef.current = true; setIsLoading(true); console.log("HS: Initial mount...");
         let isCancelled = false;
-
         const initialize = async () => {
-            const user = await fetchUserDetails(); // Fetch user details first
+            const user = await fetchUserDetails();
             if (isCancelled || !isMountedRef.current) return;
-
             if (user?.id) {
-                setUserName(user.name || null);
-                setUserId(user.id); // Set userId state - This will trigger the socket setup effect
-
-                // Check monitoring status after getting user ID
-                console.log("HS: Checking AsyncStorage...");
-                let storedTaxiId: string | null = null;
-                try {
-                    storedTaxiId = await AsyncStorage.getItem(ASYNC_STORAGE_MONITOR_KEY);
-                    console.log("HS: Stored Taxi ID:", storedTaxiId);
-                    if (storedTaxiId && isMountedRef.current) {
-                        currentMonitoredTaxiId.current = storedTaxiId;
-                        // Fetch initial data. Subscription is handled by socket effect based on currentMonitoredTaxiId.current
-                        await fetchInitialTaxiData(storedTaxiId);
-                    } else { if (isMountedRef.current) setMonitoredTaxi(null); currentMonitoredTaxiId.current = null; }
+                setUserName(user.name || null); setUserId(user.id);
+                console.log("HS: Checking AsyncStorage..."); let storedTaxiId: string | null = null;
+                try { storedTaxiId = await AsyncStorage.getItem(ASYNC_STORAGE_MONITOR_KEY); console.log("HS: Stored ID:", storedTaxiId); if (storedTaxiId && isMountedRef.current) { currentMonitoredTaxiId.current = storedTaxiId; await fetchInitialTaxiData(storedTaxiId); } else { if (isMountedRef.current) setMonitoredTaxi(null); currentMonitoredTaxiId.current = null; }
                 } catch (e) { if (isMountedRef.current) setMonitoredTaxi(null); currentMonitoredTaxiId.current = null; console.error("HS: Failed read AsyncStorage", e); }
-
             } else { if(isMountedRef.current) Alert.alert("Auth Error", "Could not verify user."); }
-
-            // Stop Loading Indicator
-            if (isMountedRef.current && !isCancelled) {
-                setIsLoading(false); console.log("HS: Initial loading checks complete.");
-                Animated.parallel([ Animated.timing(fadeAnim, { toValue: 1, duration: 800, useNativeDriver: true }), Animated.timing(slideAnim, { toValue: 0, duration: 600, useNativeDriver: true }), ]).start();
-            }
+            if (isMountedRef.current && !isCancelled) { setIsLoading(false); console.log("HS: Load checks complete."); Animated.parallel([ Animated.timing(fadeAnim, { toValue: 1, duration: 800, useNativeDriver: true }), Animated.timing(slideAnim, { toValue: 0, duration: 600, useNativeDriver: true }), ]).start(); }
         };
-
         initialize();
+        return () => { isMountedRef.current = false; isCancelled = true; console.log("HS: Initial effect cleanup."); };
+    }, [fetchUserDetails, fetchInitialTaxiData]); // Removed handleEndMonitoring dep
 
-        return () => { isMountedRef.current = false; isCancelled = true; console.log("HS: Initial load effect cleanup."); };
-    }, [fetchUserDetails, fetchInitialTaxiData]); // Dependencies for initial load
-
-    // --- Effect to Setup Socket (Triggered by userId state change) ---
-     useEffect(() => {
-        if (userId) { setupSocket(userId); } // Setup socket once userId is available
-         // Socket cleanup is handled within setupSocket's effect return
-     }, [userId, setupSocket]);
+    // --- Effect to Setup Socket ---
+     useEffect(() => { if (userId) { setupSocket(userId); } return () => { if (socketRef.current) { console.log("HS: Cleaning up socket from userId effect"); socketRef.current.removeAllListeners(); socketRef.current.disconnect(); socketRef.current = null; }}; }, [userId, setupSocket]); // Include setupSocket
 
 
     // --- Navigation Handler ---
@@ -347,7 +255,7 @@ const HomeScreen = () => {
             case 'ViewTaxi': navigation.navigate({ name: 'ViewTaxi', params: undefined }); break;
             case 'ViewRoute': navigation.navigate({ name: 'ViewRoute', params: undefined }); break;
             case 'ViewRequests': navigation.navigate({ name: 'ViewRequests', params: undefined }); break;
-            case 'LiveChat': navigation.navigate({ name: 'LiveChat', params: { chatSessionId: 'NEEDS_REAL_ID' } }); break; // Pass required param
+            case 'LiveChat': navigation.navigate({ name: 'LiveChat', params: { chatSessionId: 'NEEDS_REAL_ID' } }); break;
             case 'TaxiManagement': navigation.navigate({ name: 'TaxiManagement', params: undefined }); break;
             case 'Profile': navigation.navigate({ name: 'Profile', params: undefined }); break;
             case 'AcceptedRequest': navigation.navigate({ name: 'AcceptedRequest', params: undefined }); break;
@@ -379,6 +287,7 @@ const HomeScreen = () => {
                             <View style={styles.quickActionsContainer}>
                                 <Text style={styles.sectionTitle}>Quick Actions</Text>
                                 <View style={styles.quickActionsGrid}>
+                                     {/* **** FIX: Correct usage based on restored component definition **** */}
                                     <QuickActionButton icon="car" label="Request Ride" onPress={() => handleNavigate('requestRide')} iconFamily='FontAwesome'/>
                                     <QuickActionButton icon="taxi" label="View Taxis" onPress={() => handleNavigate('ViewTaxi')} iconFamily='FontAwesome'/>
                                     <QuickActionButton icon="search" label="Find Ride" onPress={() => handleNavigate('ViewRequests')} iconFamily='FontAwesome'/>

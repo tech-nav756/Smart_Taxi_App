@@ -1,6 +1,7 @@
+// src/context/authContext.tsx (or similar path)
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getToken, saveToken } from '../api/api';
+// Make sure removeToken is imported alongside getToken and saveToken
+import { getToken, saveToken, removeToken } from '../api/api'; // Adjust path if needed
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -27,8 +28,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = async () => {
-    await AsyncStorage.removeItem('authToken');
+    // *** CHANGE HERE: Use the removeToken function from api.ts ***
+    await removeToken();
     setIsAuthenticated(false);
+    // Optional: Add any other global cleanup needed on logout here
   };
 
   return (
